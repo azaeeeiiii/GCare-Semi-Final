@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    @apply bg-white font-sans text-navy;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+  }
+  :focus-visible {
+    outline: 3px solid #4da3ff;
+    outline-offset: 2px;
+  }
+}
+
+/* Shared styling for Terms / Privacy text (full page and pop-up versions) */
+@layer components {
+  .legal-prose h2 {
+    @apply font-extrabold;
+  }
+  .legal-prose a,
+  .legal-prose .link-btn {
+    @apply font-bold underline;
+  }
+  .legal-prose .link-btn {
+    @apply cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[inherit];
+  }
+  .legal-prose ul {
+    @apply mb-2.5;
+  }
+
+  /* full page */
+  .legal-prose-page h2 {
+    @apply mb-2 text-[24px] leading-[1.2] max-[480px]:text-[21px];
+  }
+  .legal-prose-page p,
+  .legal-prose-page li {
+    @apply text-base leading-[1.65] max-[480px]:text-[15.5px];
+  }
+  .legal-prose-page p {
+    @apply mb-2.5;
+  }
+  .legal-prose-page ul {
+    @apply pl-[22px];
+  }
+  .legal-prose-page li {
+    @apply mb-1;
+  }
+  .legal-prose-page a {
+    @apply underline-offset-2;
+  }
+  .legal-prose-page .callout {
+    @apply mb-2.5 mt-1.5 rounded-lg border-l-4 border-danger bg-[#fdf0f0] px-4 py-3.5 text-[15px] leading-normal;
+  }
+
+  /* pop-up */
+  .legal-prose-modal h2 {
+    @apply mb-1.5 mt-5 text-[18px] leading-tight;
+  }
+  .legal-prose-modal p {
+    @apply mb-2.5;
+  }
+  .legal-prose-modal ul {
+    @apply pl-5;
+  }
+  .legal-prose-modal li {
+    @apply mb-1;
+  }
+  .legal-prose-modal .callout {
+    @apply my-3 rounded-lg border-l-4 border-danger bg-[#f0f0ef] px-3.5 py-2.5;
+  }
+}
