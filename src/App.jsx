@@ -8,6 +8,7 @@ import Admin from './pages/Admin';
 import RequireAuth from './components/RequireAuth';
 import Legal from './pages/Legal';
 import ComingSoon from './pages/ComingSoon';
+import Profile from './pages/Profile';
 
 /* Scroll to #section after in-app navigation (e.g. /news#alerts) and to top on new pages */
 function ScrollToHash() {
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
         <Route path="/report" element={<RequireAuth><Report /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth admin><Admin /></RequireAuth>} />
+        <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="/news" element={<News />} />
         <Route path="/terms" element={<Legal which="terms" />} />
         <Route path="/privacy" element={<Legal which="privacy" />} />

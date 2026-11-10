@@ -1,0 +1,146 @@
+.notification-modal {
+  width: min(620px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border: 0;
+  border-radius: 18px;
+  padding: 0;
+  background: #fff;
+  color: var(--navy);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 45%);
+}
+
+.notification-modal::backdrop {
+  background: rgb(10 15 28 / 55%);
+}
+
+.notification-modal[open] {
+  display: flex;
+  flex-direction: column;
+  animation: pop .18s ease-out;
+}
+
+.notification-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #e3e3e1;
+  padding: 20px 20px 18px 26px;
+}
+
+.notification-modal__header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.notification-modal__header p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.notification-modal__close {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.notification-modal__body {
+  display: grid;
+  gap: 0;
+  overflow-y: auto;
+  padding: 8px 26px;
+}
+
+.notification-modal__option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 76px;
+  border-bottom: 1px solid #dfe2e6;
+  cursor: pointer;
+}
+
+.notification-modal__option > span:first-child {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.notification-modal__option strong {
+  font-size: 15px;
+}
+
+.notification-modal__option small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.notification-modal__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.notification-modal__switch {
+  width: 47px;
+  height: 23px;
+  flex: none;
+  border-radius: 999px;
+  background: #aeb5be;
+  padding: 3px;
+}
+
+.notification-modal__switch span {
+  display: block;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+}
+
+.notification-modal__option input:checked + .notification-modal__switch {
+  background: var(--navy);
+}
+
+.notification-modal__option input:checked + .notification-modal__switch span {
+  transform: translateX(24px);
+}
+
+.notification-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #e3e3e1;
+  padding: 12px 20px;
+}
+
+@media (max-width: 640px) {
+  .notification-modal__header {
+    padding: 16px 14px 14px 18px;
+  }
+
+  .notification-modal__header h2 {
+    font-size: 22px;
+  }
+
+  .notification-modal__body {
+    padding: 4px 18px;
+  }
+
+  .notification-modal__option {
+    gap: 10px;
+  }
+
+  .notification-modal__option small {
+    font-size: 12px;
+  }
+}

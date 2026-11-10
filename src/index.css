@@ -11,3 +11,7 @@
 @import './styles/legal.css';
 @import './styles/feed.css';
 @import './styles/report.css';
+@import './styles/profile.css';
+@import './styles/location-modal.css';
+@import './styles/notification-modal.css';
+@import './styles/confirm-modal.css';

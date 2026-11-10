@@ -88,6 +88,18 @@ export function logOut() {
   notify();
 }
 
+export function updatePassword(currentPass, nextPass) {
+  const email = getSession();
+  if (!email) return { ok: false, error: 'You are not signed in.' };
+  const users = readUsers();
+  const index = users.findIndex((u) => u.email === email);
+  if (index < 0 || users[index].pass !== currentPass) return { ok: false, error: 'Current password is incorrect.' };
+  users[index] = { ...users[index], pass: nextPass };
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  notify();
+  return { ok: true };
+}
+
 const subscribe = (cb) => {
   window.addEventListener(CHANGE_EVENT, cb);
   window.addEventListener('storage', cb);
