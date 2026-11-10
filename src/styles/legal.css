@@ -1,0 +1,333 @@
+/* ==========================================================================
+   legal.css – Terms of Use / Privacy Policy
+   (Legal.jsx page + LegalModal.jsx pop-up + the text styles they share)
+   ========================================================================== */
+
+/* ---------- Shared text styles (full page and pop-up) ---------- */
+.legal-prose h2 {
+  font-weight: 800;
+}
+
+.legal-prose a,
+.legal-prose .link-btn {
+  font-weight: 700;
+  text-decoration-line: underline;
+}
+
+/* a link that is really a <button> (used inside the pop-up) */
+.legal-prose .link-btn {
+  cursor: pointer;
+  border-width: 0;
+  background-color: transparent;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+}
+
+.legal-prose ul {
+  margin-bottom: 10px;
+}
+
+/* ---------- Full page ---------- */
+.legal-prose-page {
+  min-width: 0;
+}
+
+.legal-prose-page h2 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.legal-prose-page p,
+.legal-prose-page li {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.legal-prose-page p {
+  margin-bottom: 10px;
+}
+
+.legal-prose-page ul {
+  padding-left: 22px;
+}
+
+.legal-prose-page li {
+  margin-bottom: 4px;
+}
+
+.legal-prose-page a {
+  text-underline-offset: 2px;
+}
+
+.legal-prose-page .callout {
+  margin-top: 6px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border-left-width: 4px;
+  border-color: var(--danger);
+  background-color: #fdf0f0;
+  padding: 14px 16px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .legal-prose-page h2 {
+    font-size: 21px;
+  }
+
+  .legal-prose-page p,
+  .legal-prose-page li {
+    font-size: 15.5px;
+  }
+}
+
+/* ---------- Pop-up text ---------- */
+.legal-prose-modal h2 {
+  margin-top: 20px;
+  margin-bottom: 6px;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.legal-prose-modal p {
+  margin-bottom: 10px;
+}
+
+.legal-prose-modal ul {
+  padding-left: 20px;
+}
+
+.legal-prose-modal li {
+  margin-bottom: 4px;
+}
+
+.legal-prose-modal .callout {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border-left-width: 4px;
+  border-color: var(--danger);
+  background-color: #f0f0ef;
+  padding: 10px 14px;
+}
+
+/* ==========================================================================
+   Full page layout (Legal.jsx)
+   ========================================================================== */
+
+/* "On this page" column + article */
+.legal-layout {
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  max-width: 1040px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px clamp(16px, 4vw, 40px) 56px;
+}
+
+/* Table of contents */
+.legal-toc {
+  border-radius: 12px;
+  background-color: var(--card);
+  padding: 14px 16px;
+}
+
+.legal-toc__title {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.legal-toc__list {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+}
+
+.legal-toc__link {
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 14px;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: #4a5368;
+}
+
+/* section currently in view while scrolling */
+.legal-toc__link--active {
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.legal-toc__num {
+  opacity: 0.6;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .legal-toc__link:hover {
+    color: var(--navy);
+  }
+}
+
+.legal-section {
+  margin-bottom: 30px;
+  scroll-margin-top: 20px;
+}
+
+/* box at the bottom: "Also read our …" + Back to home */
+.legal-aside {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 20px 22px;
+}
+
+.legal-prose-page .legal-aside__text {
+  margin-bottom: 0;
+  font-size: 15px;
+}
+
+@media (min-width: 821px) {
+  .legal-layout {
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 48px;
+    padding-top: 34px;
+  }
+
+  /* on desktop the table of contents becomes a sticky side column */
+  .legal-toc {
+    position: sticky;
+    top: 16px;
+    border-radius: 0;
+    border-left-width: 3px;
+    border-color: #e1e4ea;
+    background-color: transparent;
+    padding: 0 0 0 16px;
+  }
+}
+
+/* ==========================================================================
+   Pop-up (LegalModal.jsx)
+   ========================================================================== */
+
+.legal-modal {
+  margin: auto;
+  max-height: calc(100dvh - 32px);
+  width: min(720px, calc(100% - 32px));
+  max-width: none;
+  overflow: hidden;
+  border-radius: 18px;
+  border-width: 0;
+  background-color: #fff;
+  padding: 0;
+  font-family: var(--font-sans);
+  color: var(--navy);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.legal-modal::backdrop {
+  background-color: rgba(10, 15, 28, 0.55);
+}
+
+.legal-modal[open] {
+  display: flex;
+  flex-direction: column;
+  animation: pop 0.18s ease-out;
+}
+
+.legal-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom-width: 1px;
+  border-color: #e3e3e1;
+  padding: 20px 20px 20px 26px;
+}
+
+.legal-modal__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.legal-modal__updated {
+  margin-top: 4px;
+  margin-bottom: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.legal-modal__close {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  cursor: pointer;
+  border-radius: 9999px;
+  border-width: 0;
+  background-color: var(--card);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .legal-modal__close:hover {
+    background-color: #e0e0de;
+  }
+}
+
+/* scrolling text area */
+.legal-modal__body {
+  flex: 1 1 0%;
+  overflow-y: auto;
+  padding: 6px 26px 14px;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.legal-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top-width: 1px;
+  border-color: #e3e3e1;
+  padding: 12px 20px;
+}
+
+@media (max-width: 640px) {
+  .legal-modal__header {
+    padding: 16px 14px 10px 18px;
+  }
+
+  .legal-modal__title {
+    font-size: 22px;
+  }
+
+  .legal-modal__body {
+    padding: 4px 18px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legal-modal[open] {
+    animation: none;
+  }
+}

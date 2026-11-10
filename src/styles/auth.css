@@ -1,0 +1,440 @@
+/* ==========================================================================
+   auth.css – Sign in / Create Account pop-up (AuthModal.jsx)
+   Phones: single white card.  761px and up: form card + navy welcome panel.
+   ========================================================================== */
+
+.auth-modal {
+  margin: auto;
+  max-height: calc(100dvh - 24px);
+  width: min(420px, calc(100% - 24px));
+  max-width: none;
+  overflow: auto;
+  border-radius: 22px;
+  border-width: 0;
+  background-color: #fff;
+  padding: 0;
+  font-family: var(--font-sans);
+  color: var(--navy);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.auth-modal::backdrop {
+  background-color: rgba(10, 15, 28, 0.6);
+}
+
+.auth-modal[open] {
+  animation: pop 0.18s ease-out;
+}
+
+.auth-modal__layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.auth-modal__close {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 9999px;
+  border-width: 0;
+  background-color: var(--card);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+/* ---------- Left: form card ---------- */
+.auth-modal__form-card {
+  border-radius: 22px;
+  background-color: #fff;
+  padding: 26px 26px 20px;
+}
+
+.auth-modal__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.auth-modal__subtitle {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+/* ---------- Log In / Sign Up switch ---------- */
+.auth-tabs {
+  position: relative;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-radius: 9999px;
+  background-color: var(--card);
+  padding: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* the sliding navy pill behind the active tab */
+.auth-tabs__slider {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  top: 4px;
+  width: calc(50% - 4px);
+  border-radius: 9999px;
+  background-color: var(--navy);
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
+.auth-tabs__slider--right {
+  transform: translateX(100%);
+}
+
+.auth-tab {
+  position: relative;
+  cursor: pointer;
+  border-width: 0;
+  background-color: transparent;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--navy);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.auth-tab--active {
+  color: #fff;
+}
+
+/* ---------- Form ---------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-label {
+  margin-bottom: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1rem;
+  font-weight: 800;
+}
+
+/* rounded input wrapper that holds the icon + <input> */
+.auth-field {
+  display: flex;
+  height: 38px;
+  align-items: center;
+  gap: 10px;
+  border-radius: 9999px;
+  border-width: 1px;
+  border-color: var(--navy);
+  background-color: #fff;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.auth-field:focus-within {
+  outline-style: solid;
+  outline-width: 3px;
+  outline-offset: 2px;
+  outline-color: #4da3ff;
+}
+
+.auth-field--invalid {
+  border-color: var(--err);
+}
+
+.auth-input {
+  min-width: 0;
+  flex: 1 1 0%;
+  border-width: 0;
+  background-color: transparent;
+  font-size: 12.5px;
+  color: var(--navy);
+  outline-width: 0;
+}
+
+.auth-input::placeholder {
+  color: #8b909a;
+}
+
+.auth-eye {
+  display: grid;
+  cursor: pointer;
+  place-items: center;
+  border-width: 0;
+  background-color: transparent;
+  padding: 0;
+}
+
+/* "Remember me" + "Forgot password?" row */
+.auth-row {
+  margin-top: 8px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.auth-check {
+  display: flex;
+  cursor: pointer;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* the "I agree to the Terms…" checkbox on the sign-up form */
+.auth-check--terms {
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+
+.auth-checkbox {
+  margin-top: 1px;
+  accent-color: var(--navy);
+}
+
+/* text-style button, e.g. "Forgot password?" */
+.auth-link {
+  cursor: pointer;
+  border-width: 0;
+  background-color: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-weight: 800;
+  text-decoration-line: underline;
+}
+
+/* error / success message under the form */
+.auth-message {
+  margin: 6px 4px 0;
+  min-height: 16px;
+  font-size: 12px;
+  line-height: 1rem;
+  font-weight: 700;
+}
+
+.auth-message--error {
+  color: var(--err);
+}
+
+.auth-message--ok {
+  color: var(--ok);
+}
+
+.auth-submit {
+  margin-top: 4px;
+  display: inline-flex;
+  height: 42px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  border-width: 1.5px;
+  border-color: var(--navy);
+  background-color: var(--navy);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(27, 36, 55, 0.35);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.auth-submit:active {
+  transform: scale(0.98);
+}
+
+/* "or continue with" divider */
+.auth-divider {
+  margin-top: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1 1 0%;
+  background-color: var(--navy);
+}
+
+.auth-google {
+  display: flex;
+  height: 40px;
+  width: 100%;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 9999px;
+  border-width: 1px;
+  border-color: var(--navy);
+  background-color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.auth-switch {
+  margin-top: 10px;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---------- Right: welcome panel (hidden on small screens) ---------- */
+.auth-welcome {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 36px;
+  color: #fff;
+}
+
+.auth-welcome__title {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 50px);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.auth-welcome__tagline {
+  margin-top: 14px;
+  margin-bottom: 12px;
+  font-size: 24px;
+  line-height: 2rem;
+  font-weight: 800;
+}
+
+.auth-welcome__accent {
+  font-style: normal;
+  color: var(--gold);
+}
+
+.auth-welcome__intro {
+  margin-bottom: 18px;
+  max-width: 320px;
+  border-bottom-width: 2px;
+  border-color: var(--gold);
+  padding-bottom: 18px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.auth-welcome__list {
+  margin: 0;
+  display: grid;
+  list-style: none;
+  gap: 14px;
+  padding: 0;
+}
+
+.auth-welcome__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.auth-welcome__icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  flex: none;
+  place-items: center;
+  border-radius: 9999px;
+  background-color: #fff;
+}
+
+.auth-welcome__item-title {
+  font-size: 15px;
+}
+
+.auth-welcome__item-text {
+  margin: 2px 0 0;
+  max-width: 250px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* ---------- Hover (mouse only) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .auth-submit:hover {
+    background-color: #fff;
+    color: var(--navy);
+  }
+
+  .auth-google:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+/* ---------- Desktop / tablet (761px and up) ---------- */
+@media (min-width: 761px) {
+  .auth-modal {
+    width: min(940px, calc(100% - 32px));
+    background-color: var(--navy);
+  }
+
+  .auth-modal__layout {
+    grid-template-columns: minmax(340px, 400px) 1fr;
+  }
+
+  .auth-modal__close {
+    background-color: rgb(255 255 255 / 0.12);
+    color: #fff;
+  }
+
+  .auth-modal__form-card {
+    border-radius: 0 22px 22px 0;
+  }
+
+  .auth-welcome {
+    display: flex;
+  }
+}
+
+@media (min-width: 761px) and (hover: hover) and (pointer: fine) {
+  .auth-modal__close:hover {
+    background-color: rgb(255 255 255 / 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-modal[open] {
+    animation: none;
+  }
+
+  .auth-tabs__slider,
+  .auth-tab,
+  .auth-submit {
+    transition-property: none;
+  }
+}

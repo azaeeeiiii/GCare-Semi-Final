@@ -1,0 +1,68 @@
+/* ==========================================================================
+   icons.css – sizes and stroke styles for the inline SVG icons (see ui.jsx)
+   ========================================================================== */
+
+.arrow-right {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* smaller arrow inside the community-card buttons */
+.arrow-right-small {
+  width: 14px;
+  height: 14px;
+}
+
+.arrow-left {
+  width: 20px;
+  height: 20px;
+}
+
+.map-pin {
+  width: 18px;
+  height: 18px;
+}
+
+/* Form-field icons (mail, lock, user) */
+.field-icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Show / hide password eye */
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eye-icon--on {
+  stroke: var(--gold);
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Welcome-panel icons (white circle, navy glyph) */
+.welcome-icon {
+  width: 30px;
+  height: 30px;
+  fill: var(--navy);
+  stroke: var(--navy);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}

@@ -1,0 +1,255 @@
+/* ==========================================================================
+   alerts.css – red "ACTIVE ALERTS" banner + its details pop-up (Alerts.jsx)
+   ========================================================================== */
+
+/* ---------- Banner ---------- */
+.alert-banner {
+  position: relative;
+  z-index: 1;
+  margin-left: 4px;
+  margin-right: 4px;
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: var(--danger);
+  padding-left: 20px;
+  padding-right: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* every direct child sits above the cloud image */
+.alert-banner__icon,
+.alert-banner__divider,
+.alert-banner__title,
+.alert-banner__level,
+.alert-banner__text,
+.alert-banner .alert-banner__details {
+  position: relative;
+  z-index: 1;
+}
+
+.alert-banner__icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  object-fit: contain;
+}
+
+.alert-banner__divider {
+  height: 26px;
+  width: 2px;
+  flex: none;
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+.alert-banner__title {
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.alert-banner__level {
+  display: inline-block;
+  flex: none;
+  border-radius: 9999px;
+  background-color: #fff;
+  padding: 5px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+.alert-banner__text {
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 0%;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+.alert-banner__clouds {
+  pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  right: 190px;
+  z-index: 0;
+  display: block;
+  height: 46px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+  object-position: bottom;
+}
+
+/* "View Details" button (extends .btn.btn--outline-light) */
+.btn.alert-banner__details {
+  margin-left: auto;
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+/* spans both hero columns on desktop (the hero is a grid, see landing.css) */
+@media (min-width: 761px) {
+  .alert-banner {
+    grid-column: span 2 / span 2;
+  }
+}
+
+@media (max-width: 960px) {
+  .alert-banner {
+    flex-wrap: wrap;
+    row-gap: 10px;
+    border-radius: 28px;
+    padding: 12px 16px;
+  }
+
+  .alert-banner__text {
+    order: 5;
+    flex-basis: 100%;
+  }
+
+  .alert-banner__clouds {
+    display: none;
+  }
+
+  .btn.alert-banner__details {
+    order: 6;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .alert-banner {
+    margin-left: 0;
+    margin-right: 0;
+    column-gap: 12px;
+    border-radius: 22px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .alert-banner__icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .alert-banner__divider {
+    height: 22px;
+  }
+
+  .alert-banner__title {
+    font-size: 14px;
+    line-height: 1.25rem;
+  }
+
+  .alert-banner__level {
+    margin-left: auto;
+  }
+
+  .alert-banner__text {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .btn.alert-banner__details {
+    flex: 1 1 100%;
+    justify-content: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .alert-banner__title {
+    font-size: 13px;
+  }
+
+  .alert-banner__level {
+    padding: 4px 12px;
+  }
+}
+
+/* ---------- Details pop-up ---------- */
+.alert-modal {
+  margin: auto;
+  width: min(560px, calc(100% - 32px));
+  border-radius: 18px;
+  border-width: 0;
+  padding: 28px;
+  color: var(--navy);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.alert-modal::backdrop {
+  background-color: rgba(10, 15, 28, 0.6);
+}
+
+.alert-modal[open] {
+  animation: pop 0.18s ease-out;
+}
+
+.alert-modal__close {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  border-width: 0;
+  background-color: transparent;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.alert-modal__level {
+  display: inline-block;
+  flex: none;
+  border-radius: 9999px;
+  background-color: var(--danger);
+  padding: 5px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.alert-modal__title {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.alert-modal__meta {
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.alert-modal__body {
+  max-height: 40vh;
+  overflow: auto;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.alert-modal__text {
+  margin-bottom: 10px;
+}
+
+.alert-modal__actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert-modal[open] {
+    animation: none;
+  }
+}

@@ -22,17 +22,15 @@ const EMPTY_LOGIN = { email: '', pass: '', remember: false };
 const EMPTY_SIGNUP = { name: '', email: '', pass: '', confirm: '', terms: false };
 const NO_STATUS = { msg: '', ok: false, field: null };
 
-const labelCls = 'mb-1 mt-2 text-xs font-extrabold';
-const linkCls = 'cursor-pointer border-0 bg-transparent p-0 font-[inherit] font-extrabold underline';
+const labelCls = 'auth-label';
+const linkCls = 'auth-link';
 
 function Field({ id, label, icon, invalid, children }) {
   return (
     <>
       <label htmlFor={id} className={labelCls}>{label}</label>
       <div
-        className={`flex h-[38px] items-center gap-2.5 rounded-full border bg-white px-3 focus-within:outline focus-within:outline-[3px] focus-within:outline-offset-2 focus-within:outline-[#4da3ff] ${
-          invalid ? 'border-err' : 'border-navy'
-        }`}
+        className={`auth-field ${invalid ? 'auth-field--invalid' : ''}`.trim()}
       >
         {icon}
         {children}
@@ -41,8 +39,7 @@ function Field({ id, label, icon, invalid, children }) {
   );
 }
 
-const inputCls =
-  'min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-navy outline-0 placeholder:text-[#8b909a]';
+const inputCls = 'auth-input';
 
 function PassInput({ id, value, onChange, placeholder, autoComplete, shown, onToggle }) {
   return (
@@ -60,7 +57,7 @@ function PassInput({ id, value, onChange, placeholder, autoComplete, shown, onTo
         type="button"
         onClick={onToggle}
         aria-label={shown ? 'Hide password' : 'Show password'}
-        className="grid cursor-pointer place-items-center border-0 bg-transparent p-0"
+        className="auth-eye"
       >
         <EyeIcon on={shown} />
       </button>
@@ -72,7 +69,7 @@ function SubmitButton({ children }) {
   return (
     <button
       type="submit"
-      className="mt-1 inline-flex h-[42px] cursor-pointer items-center justify-center gap-2 rounded-xl border-[1.5px] border-navy bg-navy text-sm font-extrabold leading-none text-white shadow-[0_6px_14px_rgba(27,36,55,.35)] transition-colors hover:bg-white hover:text-navy active:scale-[.98] motion-reduce:transition-none"
+      className="auth-submit"
     >
       {children}
       <ArrowRight />
@@ -144,10 +141,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
   }
 
   const err = (
-    <p
-      role="alert"
-      className={`mx-1 mb-0 mt-1.5 min-h-4 text-xs font-bold ${status.ok ? 'text-ok' : 'text-err'}`}
-    >
+    <p role="alert" className={`auth-message ${status.ok ? 'auth-message--ok' : 'auth-message--error'}`}>
       {status.msg}
     </p>
   );
@@ -158,9 +152,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
       role="tab"
       aria-selected={active === name}
       onClick={() => onTabChange(name)}
-      className={`relative cursor-pointer border-0 bg-transparent py-[9px] text-[13px] font-bold leading-none transition-colors duration-200 motion-reduce:transition-none ${
-        active === name ? 'text-white' : 'text-navy'
-      }`}
+      className={`auth-tab ${active === name ? 'auth-tab--active' : ''}`.trim()}
     >
       {label}
     </button>
@@ -173,34 +165,27 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
       onMouseDown={onMouseDown}
       onClick={onClick}
       aria-labelledby="authTitle"
-      className="m-auto max-h-[calc(100dvh-24px)] w-[min(420px,calc(100%-24px))] max-w-none overflow-auto rounded-[22px] border-0 bg-white p-0 font-sans text-navy shadow-[0_30px_80px_rgba(0,0,0,.45)] backdrop:bg-[rgba(10,15,28,.6)] open:animate-pop motion-reduce:animate-none
-        mob:w-[min(940px,calc(100%-32px))] mob:bg-navy"
+      className="auth-modal"
     >
-      <div className="relative grid grid-cols-1 mob:grid-cols-[minmax(340px,400px)_1fr]">
+      <div className="auth-modal__layout">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3.5 top-2.5 z-[2] size-9 cursor-pointer rounded-full border-0 bg-card text-2xl leading-none text-navy
-            mob:bg-white/[.12] mob:text-white mob:hover:bg-white/25"
+          className="auth-modal__close"
         >
           &times;
         </button>
 
         {/* Left: form card */}
-        <section className="rounded-[22px] bg-white px-[26px] pb-5 pt-[26px] mob:rounded-[0_22px_22px_0]">
-          <h2 id="authTitle" className="m-0 text-[28px] font-extrabold leading-[1.1]">{COPY[active].title}</h2>
-          <p className="mb-4 mt-1 text-[13px]">{COPY[active].sub}</p>
+        <section className="auth-modal__form-card">
+          <h2 id="authTitle" className="auth-modal__title">{COPY[active].title}</h2>
+          <p className="auth-modal__subtitle">{COPY[active].sub}</p>
 
-          <div
-            role="tablist"
-            className="relative mb-3.5 grid grid-cols-2 rounded-full bg-card p-1 shadow-[0_4px_10px_rgba(0,0,0,.12)]"
-          >
+          <div role="tablist" className="auth-tabs">
             <span
               aria-hidden="true"
-              className={`absolute bottom-1 left-1 top-1 w-[calc(50%-4px)] rounded-full bg-navy transition-transform duration-[250ms] ease-in-out motion-reduce:transition-none ${
-                isLogin ? '' : 'translate-x-full'
-              }`}
+              className={`auth-tabs__slider ${isLogin ? '' : 'auth-tabs__slider--right'}`.trim()}
             />
             {tabBtn('login', 'Log In')}
             {tabBtn('signup', 'Sign Up')}
@@ -208,7 +193,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
 
           {/* LOG IN */}
           {isLogin && (
-            <form className="flex flex-col" onSubmit={submitLogin} noValidate>
+            <form className="auth-form" onSubmit={submitLogin} noValidate>
               <Field id="loginEmail" label="Email Address" icon={<MailIcon />} invalid={status.field === 'loginEmail'}>
                 <input
                   id="loginEmail"
@@ -233,13 +218,13 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
                 />
               </Field>
 
-              <div className="mb-0.5 mt-2 flex items-center justify-between text-[11px] font-semibold">
-                <label className="flex cursor-pointer items-start gap-1.5 text-[11px] font-semibold">
+              <div className="auth-row">
+                <label className="auth-check">
                   <input
                     type="checkbox"
                     checked={login.remember}
                     onChange={(e) => setLogin({ ...login, remember: e.target.checked })}
-                    className="mt-px accent-navy"
+                    className="auth-checkbox"
                   />
                   Remember me
                 </label>
@@ -254,7 +239,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
 
           {/* SIGN UP */}
           {!isLogin && (
-            <form className="flex flex-col" onSubmit={submitSignup} noValidate>
+            <form className="auth-form" onSubmit={submitSignup} noValidate>
               <Field id="signName" label="Full Name" icon={<UserIcon />} invalid={status.field === 'signName'}>
                 <input
                   id="signName"
@@ -303,12 +288,12 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
                 />
               </Field>
 
-              <label className="mb-0.5 mt-2.5 flex cursor-pointer items-start gap-1.5 text-[11px] font-semibold">
+              <label className="auth-check auth-check--terms">
                 <input
                   type="checkbox"
                   checked={signup.terms}
                   onChange={(e) => setSignup({ ...signup, terms: e.target.checked })}
-                  className="mt-px accent-navy"
+                  className="auth-checkbox"
                 />
                 <span>
                   I agree to the GCare{' '}
@@ -323,7 +308,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
             </form>
           )}
 
-          <div className="my-2.5 mt-3 flex items-center gap-2.5 text-[11px] font-semibold before:h-px before:flex-1 before:bg-navy before:content-[''] after:h-px after:flex-1 after:bg-navy after:content-['']">
+          <div className="auth-divider">
             <span>or continue with</span>
           </div>
 
@@ -331,13 +316,13 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
           <button
             type="button"
             onClick={() => console.log('Continue with Google clicked')}
-            className="flex h-10 w-full cursor-pointer items-center justify-center gap-2.5 rounded-full border border-navy bg-white text-sm font-extrabold leading-none text-navy hover:bg-[#f0f0f0]"
+            className="auth-google"
           >
             <GoogleIcon />
             Continue with Google
           </button>
 
-          <p className="mb-0 mt-2.5 text-center text-[11px] font-semibold">
+          <p className="auth-switch">
             {isLogin ? (
               <>
                 Don&rsquo;t have an account?{' '}
@@ -353,25 +338,25 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
         </section>
 
         {/* Right: welcome panel (hidden on small screens) */}
-        <aside className="hidden flex-col justify-center px-9 py-10 text-white mob:flex">
-          <h2 className="m-0 text-[clamp(34px,5vw,50px)] font-extrabold leading-[1.05]">Welcome to GCare</h2>
-          <p className="mb-3 mt-3.5 text-2xl font-extrabold">
-            Your Safety. <em className="not-italic text-gold">Our Community.</em>
+        <aside className="auth-welcome">
+          <h2 className="auth-welcome__title">Welcome to GCare</h2>
+          <p className="auth-welcome__tagline">
+            Your Safety. <em className="auth-welcome__accent">Our Community.</em>
           </p>
-          <p className="mb-[18px] max-w-[320px] border-b-2 border-gold pb-[18px] text-[15px] leading-[1.4]">
+          <p className="auth-welcome__intro">
             Stay informed, report emergencies, and connect with your community through GCare.
           </p>
-          <ul className="m-0 grid list-none gap-3.5 p-0">
+          <ul className="auth-welcome__list">
             {[
               { icon: <BellIcon />, title: 'Stay Updated', text: 'Receive important community alerts and safety updates.' },
               { icon: <HazardIcon />, title: 'Report Hazards', text: 'Help your community by reporting incidents and hazards.' },
               { icon: <PeopleIcon />, title: 'Find Help', text: 'Access emergency resources, evacuation centers and community assistance.' },
             ].map((item) => (
-              <li key={item.title} className="flex items-center gap-4">
-                <span className="grid size-[58px] flex-none place-items-center rounded-full bg-white">{item.icon}</span>
+              <li key={item.title} className="auth-welcome__item">
+                <span className="auth-welcome__icon">{item.icon}</span>
                 <div>
-                  <strong className="text-[15px]">{item.title}</strong>
-                  <p className="m-0 mt-0.5 max-w-[250px] text-xs leading-[1.35]">{item.text}</p>
+                  <strong className="auth-welcome__item-title">{item.title}</strong>
+                  <p className="auth-welcome__item-text">{item.text}</p>
                 </div>
               </li>
             ))}

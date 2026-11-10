@@ -1,0 +1,79 @@
+/* ==========================================================================
+   buttons.css – the pill buttons used across the site.
+   Use:  <button className="btn btn--navy">   (also works on <a> / <Link>)
+   Variants: btn--navy | btn--outline-dark | btn--outline-light | btn--white
+   In React, ui.jsx has a helper:  btn('navy', 'extra-class')
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border-radius: 9999px;
+  border-width: 1.5px;
+  border-color: transparent;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Solid navy -> outlined on hover */
+.btn--navy {
+  background-color: var(--navy);
+  color: #fff;
+}
+
+/* Navy text on a clear background -> solid navy on hover.
+   NOTE: in the original Tailwind build the navy outline never actually showed (the
+   "border-transparent" class won over "border-navy"), so this matches what the site
+   looked like. To show the outline, add:  border-color: var(--navy);  below. */
+.btn--outline-dark {
+  background-color: transparent;
+  color: var(--navy);
+}
+
+/* White outline (for dark / red backgrounds) */
+.btn--outline-light {
+  border-color: #fff;
+  background-color: transparent;
+  color: #fff;
+}
+
+.btn--white {
+  background-color: #fff;
+  color: var(--navy);
+}
+
+/* Hover styles only on devices that really hover (mouse / trackpad) */
+@media (hover: hover) and (pointer: fine) {
+  .btn--navy:hover {
+    border-color: var(--navy);
+    background-color: transparent;
+    color: var(--navy);
+  }
+
+  .btn--outline-dark:hover {
+    background-color: var(--navy);
+    color: #fff;
+  }
+
+  .btn--outline-light:hover {
+    background-color: #fff;
+    color: var(--danger);
+  }
+
+  .btn--white:hover {
+    background-color: #f0f0f0;
+  }
+}

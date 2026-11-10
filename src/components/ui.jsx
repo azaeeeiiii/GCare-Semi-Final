@@ -8,9 +8,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
    ================================================== */
 
 /* ---------- ICONS ---------- */
-/* All icons as small components so they can be restyled with className */
+/* All icons as small components so they can be restyled with className (styles: styles/icons.css) */
 
-export const ArrowRight = ({ className = 'size-4 flex-none' }) => (
+export const ArrowRight = ({ className = 'arrow-right' }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
     <path
       d="M4 12h15M13 6l6 6-6 6"
@@ -23,7 +23,7 @@ export const ArrowRight = ({ className = 'size-4 flex-none' }) => (
   </svg>
 );
 
-export const ArrowLeft = ({ className = 'size-5' }) => (
+export const ArrowLeft = ({ className = 'arrow-left' }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
     <path
       d="M20 12H5M11 6l-6 6 6 6"
@@ -36,15 +36,15 @@ export const ArrowLeft = ({ className = 'size-5' }) => (
   </svg>
 );
 
-export const MapPin = ({ className = 'size-[18px]' }) => (
+export const MapPin = ({ className = 'map-pin' }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z" fill="#1b2437" />
     <circle cx="12" cy="9" r="2.6" fill="#fff" />
   </svg>
 );
 
-/* Form-field icons (stroke style comes from the field wrapper) */
-const field = 'size-5 flex-none fill-none stroke-navy stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]';
+/* Form-field icons */
+const field = 'field-icon';
 
 export const MailIcon = () => (
   <svg className={field} viewBox="0 0 24 24" aria-hidden="true">
@@ -66,9 +66,7 @@ export const UserIcon = () => (
 );
 export const EyeIcon = ({ on }) => (
   <svg
-    className={`size-5 fill-none stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round] ${
-      on ? 'stroke-gold' : 'stroke-navy'
-    }`}
+    className={`eye-icon ${on ? 'eye-icon--on' : ''}`.trim()}
     viewBox="0 0 24 24"
   >
     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
@@ -77,7 +75,7 @@ export const EyeIcon = ({ on }) => (
 );
 
 export const GoogleIcon = () => (
-  <svg className="size-5" viewBox="0 0 48 48" aria-hidden="true">
+  <svg className="google-icon" viewBox="0 0 48 48" aria-hidden="true">
     <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" />
     <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.1 5.5c4.3-4 6.8-9.9 6.8-16.9z" />
     <path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z" />
@@ -86,7 +84,7 @@ export const GoogleIcon = () => (
 );
 
 /* Welcome-panel icons (white circle, navy glyph) */
-const side = 'size-[30px] fill-navy stroke-navy stroke-[1.5] [stroke-linejoin:round] [stroke-linecap:round]';
+const side = 'welcome-icon';
 
 export const BellIcon = () => (
   <svg className={side} viewBox="0 0 24 24" aria-hidden="true">
@@ -110,26 +108,24 @@ export const PeopleIcon = () => (
 );
 
 /* ---------- BUTTON STYLES ---------- */
-/* Pill buttons used across the site. Use with <button>, <a> or <Link>. */
-const base =
-  'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border-[1.5px] border-transparent px-[18px] py-2 text-sm font-bold leading-none cursor-pointer transition-colors active:scale-[.97] [-webkit-tap-highlight-color:transparent]';
-
+/* Pill buttons used across the site (styles/buttons.css). Use with <button>, <a> or <Link>.
+   btn('navy')  ->  "btn btn--navy"      btn('white', 'my-class')  ->  "btn btn--white my-class" */
 const variants = {
-  navy: 'bg-navy text-white hover:border-navy hover:bg-transparent hover:text-navy',
-  outlineDark: 'border-navy bg-transparent text-navy hover:bg-navy hover:text-white',
-  outlineLight: 'border-white bg-transparent text-white hover:bg-white hover:text-danger',
-  white: 'bg-white text-navy hover:bg-[#f0f0f0]',
+  navy: 'btn--navy',
+  outlineDark: 'btn--outline-dark',
+  outlineLight: 'btn--outline-light',
+  white: 'btn--white',
 };
 
-export const btn = (variant = 'navy', extra = '') => `${base} ${variants[variant]} ${extra}`.trim();
+export const btn = (variant = 'navy', extra = '') => `btn ${variants[variant]} ${extra}`.trim();
 
 /* ---------- PAGE TITLE BAND ---------- */
 /* Navy title band used on News / Terms / Privacy */
 export function PageHero({ title, children, innerClass = '' }) {
   return (
-    <section className="bg-navy px-[clamp(16px,5vw,64px)] pb-[30px] pt-[34px] text-white">
-      <div className={`mx-auto max-w-[1040px] ${innerClass}`}>
-        <h1 className="m-0 text-[clamp(34px,5vw,52px)] font-extrabold leading-[1.05]">{title}</h1>
+    <section className="page-hero">
+      <div className={`page-hero__inner ${innerClass}`.trim()}>
+        <h1 className="page-hero__title">{title}</h1>
         {children}
       </div>
     </section>

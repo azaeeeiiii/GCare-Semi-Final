@@ -1,0 +1,69 @@
+/* ==========================================================================
+   footer.css – site footer (Footer.jsx)
+   ========================================================================== */
+
+.site-footer {
+  display: flex;
+  min-height: 52px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background-color: #fff;
+  padding: 6px 28px 6px 14px;
+  font-size: 12px;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+.site-footer__nav {
+  margin-left: auto;
+  margin-right: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.site-footer__link[aria-current="page"] {
+  font-weight: 800;
+  text-decoration-line: underline;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .site-footer__link:hover {
+    text-decoration-line: underline;
+  }
+}
+
+/* thin vertical line between the two link groups */
+.site-footer__divider {
+  height: 24px;
+  width: 2px;
+  background-color: var(--navy);
+}
+
+.site-footer__copy {
+  font-size: 12px;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .site-footer {
+    justify-content: center;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .site-footer__nav {
+    margin: 0;
+    justify-content: center;
+    column-gap: 20px;
+    row-gap: 14px;
+  }
+
+  .site-footer__divider {
+    display: none;
+  }
+}
