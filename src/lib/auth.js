@@ -23,6 +23,24 @@ const readUsers = () => {
 
 const notify = () => window.dispatchEvent(new Event(CHANGE_EVENT));
 
+/* DEMO ADMIN so the "admin resolves reports" flow can be tried without a backend.
+   Log in with  admin@gcare.local / admin123  and open /admin.
+   TODO backend: remove this; real admin accounts and roles must live on the server. */
+function seedDemoAdmin() {
+  try {
+    const users = readUsers();
+    if (!users.some((u) => u.email === 'admin@gcare.local')) {
+      localStorage.setItem(
+        USERS_KEY,
+        JSON.stringify([...users, { name: 'GCare Admin', email: 'admin@gcare.local', pass: 'admin123', role: 'admin' }]),
+      );
+    }
+  } catch {
+    /* storage unavailable: ignore */
+  }
+}
+seedDemoAdmin();
+
 /* Returns the logged-in email (string) or null. A primitive so React can compare it cheaply. */
 export function getSession() {
   try {
@@ -85,6 +103,6 @@ export function useUser() {
   return useMemo(() => {
     if (!email) return null;
     const u = readUsers().find((x) => x.email === email);
-    return u ? { name: u.name, email: u.email } : null;
+    return u ? { name: u.name, email: u.email, isAdmin: u.role === 'admin' } : null;
   }, [email]);
 }

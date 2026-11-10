@@ -3,6 +3,8 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing';
 import News from './pages/News';
 import Feed from './pages/Feed';
+import Report from './pages/Report';
+import Admin from './pages/Admin';
 import RequireAuth from './components/RequireAuth';
 import Legal from './pages/Legal';
 import ComingSoon from './pages/ComingSoon';
@@ -27,6 +29,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
+        <Route path="/report" element={<RequireAuth><Report /></RequireAuth>} />
+        <Route path="/admin" element={<RequireAuth admin><Admin /></RequireAuth>} />
         <Route path="/news" element={<News />} />
         <Route path="/terms" element={<Legal which="terms" />} />
         <Route path="/privacy" element={<Legal which="privacy" />} />

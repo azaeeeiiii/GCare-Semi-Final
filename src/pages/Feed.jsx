@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
+import BottomNav from '../components/BottomNav';
 import IncidentMap from '../components/IncidentMap';
 import { ArrowRight } from '../components/ui';
 import { useUser } from '../lib/auth';
 import { newsItems } from '../content';
+import { toFeedItem, useReports } from '../lib/reports';
 
 /* Feed page (members only, see RequireAuth in App.jsx). Browse-only:
    reports on the left, a map of where they happened on the right. Reporting lives on the Report page. */
@@ -19,18 +21,6 @@ const PinIcon = () => (
 );
 const CalendarIcon = () => (
   <svg {...svg} className="feed-icon feed-icon--sm"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></svg>
-);
-const FeedIcon = () => (
-  <svg {...svg} className="feed-nav__icon"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
-);
-const ReportIcon = () => (
-  <svg {...svg} className="feed-nav__icon"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V7L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6" /></svg>
-);
-const VolunteerIcon = () => (
-  <svg {...svg} className="feed-nav__icon"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z" /></svg>
-);
-const ProfileIcon = () => (
-  <svg {...svg} className="feed-nav__icon"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
 );
 
 function NewsCard({ item, selected, onSelect }) {
@@ -52,6 +42,7 @@ function NewsCard({ item, selected, onSelect }) {
       <div className="news-card__body">
         <div className="news-card__meta">
           <span className="news-card__tag">{item.tag}</span>
+          {item.status === 'resolved' && <span className="news-card__tag news-card__tag--ok">Resolved</span>}
           <time className="news-card__date"><CalendarIcon />{item.date}</time>
         </div>
         <h3 className="news-card__title">{item.title}</h3>
@@ -78,15 +69,11 @@ function NewsCard({ item, selected, onSelect }) {
   );
 }
 
-const NAV = [
-  { to: '/feed', label: 'Feed', icon: <FeedIcon /> },
-  { to: '/report', label: 'Report', icon: <ReportIcon /> },
-  { to: '/volunteer', label: 'Volunteer', icon: <VolunteerIcon /> },
-  { to: '/profile', label: 'Profile', icon: <ProfileIcon /> },
-];
-
 export default function Feed() {
   const user = useUser();
+  const reports = useReports();
+  // reports published by residents come first, then the sample news from content.jsx
+  const items = useMemo(() => [...reports.map(toFeedItem), ...newsItems], [reports]);
   const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
@@ -114,7 +101,7 @@ export default function Feed() {
             <Link to="/news" className="feed-pill feed-pill--light">View All<ArrowRight className="arrow-right-small" /></Link>
           </header>
           <div className="feed-news__list" tabIndex={0} aria-label="News list">
-            {newsItems.map((item) => (
+            {items.map((item) => (
               <NewsCard key={item.id} item={item} selected={item.id === selectedId} onSelect={(id) => select(id, true)} />
             ))}
           </div>
@@ -124,18 +111,11 @@ export default function Feed() {
           <header className="feed-panel__head">
             <h2 id="exploreTitle" className="feed-panel__title"><PinIcon />Explore Your Community</h2>
           </header>
-          <IncidentMap items={newsItems} selectedId={selectedId} onSelect={(id) => select(id, false)} />
+          <IncidentMap items={items} selectedId={selectedId} onSelect={(id) => select(id, false)} />
         </section>
       </main>
 
-      <nav className="feed-nav" aria-label="Main">
-        {NAV.map((n) => (
-          <Link key={n.to} to={n.to} className="feed-nav__item" aria-current={n.to === '/feed' ? 'page' : undefined}>
-            {n.icon}
-            {n.label}
-          </Link>
-        ))}
-      </nav>
+      <BottomNav />
     </div>
   );
 }

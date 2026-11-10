@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
 import { AlertBanner, AlertModal } from '../components/Alerts';
@@ -9,7 +9,8 @@ import { ArrowRight, MapPin, btn } from '../components/ui';
 import { activeAlert, areaStatus } from '../content';
 
 export default function Landing() {
-  const { hash } = useLocation();
+  const { hash, state } = useLocation();
+  const navigate = useNavigate();
   const [alertOpen, setAlertOpen] = useState(false);
   const [authTab, setAuthTab] = useState(null); // null = closed, 'login' | 'signup' = open
   const [legalKey, setLegalKey] = useState(null); // null | 'terms' | 'privacy'
@@ -81,7 +82,7 @@ export default function Landing() {
                 Report an Incident
                 <ArrowRight className="arrow-right-small" />
               </Link>
-              <Link to="/report" className={btn('outlineDark', 'community-card__btn')}>
+              <Link to="/volunteer" className={btn('outlineDark', 'community-card__btn')}>
                 Become a Volunteer
                 <ArrowRight className="arrow-right-small" />
               </Link>
@@ -99,6 +100,7 @@ export default function Landing() {
         onTabChange={setAuthTab}
         onClose={() => setAuthTab(null)}
         onShowLegal={setLegalKey}
+        onAuthed={() => navigate(state?.from || '/feed', { replace: true })}
       />
       <LegalModal which={legalKey} onChange={setLegalKey} onClose={() => setLegalKey(null)} />
     </>

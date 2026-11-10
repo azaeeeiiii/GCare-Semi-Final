@@ -1,0 +1,657 @@
+/* ==========================================================================
+   report.css – Report page (create + My Reports tabs) and the temporary Admin page
+   Reuses .feed shell, .auth-field / .auth-input from the login pop-up, and the map pin styles from feed.css
+   ========================================================================== */
+
+.rpt-main {
+  min-height: 0;
+}
+
+.rpt {
+  position: relative;
+  grid-column: 1 / -1;
+  min-height: 0;
+  overflow-y: auto;
+  border-radius: 22px;
+  background-color: #fff;
+  padding: 18px 24px 20px;
+}
+
+.rpt__title {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rpt__sub {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rpt-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 22px;
+}
+
+.rpt-col {
+  min-width: 0;
+}
+
+/* ---------- Tabs (Report | My Reports) ---------- */
+.rpt-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 14px;
+  border-radius: 999px;
+  background-color: var(--card);
+  box-shadow: 0 2px 8px rgb(27 36 55 / 0.2);
+}
+
+.rpt-tabs__btn {
+  border-radius: 999px;
+  padding: 9px 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rpt-tabs__btn--on {
+  background-color: var(--navy);
+  color: #fff;
+}
+
+/* ---------- Form ---------- */
+.rfield {
+  margin-top: 4px;
+}
+
+.rfield-icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--navy);
+}
+
+.rfield-icon--lg {
+  width: 24px;
+  height: 24px;
+}
+
+.rselect {
+  cursor: pointer;
+  appearance: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b2437' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0 center / 16px;
+  padding-right: 22px;
+}
+
+.rpt-form .auth-input[readonly] {
+  cursor: default;
+  font-weight: 600;
+}
+
+.rerr {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--err);
+}
+
+.rpt-maplabel {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rpt-mapsub {
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.rtext {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--navy);
+  border-radius: 16px;
+  background-color: #fff;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--navy);
+}
+
+.rtext:focus {
+  outline: 3px solid #4da3ff;
+  outline-offset: 2px;
+}
+
+.rtext--invalid {
+  border-color: var(--err);
+}
+
+.rpt-publish {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background-color: var(--navy);
+  padding: 13px 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 2px 8px rgb(27 36 55 / 0.3);
+}
+
+.rpt-publish .rfield-icon {
+  color: #fff;
+}
+
+.rpt-publish:active {
+  transform: scale(0.99);
+}
+
+.rtoast {
+  margin-bottom: 10px;
+  border-left: 5px solid var(--ok);
+  border-radius: 10px;
+  background-color: #e8f6ee;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ok);
+}
+
+/* ---------- Pin map ---------- */
+.rmap {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border: 1px solid var(--navy);
+  border-radius: 16px;
+  background-color: #dfe5ea;
+}
+
+.rmap--full {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  height: auto;
+  border-radius: 0;
+}
+
+.rmap__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.rmap__tool {
+  position: absolute;
+  z-index: 1000;
+  border-radius: 8px;
+  background-color: #fff;
+  color: var(--navy);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.3);
+}
+
+.rmap__full {
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+}
+
+.rmap__full svg {
+  width: 18px;
+  height: 18px;
+}
+
+.rmap__locate {
+  left: 10px;
+  bottom: 22px;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rmap__locate:disabled {
+  opacity: 0.6;
+}
+
+.rmap__notice {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 52px;
+  z-index: 1000;
+  border-left: 5px solid var(--ok);
+  border-radius: 10px;
+  background-color: #fff;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+
+.rmap__notice--error {
+  border-left-color: var(--err);
+  color: var(--err);
+}
+
+.minimap {
+  height: 120px;
+  margin: 8px 0 4px;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #dfe5ea;
+}
+
+/* ---------- My Reports: search, chips, list ---------- */
+.rsearch {
+  margin-top: 14px;
+  height: 40px;
+}
+
+.rchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.rchip {
+  border: 1.5px solid var(--navy);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.rchip--on {
+  background-color: var(--navy);
+  color: #fff;
+}
+
+.rlist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.rcard {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  gap: 10px;
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 8px;
+  text-align: left;
+  box-shadow: 0 2px 8px rgb(27 36 55 / 0.15);
+}
+
+.rcard--on {
+  outline: 3px solid var(--navy);
+  outline-offset: 1px;
+}
+
+.rcard__img {
+  min-height: 78px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, var(--tone, #4a5d7a), #1b2437);
+}
+
+.rcard__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.rcard__title {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.rcard__date {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rcard__text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: #3b4357;
+}
+
+.rcard__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.rchev {
+  width: 16px;
+  height: 16px;
+}
+
+.rempty {
+  padding: 18px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rempty--panel {
+  border-radius: 16px;
+  background-color: var(--card);
+  padding: 30px 18px;
+  text-align: center;
+}
+
+/* ---------- Status badges ---------- */
+.rbadge {
+  display: inline-block;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background-color: #fff;
+  padding: 1px 9px;
+  font-size: 10.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.rbadge--pending {
+  color: #4a5d7a;
+}
+
+.rbadge--review {
+  color: #c2570c;
+}
+
+.rbadge--resolved {
+  color: var(--ok);
+}
+
+/* ---------- Detail panel ---------- */
+.rdetail {
+  overflow: hidden;
+  border-radius: 16px;
+  background-color: var(--card);
+  box-shadow: 0 2px 10px rgb(27 36 55 / 0.2);
+}
+
+.rdetail__hero {
+  position: relative;
+  display: flex;
+  min-height: 130px;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(160deg, var(--tone, #4a5d7a), #1b2437);
+  padding: 14px 16px;
+  color: #fff;
+}
+
+.rdetail__hero .rbadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.rdetail__hero h2 {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.rdetail__hero p {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.rdetail__body {
+  padding: 12px 16px 16px;
+}
+
+.rdetail__body h3 {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.rdetail__body p {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+/* ---------- Timeline ---------- */
+.rtl {
+  margin: 6px 0 0 4px;
+  list-style: none;
+  padding: 0;
+}
+
+.rtl__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid #b8bfce;
+  padding: 0 0 14px 18px;
+  font-size: 13px;
+}
+
+.rtl__item:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+.rtl__dot {
+  position: absolute;
+  top: 2px;
+  left: -8px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #b8bfce;
+  border-radius: 50%;
+  background-color: #fff;
+}
+
+.rtl__item--now .rtl__dot {
+  border-color: #1d6fe8;
+  background-color: #1d6fe8;
+}
+
+.rtl__item--resolved .rtl__dot {
+  border-color: var(--ok);
+  background-color: var(--ok);
+}
+
+.rtl__when {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rnote {
+  margin-top: 12px;
+  border: 1px solid #b7cdf5;
+  border-radius: 12px;
+  background-color: #e8f0fe;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- Admin ---------- */
+.adm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.adm-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 12px 14px;
+}
+
+.adm-row__main {
+  display: flex;
+  min-width: 220px;
+  flex: 1 1 320px;
+  flex-direction: column;
+  font-size: 12.5px;
+}
+
+.adm-row__main strong {
+  font-size: 16px;
+}
+
+.adm-row__main span {
+  color: var(--muted);
+}
+
+.adm-row__main p {
+  margin-top: 4px;
+}
+
+.adm-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- Feed: resolved chip on cards ---------- */
+.news-card__tag--ok {
+  background-color: var(--ok);
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 860px) {
+  .rpt {
+    padding: 16px;
+  }
+
+  .rpt-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rmap {
+    height: 300px;
+  }
+
+  .rpt__title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rcard {
+    grid-template-columns: 70px minmax(0, 1fr) auto;
+  }
+}
+
+/* ---------- Photo field ---------- */
+.rphoto__opt {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rphoto__box {
+  display: grid;
+  height: 120px;
+  place-items: center;
+  overflow: hidden;
+  border: 1.5px dashed var(--navy);
+  border-radius: 16px;
+  background-color: #f6f7f9;
+}
+
+.rphoto__box--invalid {
+  border-color: var(--err);
+}
+
+.rphoto__empty {
+  padding: 0 12px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rphoto__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rphoto__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.rcard__img,
+.rdetail__hero {
+  background-position: center;
+  background-size: cover;
+}
+
+.adm-row__img {
+  width: 96px;
+  height: 72px;
+  flex: none;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* ---------- Webcam window (computers) ---------- */
+.cam {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: grid;
+  place-items: center;
+  background-color: rgb(10 14 24 / 0.75);
+  padding: 16px;
+}
+
+.cam__box {
+  width: min(560px, 100%);
+  overflow: hidden;
+  border-radius: 18px;
+  background-color: #fff;
+}
+
+.cam__video {
+  display: block;
+  width: 100%;
+  max-height: 60vh;
+  background-color: #000;
+  object-fit: cover;
+}
+
+.cam__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 14px;
+}
