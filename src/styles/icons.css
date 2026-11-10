@@ -1,6 +1,9 @@
+
 /* ==========================================================================
-   icons.css – sizes and stroke styles for the inline SVG icons (see ui.jsx)
+   icons.css – sizes and stroke styles for icons (see ui.jsx)
    ========================================================================== */
+
+/* ---------- ARROW ICONS ---------- */
 
 .arrow-right {
   width: 16px;
@@ -8,7 +11,7 @@
   flex: none;
 }
 
-/* smaller arrow inside the community-card buttons */
+/* Smaller arrow inside the community-card buttons */
 .arrow-right-small {
   width: 14px;
   height: 14px;
@@ -24,19 +27,19 @@
   height: 18px;
 }
 
-/* Form-field icons (mail, lock, user) */
+/* ---------- FORM-FIELD ICONS ---------- */
+
+/* PNG: Mail, lock, and user */
 .field-icon {
   width: 20px;
   height: 20px;
   flex: none;
-  fill: none;
-  stroke: var(--navy);
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  object-fit: contain;
+  display: block;
 }
 
-/* Show / hide password eye */
+/* ---------- PASSWORD EYE ICON ---------- */
+
 .eye-icon {
   width: 20px;
   height: 20px;
@@ -51,12 +54,16 @@
   stroke: var(--gold);
 }
 
+/* ---------- GOOGLE ICON ---------- */
+
 .google-icon {
   width: 20px;
   height: 20px;
 }
 
-/* Welcome-panel icons (white circle, navy glyph) */
+/* ---------- WELCOME-PANEL ICONS ---------- */
+
+/* SVG icons (white circle, navy glyph) */
 .welcome-icon {
   width: 30px;
   height: 30px;
@@ -65,4 +72,12 @@
   stroke-width: 1.5;
   stroke-linejoin: round;
   stroke-linecap: round;
+}
+
+/* PNG images */
+.welcome-icon--image {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
 }

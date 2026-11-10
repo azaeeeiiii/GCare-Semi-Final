@@ -37,33 +37,44 @@ export const ArrowLeft = ({ className = 'arrow-left' }) => (
 );
 
 export const MapPin = ({ className = 'map-pin' }) => (
-  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z" fill="#1b2437" />
-    <circle cx="12" cy="9" r="2.6" fill="#fff" />
-  </svg>
+  <img
+    className={className}
+    src="/images/map_pin.png"
+    alt="Location"
+  />
 );
+
 
 /* Form-field icons */
 const field = 'field-icon';
 
 export const MailIcon = () => (
-  <svg className={field} viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="3" y="5" width="18" height="14" rx="2" />
-    <path d="m3 7 9 6 9-6" />
-  </svg>
+  <img
+    className={field}
+    src="/images/mail_icon.png"
+    alt=""
+    aria-hidden="true"
+  />
 );
+
 export const LockIcon = () => (
-  <svg className={field} viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="5" y="11" width="14" height="9" rx="2" />
-    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-  </svg>
+  <img
+    className={field}
+    src="/images/lock_icon.png"
+    alt=""
+    aria-hidden="true"
+  />
 );
+
 export const UserIcon = () => (
-  <svg className={field} viewBox="0 0 24 24" aria-hidden="true">
-    <circle cx="12" cy="8" r="4" />
-    <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-  </svg>
+  <img
+    className={field}
+    src="/images/user_icon.png"
+    alt=""
+    aria-hidden="true"
+  />
 );
+
 export const EyeIcon = ({ on }) => (
   <svg
     className={`eye-icon ${on ? 'eye-icon--on' : ''}`.trim()}
@@ -73,6 +84,7 @@ export const EyeIcon = ({ on }) => (
     <circle cx="12" cy="12" r="3" />
   </svg>
 );
+
 
 export const GoogleIcon = () => (
   <svg className="google-icon" viewBox="0 0 48 48" aria-hidden="true">
@@ -84,27 +96,28 @@ export const GoogleIcon = () => (
 );
 
 /* Welcome-panel icons (white circle, navy glyph) */
-const side = 'welcome-icon';
+const side = 'landing-icon';
 
 export const BellIcon = () => (
-  <svg className={side} viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4l2-2Z" />
-    <path d="M10 21h4" />
-  </svg>
+  <img
+    className={`${side} welcome-icon--image`}
+    src="/images/bell_icon_circle.png"
+    alt="Notifications"
+  />
 );
 export const HazardIcon = () => (
-  <svg className={side} viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M12 3 2 20h20L12 3Z" />
-    <path d="M12 10v4M12 17v.5" stroke="#fff" />
-  </svg>
+  <img
+    className={`${side} welcome-icon--image`}
+    src="/images/hazard_icon_circle.png"
+    alt="Hazard warning"
+  />
 );
 export const PeopleIcon = () => (
-  <svg className={side} viewBox="0 0 24 24" aria-hidden="true">
-    <circle cx="12" cy="8" r="3" />
-    <circle cx="5" cy="10" r="2.2" />
-    <circle cx="19" cy="10" r="2.2" />
-    <path d="M6 20c0-3.5 3-5 6-5s6 1.5 6 5M1 19c0-2.5 2-4 4-4M23 19c0-2.5-2-4-4-4" />
-  </svg>
+  <img
+    className={`${side} welcome-icon--image`}
+    src="/images/people_icon_circle.png"
+    alt="People"
+  />
 );
 
 /* ---------- BUTTON STYLES ---------- */
