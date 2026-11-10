@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { logOut } from '../lib/auth';
 import { ArrowLeft, btn, useGoBack } from './ui';
 
 /* Brand logo + the landing header (Sign in / Create Account) + the inner-page header (back arrow) */
@@ -62,6 +63,30 @@ export function PageHeader() {
       <Link to="/" onClick={goBack} className={btn('outlineDark', 'site-header__home')}>
         Back to home
       </Link>
+    </header>
+  );
+}
+
+
+/* Feed header: brand + the signed-in user + Log out */
+export function FeedHeader({ user }) {
+  const navigate = useNavigate();
+  return (
+    <header className="site-header">
+      <Brand />
+      <div className="site-header__nav">
+        <span className="site-header__user">{user.name}</span>
+        <button
+          type="button"
+          className={btn('outlineDark', 'site-header__btn')}
+          onClick={() => {
+            logOut();
+            navigate('/');
+          }}
+        >
+          Log out
+        </button>
+      </div>
     </header>
   );
 }

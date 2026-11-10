@@ -299,3 +299,51 @@ export const LEGAL = {
     ],
   },
 };
+
+/*
+ * FEED REPORTS (placeholder). Later: fetch('/api/reports').then(r => r.json()).then(setNews)
+ * `image` is optional: drop a photo in public/images/news/ and use '/images/news/name.jpg'.
+ * `tone` is the colour of the placeholder tile and of the pin on the map.
+ * `lat`/`lng` is where it happened (must be inside BOUNDARY in lib/serviceArea.js); `location` is the label.
+ */
+export const newsItems = [
+  {
+    id: 'rain-nov-7',
+    tag: 'Weather',
+    date: 'November 7, 2026',
+    title: 'Heavy rainfall expected today in Batangas',
+    excerpt: 'Residents across Batangas are advised to remain alert as periods of moderate to heavy rainfall are expected throughout the day.',
+    body: 'Communities located near rivers, low-lying areas, and flood-prone zones are encouraged to monitor water levels, prepare emergency kits, and follow instructions from their local DRRMO.',
+    image: '',
+    tone: '#4a5d7a',
+    location: 'Northern part of the subdivision',
+    lat: 13.7876,
+    lng: 121.0738,
+  },
+  {
+    id: 'water-nov-6',
+    tag: 'Water Interruption',
+    date: 'November 6, 2026',
+    title: 'Scheduled Water Service Interruption',
+    excerpt: 'Water service may be temporarily unavailable in selected areas due to scheduled maintenance and system improvement works.',
+    body: 'Residents within the affected areas are advised to store enough water for essential household needs before the interruption starts. Service will resume once the works are complete.',
+    image: '',
+    tone: '#2f7d8a',
+    location: 'Central area',
+    lat: 13.7858,
+    lng: 121.0752,
+  },
+  {
+    id: 'classes-nov-6',
+    tag: 'Class Suspension',
+    date: 'November 6, 2026',
+    title: 'Classes Suspended Due to Severe Weather',
+    excerpt: 'Classes in selected schools and educational institutions have been suspended due to expected severe weather conditions.',
+    body: 'Parents and students are advised to wait for further announcements from their schools and local government before travelling.',
+    image: '',
+    tone: '#8a6a2f',
+    location: 'Southern part of the subdivision',
+    lat: 13.7845,
+    lng: 121.0742,
+  },
+];

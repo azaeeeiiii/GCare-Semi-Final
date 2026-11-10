@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, BellIcon, EyeIcon, GoogleIcon, HazardIcon, LockIcon, MailIcon, PeopleIcon, UserIcon, useDialog,
 } from './ui';
+import { logIn, signUp } from '../lib/auth';
 
 /* Front-end only for now. Backend hooks are marked TODO. */
 
@@ -77,7 +78,7 @@ function SubmitButton({ children }) {
   );
 }
 
-export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
+export default function AuthModal({ tab, onTabChange, onClose, onShowLegal, onAuthed }) {
   const open = tab !== null;
   const active = tab || 'login'; // keep content stable while the dialog is closing
   const isLogin = active === 'login';
@@ -122,9 +123,11 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
     if (!emailOk(login.email.trim())) return fail('Enter a valid email address.', 'loginEmail');
     if (!login.pass) return fail('Enter your password.', 'loginPass');
 
-    // TODO: replace with the real sign-in call once the auth provider is chosen
-    console.log('Log in:', { email: login.email.trim(), remember: login.remember });
-    succeed('Logged in (demo: no backend yet).');
+    // Demo auth (lib/auth.js). TODO: swap for the real sign-in call once the backend exists
+    const res = logIn({ email: login.email, pass: login.pass, remember: login.remember });
+    if (!res.ok) return fail(res.error, res.field);
+    succeed('Logged in. Taking you to the feed…');
+    onAuthed?.(res.user);
   }
 
   function submitSignup(e) {
@@ -135,9 +138,11 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal }) {
     if (signup.pass !== signup.confirm) return fail('Passwords do not match.', 'signConfirm');
     if (!signup.terms) return fail('Agree to the Terms of Use and Privacy Policy to continue.');
 
-    // TODO: replace with the real sign-up call
-    console.log('Sign up:', { name: signup.name.trim(), email: signup.email.trim() });
-    succeed('Account created (demo: no backend yet).');
+    // Demo auth (lib/auth.js). TODO: swap for the real sign-up call
+    const res = signUp({ name: signup.name, email: signup.email, pass: signup.pass });
+    if (!res.ok) return fail(res.error, res.field);
+    succeed('Account created. Taking you to the feed…');
+    onAuthed?.(res.user);
   }
 
   const err = (

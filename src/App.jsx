@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing';
 import News from './pages/News';
+import Feed from './pages/Feed';
+import RequireAuth from './components/RequireAuth';
 import Legal from './pages/Legal';
 import ComingSoon from './pages/ComingSoon';
 
@@ -24,6 +26,7 @@ export default function App() {
       <ScrollToHash />
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
         <Route path="/news" element={<News />} />
         <Route path="/terms" element={<Legal which="terms" />} />
         <Route path="/privacy" element={<Legal which="privacy" />} />
