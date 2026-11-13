@@ -7,6 +7,7 @@ import { ArrowRight } from '../components/ui';
 import { useUser } from '../lib/auth';
 import { newsItems } from '../content';
 import { toFeedItem, useReports } from '../lib/reports';
+import { pointInPolygon } from '../lib/serviceArea';
 
 /* Feed page (members only, see RequireAuth in App.jsx). Browse-only:
    reports on the left, a map of where they happened on the right. Reporting lives on the Report page. */
@@ -73,8 +74,13 @@ export default function Feed() {
   const user = useUser();
   const reports = useReports();
   // reports published by residents come first, then the sample news from content.jsx
-  const items = useMemo(() => [...reports.map(toFeedItem), ...newsItems], [reports]);
-  const [selectedId, setSelectedId] = useState(null);
+const items = useMemo(
+  () =>
+    [...reports.map(toFeedItem), ...newsItems].filter((i) =>
+      pointInPolygon([i.lat, i.lng]),
+    ),
+  [reports],
+);  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     document.title = 'Feed – GCare';

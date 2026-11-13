@@ -42,18 +42,26 @@ export default function IncidentMap({ items, selectedId, onSelect }) {
     const map = L.map(elRef.current, {
       center: AREA.center,
       zoom: AREA.zoom,
-      minZoom: AREA.minZoom,
-      maxZoom: AREA.maxZoom,
-      maxBounds: L.latLngBounds(BOUNDARY).pad(0.3),
+      minZoom: trace ? 14 : AREA.minZoom,
+      maxZoom: trace ? 21 : AREA.maxZoom,
+      maxBounds: trace ? undefined : L.latLngBounds(BOUNDARY).pad(0.3),
       maxBoundsViscosity: 1,
       zoomControl: false,
     });
     mapRef.current = map;
     L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
+    const street = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxNativeZoom: 19,
+      maxZoom: 21,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
+if (trace) {
+  const satellite = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { maxNativeZoom: 19, maxZoom: 21, attribution: 'Tiles &copy; Esri' }
+  );
+  L.control.layers({ Street: street, Satellite: satellite }, null, { position: 'topright' }).addTo(map);
+}
 
     // dim everything outside the service area, then outline it
     const world = [[-85, -180], [-85, 180], [85, 180], [85, -180]];

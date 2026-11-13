@@ -317,7 +317,7 @@ export const newsItems = [
     image: '',
     tone: '#4a5d7a',
     location: 'Northern part of the subdivision',
-    lat: 13.7876,
+    lat: 13.7866,
     lng: 121.0738,
   },
   {
