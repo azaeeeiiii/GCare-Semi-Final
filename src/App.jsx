@@ -10,6 +10,7 @@ import Legal from './pages/Legal';
 import ComingSoon from './pages/ComingSoon';
 import Profile from './pages/Profile';
 import About from './pages/About';
+import Contact from './pages/Contact';
 
 /* Scroll to #section after in-app navigation (e.g. /news#alerts) and to top on new pages */
 function ScrollToHash() {
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/privacy" element={<Legal which="privacy" />} />
         <Route path="*" element={<ComingSoon />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </>
   );

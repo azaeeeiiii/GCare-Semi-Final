@@ -1,91 +1,17 @@
 /* ==========================================================================
    about.css – About GCare page (pages/About.jsx)
-   Navy page, white rounded card: sky picture on the left, content on the right.
+   Uses the shared page layout (navy title band + white content, see page.css).
    ========================================================================== */
 
-/* Navy background area around the card */
-.about {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--navy);
-  padding: clamp(16px, 4vw, 48px) clamp(12px, 4vw, 48px);
+.about-content {
+  padding-bottom: 56px;
 }
 
-.about-card {
-  position: relative;
-  display: flex;
-  width: 100%;
-  max-width: 1000px;
-  overflow: hidden;
-  border-radius: 18px;
-  background-color: #fff;
-  box-shadow: 0 12px 40px rgb(0 0 0 / 0.3);
-}
-
-/* ---------- Left: sky + hills (hidden on phones) ---------- */
-.about-card__art {
-  position: relative;
-  display: none;
-  flex: 0 0 36%;
-}
-
-/* fills the panel; works for both the <svg> placeholder and a future <img> */
-.about-card__art-img {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* ---------- Right: content ---------- */
-.about-card__content {
-  position: relative;
-  min-width: 0;
-  flex: 1 1 0%;
-  padding: clamp(24px, 4vw, 40px);
-}
-
-.about-card__close {
-  position: absolute;
-  top: 16px;
-  right: 18px;
-  display: grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  border-radius: 9999px;
-  color: var(--navy);
-}
-
-.about-card__close-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.about-card__title {
-  margin: 0;
-  padding-right: 44px; /* keep clear of the close button */
-  font-size: clamp(30px, 4vw, 40px);
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.about-card__tagline {
-  margin: 4px 0 0;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.about-card__intro {
-  margin: 22px 0 22px;
-  max-width: 560px;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.4;
+.about-intro {
+  margin: 0 0 24px;
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 /* ---------- Four feature cards ---------- */
@@ -104,7 +30,7 @@
   gap: 14px;
   border-radius: 14px;
   background-color: var(--card);
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 
 /* Navy circle behind the icon */
@@ -141,28 +67,28 @@
 
 .about-feature__title {
   display: block;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
 }
 
 .about-feature__text {
   margin: 2px 0 0;
-  font-size: 14px;
-  line-height: 1.3;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 /* ---------- Bottom navy banner ---------- */
 .about-banner {
   position: relative;
   display: flex;
-  min-height: 72px;
+  min-height: 76px;
   align-items: center;
   gap: 16px;
   margin-top: 14px;
   overflow: hidden;
   border-radius: 14px;
   background-color: var(--navy);
-  padding: 12px 20px;
+  padding: 14px 22px;
   color: #fff;
 }
 
@@ -185,12 +111,12 @@
   margin: 0;
   display: grid;
   gap: 2px;
-  font-size: 14px;
-  line-height: 1.25;
+  font-size: 15px;
+  line-height: 1.3;
 }
 
 .about-banner__text strong {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
 }
 
@@ -206,14 +132,8 @@
   pointer-events: none;
 }
 
-/* ---------- Layout switches ---------- */
-@media (min-width: 761px) {
-  .about-card__art {
-    display: block;
-  }
-}
-
-@media (max-width: 560px) {
+/* ---------- Phones ---------- */
+@media (max-width: 640px) {
   .about-features {
     grid-template-columns: minmax(0, 1fr);
   }

@@ -1,0 +1,198 @@
+/* ==========================================================================
+   contact.css – Contact page (pages/Contact.jsx)
+   Uses the shared page layout (navy title band + white content, see page.css).
+   ========================================================================== */
+
+.contact-content {
+  padding-bottom: 56px;
+}
+
+.contact-intro p {
+  margin: 0 0 10px;
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.contact-section {
+  margin-top: 36px;
+}
+
+.contact-section__title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.contact-section__text {
+  margin: 0 0 14px;
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* ---------- "How can we help" cards ---------- */
+.contact-help {
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+}
+
+.contact-help__card {
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 18px 20px;
+}
+
+.contact-help__title {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.contact-help__text {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ---------- Form ---------- */
+.contact-form {
+  display: grid;
+  max-width: 720px;
+  gap: 22px;
+}
+
+.contact-fieldset {
+  margin: 0;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+}
+
+.contact-label {
+  padding: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.contact-options {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.contact-option {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: 10px;
+  border-width: 2px;
+  border-color: #cfd4de;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.contact-option input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--navy);
+}
+
+.contact-option:has(input:checked) {
+  border-color: var(--navy);
+  background-color: #f3f5f9;
+}
+
+.contact-option:has(input:focus-visible) {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+}
+
+.contact-help-text {
+  margin: 2px 0 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.contact-textarea {
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  border-width: 2px;
+  border-color: #cfd4de;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 12px 14px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.contact-textarea:focus {
+  border-color: var(--navy);
+  outline: none;
+}
+
+.contact-count {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.contact-status {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.contact-status--ok {
+  color: var(--ok);
+}
+
+.contact-status--error {
+  color: var(--err);
+}
+
+/* ---------- Thank-you box ---------- */
+.contact-thanks {
+  margin-top: 40px;
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 22px 24px;
+}
+
+.contact-thanks .contact-section__text {
+  margin-bottom: 0;
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 900px) {
+  .contact-help {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .contact-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

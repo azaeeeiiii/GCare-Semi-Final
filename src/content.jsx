@@ -404,3 +404,40 @@ export const ABOUT = {
     text: 'Stay informed. Stay prepared. Stay safe.',
   },
 };
+
+/* ===================== CONTACT PAGE (/contact) =====================
+   Text shown on pages/Contact.jsx. Edit the wording here. */
+export const CONTACT = {
+  title: 'Contact Us',
+  tagline: 'We’d Love to Hear From You!',
+  intro: [
+    'Have suggestions, questions, or feedback about GCare? We’re here to listen! Whether you want to recommend a feature, clarify our Terms of Use, or ask about our Privacy Policy, feel free to reach out.',
+    'Your feedback helps us improve GCare and provide a better experience for our community.',
+  ],
+  helpTitle: 'How Can We Help You?',
+  help: [
+    {
+      title: 'Suggestions and Feedback',
+      text: 'Have an idea or recommendation to improve GCare? Share your thoughts with us. We value your suggestions for new features, website improvements, and community safety initiatives.',
+    },
+    {
+      title: 'Terms of Use Inquiries',
+      text: 'Have questions about GCare’s rules, user responsibilities, or platform guidelines? Contact us if you need clarification about our Terms of Use.',
+    },
+    {
+      title: 'Privacy Policy Inquiries',
+      text: 'Do you have questions about how GCare collects, uses, stores, or protects your personal information? You may contact us regarding our Privacy Policy and data protection practices.',
+    },
+  ],
+  formTitle: 'Send Us a Message',
+  formIntro: 'Select the purpose of your message and provide the necessary details below.',
+  categoryLabel: 'Message Category',
+  categories: ['Suggestions and Feedback', 'Terms of Use Inquiry', 'Privacy Policy Inquiry', 'Other Inquiries'],
+  messageLabel: 'Your Message',
+  messageHelp: 'Describe your suggestion, question, or inquiry in the space provided.',
+  placeholder: 'Write your message here...',
+  submit: 'Submit Message',
+  thanksTitle: 'Thank You for Reaching Out!',
+  thanksText:
+    'We appreciate your time and feedback. Your messages help us improve GCare, maintain transparency, and build a safer and more informed community.',
+};
