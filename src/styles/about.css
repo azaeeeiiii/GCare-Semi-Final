@@ -1,0 +1,228 @@
+/* ==========================================================================
+   about.css – About GCare page (pages/About.jsx)
+   Navy page, white rounded card: sky picture on the left, content on the right.
+   ========================================================================== */
+
+/* Navy background area around the card */
+.about {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--navy);
+  padding: clamp(16px, 4vw, 48px) clamp(12px, 4vw, 48px);
+}
+
+.about-card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  overflow: hidden;
+  border-radius: 18px;
+  background-color: #fff;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.3);
+}
+
+/* ---------- Left: sky + hills (hidden on phones) ---------- */
+.about-card__art {
+  position: relative;
+  display: none;
+  flex: 0 0 36%;
+}
+
+/* fills the panel; works for both the <svg> placeholder and a future <img> */
+.about-card__art-img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Right: content ---------- */
+.about-card__content {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 0%;
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.about-card__close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 9999px;
+  color: var(--navy);
+}
+
+.about-card__close-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.about-card__title {
+  margin: 0;
+  padding-right: 44px; /* keep clear of the close button */
+  font-size: clamp(30px, 4vw, 40px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.about-card__tagline {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.about-card__intro {
+  margin: 22px 0 22px;
+  max-width: 560px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------- Four feature cards ---------- */
+.about-features {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+}
+
+.about-feature {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 14px 16px;
+}
+
+/* Navy circle behind the icon */
+.about-card__icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 9999px;
+  background-color: var(--navy);
+}
+
+/* The *_icon_circle.png files are a WHITE circle with a NAVY symbol.
+   This flips them to a navy circle with a white symbol to match the design:
+   invert + grayscale makes the circle black / symbol white, then "screen" lets the navy show through the black.
+   If you get icon files that are already navy circle + white symbol, delete the filter and mix-blend-mode lines. */
+.about-card__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: invert(1) grayscale(1) brightness(1.3);
+  mix-blend-mode: screen;
+}
+
+/* the SVG placeholder icon (Volunteer) */
+.about-card__svg {
+  width: 56%;
+  height: 56%;
+}
+
+.about-feature__title {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.about-feature__text {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+/* ---------- Bottom navy banner ---------- */
+.about-banner {
+  position: relative;
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 14px;
+  background-color: var(--navy);
+  padding: 12px 20px;
+  color: #fff;
+}
+
+.about-banner__icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+
+.about-banner__divider {
+  width: 2px;
+  height: 40px;
+  flex: none;
+  background-color: rgb(255 255 255 / 0.55);
+}
+
+.about-banner__text {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.about-banner__text strong {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* clouds.png turned grey and faded so it sits quietly in the banner corner */
+.about-banner__clouds {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  height: 78%;
+  width: auto;
+  opacity: 0.75;
+  filter: grayscale(1) brightness(0.9);
+  pointer-events: none;
+}
+
+/* ---------- Layout switches ---------- */
+@media (min-width: 761px) {
+  .about-card__art {
+    display: block;
+  }
+}
+
+@media (max-width: 560px) {
+  .about-features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-banner {
+    padding: 12px 14px;
+  }
+
+  .about-banner__clouds {
+    opacity: 0.45;
+  }
+}

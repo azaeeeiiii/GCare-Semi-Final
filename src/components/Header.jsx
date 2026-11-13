@@ -17,6 +17,15 @@ function Brand() {
   );
 }
 
+/* Brand-only header (About page) */
+export function SimpleHeader() {
+  return (
+    <header className="site-header">
+      <Brand />
+    </header>
+  );
+}
+
 
 /* Landing-page header: brand + Sign in / Create Account */
 export function Header({ onOpenAuth }) {

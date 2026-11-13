@@ -31,274 +31,311 @@ export const areaStatus = {
 /* ---------- TERMS OF USE + PRIVACY POLICY ---------- */
 
 export const LEGAL = {
-  terms: {
+    terms: {
     title: 'Terms of Use',
-    updated: 'Last updated: November 9, 2026',
+    updated: 'Last updated: November 13, 2026',
     alsoRead: 'privacy',
     sections: [
       {
         id: 'acceptance',
-        title: 'Acceptance of these terms',
+        title: 'Acceptance of These Terms',
         body: (
           <p>
-            By creating an account or using GCare, you agree to these Terms of Use and to our{' '}
-            <LegalRef to="privacy">Privacy Policy</LegalRef>. If you do not agree, please do not use the platform.
+            By creating an account or using GCare, you agree to follow these Terms of Use and our{' '}
+            <LegalRef to="privacy">Privacy Policy</LegalRef>. If you do not agree with these terms, please do not use
+            the platform.
           </p>
         ),
       },
       {
         id: 'about',
-        title: 'What GCare is',
+        title: 'About GCare',
         body: (
           <>
             <p>
-              GCare is a community safety platform where people can view alerts, explore a safety map, report incidents
-              and hazards, share verified information, and volunteer during emergencies.
+              GCare is a community safety platform that allows users to view safety alerts, explore an interactive
+              safety map, report incidents and hazards, share information, and participate in volunteer activities.
             </p>
             <div className="callout">
-              <strong>GCare is not an emergency service.</strong> In an emergency, call your local emergency hotline
-              right away (in the Philippines, dial <strong>911</strong>). Do not wait for a GCare response.
+              <strong>GCare is not an emergency response service.</strong> In case of an emergency, contact your local
+              emergency hotline immediately. In the Philippines, you may dial <strong>911</strong>. Do not rely on
+              GCare as a substitute for emergency assistance.
             </div>
           </>
         ),
       },
       {
         id: 'accounts',
-        title: 'Your account',
+        title: 'User Accounts',
         body: (
           <p>
-            You must give accurate information and keep your password private. You are responsible for everything that
-            happens under your account. Tell us as soon as you think your account has been compromised.
+            Users must provide accurate information when registering and are responsible for keeping their account
+            credentials secure. Any activity performed through their accounts is their responsibility. Users should
+            immediately report suspected unauthorized access to their accounts.
           </p>
         ),
       },
       {
         id: 'reports',
-        title: 'Reports and posts',
+        title: 'Reports and User Submissions',
         body: (
           <>
-            <p>Reports and posts must be truthful and made in good faith. When you submit one, you confirm that:</p>
+            <p>
+              All reports and submitted content must be truthful, accurate to the best of the user&rsquo;s knowledge,
+              and submitted in good faith. By submitting content, users confirm that:
+            </p>
             <ul>
-              <li>the details are accurate to the best of your knowledge;</li>
-              <li>you have the right to share any photos or content you upload;</li>
-              <li>it does not expose another person&apos;s private information without a good reason.</li>
+              <li>The information provided is accurate to the best of their knowledge.</li>
+              <li>They have permission or legal rights to upload and share the submitted photos and materials.</li>
+              <li>Their submissions do not unnecessarily expose another person&rsquo;s private information.</li>
             </ul>
-            <p>We may review, verify, edit, label or remove content, and we decide what appears on the feed and map.</p>
+            <p>
+              GCare administrators reserve the right to review, verify, edit, label, or remove submitted content when
+              necessary to maintain platform safety and reliability.
+            </p>
           </>
         ),
       },
       {
         id: 'conduct',
-        title: 'What you must not do',
+        title: 'Prohibited Activities',
         body: (
           <>
+            <p>Users are not allowed to:</p>
             <ul>
-              <li>Submit false or misleading reports, or fake emergencies.</li>
-              <li>Harass, threaten or discriminate against others, or post hate speech.</li>
-              <li>Post spam, advertisements or unrelated content.</li>
-              <li>Try to break, overload or gain unauthorized access to GCare.</li>
-              <li>Pretend to be an official agency, administrator or another person.</li>
+              <li>Submit false, misleading, or intentionally fabricated reports.</li>
+              <li>Harass, threaten, discriminate against, or spread hate speech toward others.</li>
+              <li>Post spam, advertisements, or unrelated content.</li>
+              <li>Attempt unauthorized access, disrupt, or interfere with GCare&rsquo;s services.</li>
+              <li>Impersonate another user, administrator, or government agency.</li>
             </ul>
-            <p>Accounts that break these rules may be warned, limited or suspended.</p>
+            <p>Violations may result in warnings, restricted access, account suspension, or account termination.</p>
           </>
         ),
       },
       {
         id: 'alerts',
-        title: 'Alerts and information',
+        title: 'Safety Alerts and Information',
         body: (
-          <p>
-            Alerts and advisories may come from administrators, official agencies or verified community reports. We work
-            to keep them accurate and timely, but we cannot guarantee that every alert is complete, current or
-            error-free. Always follow instructions from your local authorities.
-          </p>
+          <>
+            <p>
+              GCare may display alerts and advisories from administrators, official agencies, and verified community
+              reports. Although we make reasonable efforts to maintain accurate and updated information, we cannot
+              guarantee that all information is complete, current, or error-free.
+            </p>
+            <p>Users should verify important information and follow official instructions from local authorities.</p>
+          </>
         ),
       },
       {
         id: 'volunteering',
-        title: 'Volunteering',
+        title: 'Volunteer Participation',
         body: (
-          <p>
-            Volunteers act on their own responsibility. Put your safety first, follow instructions from local
-            authorities, and never enter a dangerous area just to help. GCare does not employ or insure volunteers.
-          </p>
+          <>
+            <p>
+              Participation in volunteer activities is voluntary. Volunteers are expected to prioritize their personal
+              safety, follow official instructions, and avoid entering hazardous areas without proper authorization and
+              safety measures.
+            </p>
+            <p>GCare does not guarantee volunteer protection, insurance coverage, or emergency assistance.</p>
+          </>
         ),
       },
       {
         id: 'content',
-        title: 'Your content',
+        title: 'User-Generated Content',
         body: (
           <p>
-            You keep ownership of what you post. By posting on GCare you allow us to display, store and share it on the
-            platform and with response teams or authorities when needed to help people.
+            Users retain ownership of the content they submit to GCare. However, by submitting content, users grant
+            GCare permission to store, display, and share that content as necessary to operate the platform and support
+            community safety activities, subject to the Privacy Policy and applicable laws.
           </p>
         ),
       },
       {
         id: 'liability',
-        title: 'Disclaimers and limits of liability',
+        title: 'Disclaimers and Limitation of Liability',
         body: (
-          <p>
-            GCare is provided &quot;as is&quot; and &quot;as available&quot;. To the extent allowed by law, we are not
-            liable for losses or damages that come from your use of, or reliance on, the platform, including delayed,
-            missing or inaccurate information.
-          </p>
+          <>
+            <p>
+              GCare is provided on an &ldquo;as is&rdquo; and &ldquo;as available&rdquo; basis. While we aim to
+              provide reliable services, we cannot guarantee uninterrupted access or completely accurate information.
+            </p>
+            <p>
+              To the extent permitted by applicable law, GCare shall not be responsible for damages or losses resulting
+              from reliance on inaccurate, delayed, or unavailable information on the platform.
+            </p>
+          </>
         ),
       },
       {
         id: 'changes',
-        title: 'Changes to these terms',
+        title: 'Changes to These Terms',
         body: (
           <p>
-            We may update these terms from time to time. The date at the top shows when they last changed. Continuing to
-            use GCare after an update means you accept the new terms.
+            GCare reserves the right to update or modify these Terms of Use when necessary. Any revisions will be
+            published on this page with the corresponding update date. Continued use of the platform after changes take
+            effect constitutes acceptance of the revised terms.
           </p>
         ),
       },
       {
         id: 'law',
-        title: 'Governing law',
-        body: <p>These terms are governed by the laws of the Republic of the Philippines.</p>,
+        title: 'Governing Law',
+        body: (
+          <p>
+            These Terms of Use shall be governed by and interpreted in accordance with the laws of the Republic of the
+            Philippines.
+          </p>
+        ),
       },
       {
         id: 'contact',
-        title: 'Contact us',
+        title: 'Contact Information',
         body: (
           <p>
-            Questions about these terms? Reach us through the <ContactLink />.
+            For questions, concerns, or clarifications regarding these Terms of Use, users may contact us through our{' '}
+            <ContactLink />.
           </p>
         ),
       },
     ],
   },
 
-  privacy: {
+    privacy: {
     title: 'Privacy Policy',
-    updated: 'Last updated: November 9, 2026',
+    updated: 'Last updated: November 13, 2026',
     alsoRead: 'terms',
     sections: [
       {
         id: 'collect',
-        title: 'Information we collect',
+        title: 'Personal Information We Collect',
         body: (
           <>
-            <p>We collect only what we need to run GCare:</p>
+            <p>GCare collects information needed to provide its services, including:</p>
             <ul>
-              <li><strong>Account details:</strong> your name, email address and password (stored in protected form).</li>
-              <li><strong>Reports you submit:</strong> descriptions, photos, time and location of the incident.</li>
-              <li><strong>Location:</strong> your approximate or precise location, only if you allow it, to show nearby alerts and place reports on the map.</li>
-              <li><strong>Technical data:</strong> basic device and browser information used to keep the site working and secure.</li>
+              <li>Name and email address.</li>
+              <li>Account login information.</li>
+              <li>Incident descriptions and uploaded photos.</li>
+              <li>Location details for mapping and nearby alerts.</li>
+              <li>Basic device and browser information.</li>
             </ul>
           </>
         ),
       },
       {
         id: 'use',
-        title: 'How we use your information',
+        title: 'Purpose of Data Collection',
         body: (
-          <ul>
-            <li>Create and secure your account.</li>
-            <li>Show alerts, reports and safety information that are relevant to your area.</li>
-            <li>Let you report incidents and join volunteer activities.</li>
-            <li>Verify reports and prevent spam or abuse.</li>
-            <li>Improve GCare and fix problems.</li>
-          </ul>
+          <>
+            <p>We use collected information to:</p>
+            <ul>
+              <li>Manage user accounts.</li>
+              <li>Display community safety alerts.</li>
+              <li>Process incident reports.</li>
+              <li>Support volunteer activities.</li>
+              <li>Improve website performance and security.</li>
+            </ul>
+          </>
         ),
       },
       {
         id: 'public',
-        title: 'What other people can see',
+        title: 'Information Visibility',
         body: (
           <p>
-            Incident reports may appear on the community feed and safety map. Your email address and password are never
-            shown to other users.
+            Some information submitted through incident reports may be visible to other users through the community
+            feed and safety map. Private account details, such as passwords and email addresses, are not publicly
+            displayed.
           </p>
         ),
       },
       {
         id: 'sharing',
-        title: 'Sharing',
+        title: 'Data Sharing',
         body: (
           <p>
-            We do not sell your personal information. We may share report details with local authorities or response
-            teams when it helps people in need, or when the law requires it.
+            GCare does not sell personal information. Information may be shared with authorized response teams or
+            relevant authorities when necessary for public safety or when legally required.
           </p>
         ),
       },
       {
         id: 'retention',
-        title: 'How long we keep it',
+        title: 'Data Retention',
         body: (
           <p>
-            We keep your information only as long as needed for the purposes above, or as the law requires. Reports that
-            matter for safety records may be kept after your account is deleted, with personal details removed where
-            possible.
+            Personal information is stored only for as long as necessary to provide GCare&rsquo;s services or comply
+            with legal requirements. Certain safety reports may be retained for documentation purposes.
           </p>
         ),
       },
       {
         id: 'security',
-        title: 'Security',
+        title: 'Data Security',
         body: (
           <p>
-            We use reasonable organizational and technical safeguards to protect your data. No system is perfectly
-            secure, so please use a strong, unique password and keep it private.
+            We apply reasonable security measures to protect user information against unauthorized access, disclosure,
+            or misuse. Users are also encouraged to maintain strong passwords and protect their account credentials.
           </p>
         ),
       },
       {
         id: 'rights',
-        title: 'Your rights',
+        title: 'User Privacy Rights',
         body: (
           <>
-            <p>Under the Philippine Data Privacy Act of 2012 (RA 10173) you may, among other rights:</p>
+            <p>In accordance with the Philippine Data Privacy Act of 2012 (RA 10173), users may:</p>
             <ul>
-              <li>ask to see the personal data we hold about you;</li>
-              <li>ask us to correct inaccurate data;</li>
-              <li>object to certain uses of your data, or ask us to delete it;</li>
-              <li>file a complaint with the National Privacy Commission.</li>
+              <li>Request access to their personal information.</li>
+              <li>Request corrections to inaccurate information.</li>
+              <li>Object to certain data processing activities.</li>
+              <li>Request deletion of personal information, subject to applicable requirements.</li>
+              <li>File a complaint with the National Privacy Commission.</li>
             </ul>
-            <p>To use these rights, contact us using the details below.</p>
           </>
         ),
       },
       {
         id: 'children',
-        title: 'Children',
+        title: 'Children’s Privacy',
         body: (
           <p>
-            GCare is not meant for children under 13. If you believe a child has given us personal data, contact us and
-            we will remove it.
+            GCare is not intended for children under 13 years old. If we discover that personal information has been
+            collected from a child under 13 without appropriate authorization, we will take steps to address and remove
+            the information.
           </p>
         ),
       },
       {
         id: 'cookies',
-        title: 'Cookies and local storage',
+        title: 'Cookies and Website Storage',
         body: (
           <p>
-            GCare may store small pieces of data in your browser, such as keeping you logged in or remembering
-            preferences. You can clear this at any time from your browser settings.
+            GCare may use cookies and browser storage to maintain user sessions, remember preferences, and improve
+            website functionality. Users may manage or clear these settings through their browser.
           </p>
         ),
       },
       {
-        id: 'changes',
-        title: 'Changes to this policy',
-        body: <p>We may update this policy from time to time. The date at the top shows when it last changed.</p>,
-      },
-      {
-        id: 'contact',
-        title: 'Contact us',
+        id: 'updates',
+        title: 'Policy Updates and Contact Information',
         body: (
-          <p>
-            Privacy questions or requests? Reach us through the <ContactLink />.
-          </p>
+          <>
+            <p>
+              GCare may revise this Privacy Policy when necessary. Any updates will be reflected on this page along
+              with the latest revision date.
+            </p>
+            <p>
+              For questions, concerns, or requests regarding personal information, users may contact us through our{' '}
+              <ContactLink />.
+            </p>
+          </>
         ),
       },
     ],
   },
-};
+}
 
 /*
  * FEED REPORTS (placeholder). Later: fetch('/api/reports').then(r => r.json()).then(setNews)
@@ -347,3 +384,23 @@ export const newsItems = [
     lng: 121.0742,
   },
 ];
+
+/* ===================== ABOUT GCARE PAGE (/about) =====================
+   Text shown on pages/About.jsx. Edit the wording here.
+   `icon` says which picture the card uses (see the icon map in About.jsx). */
+export const ABOUT = {
+  title: 'About GCare',
+  tagline: 'A safer, more prepared, and more connected Batangas.',
+  intro:
+    'GCare is a community-driven platform designed to keep you informed, prepared, and supported during emergencies and other local concerns. Together, we can build a safer and more resilient Golden Country Homes.',
+  features: [
+    { icon: 'bell', title: 'Real-Time Alerts', text: 'Get the latest updates on weather, hazards, and more.' },
+    { icon: 'hazard', title: 'Report Incidents', text: 'Help your community by reporting emergencies.' },
+    { icon: 'people', title: 'Find Help', text: 'Access resources and find nearby evacuation centers.' },
+    { icon: 'volunteer', title: 'Volunteer', text: 'Be part of the solution. Support & assist your community.' },
+  ],
+  banner: {
+    title: 'Together, we can make a difference.',
+    text: 'Stay informed. Stay prepared. Stay safe.',
+  },
+};
