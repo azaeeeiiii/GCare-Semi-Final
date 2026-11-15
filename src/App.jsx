@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import News from './pages/News';
 import Feed from './pages/Feed';
 import Report from './pages/Report';
+import Volunteer from './pages/Volunteer';
 import Admin from './pages/Admin';
 import RequireAuth from './components/RequireAuth';
 import Legal from './pages/Legal';
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
         <Route path="/report" element={<RequireAuth><Report /></RequireAuth>} />
+        <Route path="/volunteer" element={<Volunteer />} />
         <Route path="/admin" element={<RequireAuth admin><Admin /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="/news" element={<News />} />

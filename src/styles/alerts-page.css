@@ -1,0 +1,130 @@
+/* "View all alerts" page (News.jsx). Cards are colored by alert level via --level.
+   Layout: 2 columns on laptop/desktop, 1 column on tablet and mobile. */
+
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.alerts-empty {
+  margin-top: 16px;
+}
+
+.acard {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border-left: 6px solid var(--level, var(--navy));
+  border-radius: 16px;
+  background-color: var(--card);
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgb(27 36 55 / 0.12);
+  overflow-wrap: anywhere;
+}
+
+.acard--off {
+  opacity: 0.72;
+}
+
+.acard__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.acard__level {
+  border-radius: 999px;
+  background-color: var(--level, var(--navy));
+  padding: 3px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.acard__state {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.acard__state--on {
+  color: var(--ok);
+}
+
+.acard__title {
+  margin-top: 10px;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.acard__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.acard__meta svg {
+  flex: none;
+  color: var(--level, var(--navy));
+}
+
+.acard__meta + .acard__meta {
+  margin-top: 2px;
+}
+
+.acard__body {
+  margin-top: 12px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: #3b4357;
+}
+
+.acard__body p + p {
+  margin-top: 8px;
+}
+
+.acard__body--clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.acard__more {
+  align-self: flex-start;
+  min-height: 36px;
+  margin-top: 8px;
+  padding: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-decoration: underline;
+  color: var(--navy);
+}
+
+@media (max-width: 900px) {
+  .alerts-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .acard {
+    padding: 14px 15px;
+  }
+
+  .acard__title {
+    font-size: 19px;
+  }
+
+  .acard__more {
+    min-height: 44px;
+  }
+}
