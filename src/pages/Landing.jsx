@@ -4,6 +4,7 @@ import { Header } from '../components/Header';
 import Footer from '../components/Footer';
 import { AlertBanner, AlertModal } from '../components/Alerts';
 import AuthModal from '../components/AuthModal';
+import { useUser } from '../lib/auth';
 import { LegalModal } from '../components/LegalModal';
 import { ArrowRight, MapPin, btn } from '../components/ui';
 import { activeAlert, areaStatus } from '../content';
@@ -11,6 +12,7 @@ import { activeAlert, areaStatus } from '../content';
 export default function Landing() {
   const { hash, state } = useLocation();
   const navigate = useNavigate();
+  const user = useUser();
   const [alertOpen, setAlertOpen] = useState(false);
   const [authTab, setAuthTab] = useState(null); // null = closed, 'login' | 'signup' = open
   const [legalKey, setLegalKey] = useState(null); // null | 'terms' | 'privacy'
@@ -82,7 +84,7 @@ export default function Landing() {
                 Report an Incident
                 <ArrowRight className="arrow-right-small" />
               </Link>
-              <Link to="/volunteer" className={btn('outlineDark', 'community-card__btn')}>
+              <Link to="/volunteer" className={btn('outlineDark', 'community-card__btn')} onClick={(e) => { if (!user) { e.preventDefault(); navigate('/#login', { state: { from: '/volunteer' } }); setAuthTab('login'); } }}>
                 Become a Volunteer
                 <ArrowRight className="arrow-right-small" />
               </Link>
