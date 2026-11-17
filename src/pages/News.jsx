@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '../components/Header';
 import { PageHero } from '../components/ui';
 import Footer from '../components/Footer';
-import { ALERTS, ALERT_LEVELS } from '../lib/alerts';
+import { useAlerts, ALERT_LEVELS } from '../lib/alerts';
 import { formatDateTime } from '../lib/reports';
 
 const FILTERS = [['all', 'All'], ['critical', 'Critical'], ['warning', 'Warning'], ['advisory', 'Advisory']];
@@ -33,6 +33,7 @@ function AlertCard({ alert, open, onToggle }) {
 }
 
 export default function News() {
+  const ALERTS = useAlerts();
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
 
@@ -42,7 +43,7 @@ export default function News() {
 
   const sorted = useMemo(
     () => [...ALERTS].sort((a, b) => Number(b.active) - Number(a.active) || b.issuedAt.localeCompare(a.issuedAt)),
-    [],
+    [ALERTS],
   );
   const shown = sorted.filter((a) => filter === 'all' || a.level === filter);
   const count = (id) => (id === 'all' ? ALERTS.length : ALERTS.filter((a) => a.level === id).length);

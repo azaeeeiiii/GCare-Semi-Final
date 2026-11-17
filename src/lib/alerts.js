@@ -1,3 +1,7 @@
+import { useEffect, useState } from 'react';
+import { supabase } from './supabase';
+
+
 export const ALERT_LEVELS = {
   critical: { label: 'Critical', color: '#a00000' },
   warning: { label: 'Warning', color: '#c2570c' },
@@ -54,3 +58,27 @@ export const ALERTS = [
     ],
   },
 ];
+
+// Reads alerts from Supabase. Falls back to the static list if empty or on error.
+export function useAlerts() {
+  const [alerts, setAlerts] = useState(ALERTS);
+  useEffect(() => {
+    supabase
+      .from('alerts')
+      .select('*')
+      .order('issued_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (error || !data || data.length === 0) return;
+        setAlerts(data.map((a) => ({
+          id: a.id,
+          level: a.level,
+          title: a.title,
+          area: a.area,
+          issuedAt: a.issued_at,
+          active: a.active,
+          body: a.body,
+        })));
+      });
+  }, []);
+  return alerts;
+}

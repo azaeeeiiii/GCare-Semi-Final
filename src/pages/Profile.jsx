@@ -65,11 +65,11 @@ function PasswordEditor({ onDone }) {
   const [values, setValues] = useState({ current: '', next: '', confirm: '' });
   const [message, setMessage] = useState('');
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
     if (values.next.length < 8) return setMessage('Use at least 8 characters for your new password.');
     if (values.next !== values.confirm) return setMessage('New passwords do not match.');
-    const result = updatePassword(values.current, values.next);
+    const result = await updatePassword(values.current, values.next);
     if (!result.ok) return setMessage(result.error);
     setMessage('Password updated.');
     setValues({ current: '', next: '', confirm: '' });

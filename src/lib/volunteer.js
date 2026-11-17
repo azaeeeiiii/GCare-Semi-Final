@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from 'react';
+import { supabase } from './supabase';
 
-/* Volunteer data layer. Uses localStorage for now, same idea as lib/reports.js.
-   When Supabase is ready, only the functions in this file change (events + signups tables);
-   Volunteer.jsx and Admin.jsx keep calling the same names. */
+/* Volunteer data layer on Supabase (events + signups tables).
+   Same exports as before, so Volunteer.jsx and Admin.jsx keep working. */
 
 export const SIGNUP_STATUS = {
   pending: { label: 'Pending', note: 'Waiting for the admin to confirm your slot.' },
@@ -10,46 +10,63 @@ export const SIGNUP_STATUS = {
   rejected: { label: 'Not accepted', note: 'This slot is full or no longer available.' },
 };
 
-/* Placeholder events. These move to an `events` table (admin creates them). */
-export const EVENTS = [
-  { id: 'e1', title: 'Relief Goods Packing', location: 'Mars Street, Golden Country Homes', date: '2026-11-18', time: '8:00 AM – 12:00 PM', role: 'Packing Volunteer', slots: 20, summary: 'Pack food, water, and hygiene kits for families affected by disasters.', reminder: 'Wear comfortable clothing and bring a reusable water bottle.' },
-  { id: 'e2', title: 'Community Food Drive', location: 'Universe Street', date: '2026-11-20', time: '9:00 AM – 1:00 PM', role: 'Distribution Volunteer', slots: 15, summary: 'Hand out food packs and drinking water to families in need.', reminder: 'Bring a valid ID.' },
-  { id: 'e3', title: 'Barangay Clean-Up Drive', location: 'Mercury Street', date: '2026-11-22', time: '7:00 AM – 10:00 AM', role: 'Clean-Up Crew', slots: 30, summary: 'Clean public spaces and keep the community safe and sanitary.', reminder: 'Gloves and trash bags are provided.' },
-  { id: 'e4', title: 'First Aid Support Desk', location: 'Venus Street', date: '2026-11-25', time: '8:00 AM – 12:00 PM', role: 'First Aid Assistant', slots: 8, summary: 'Assist the health team with registration and basic first aid.', reminder: 'First aid training is a plus, not required.' },
-  { id: 'e5', title: 'Emergency Drill Marshal', location: 'Saturn Street', date: '2026-11-27', time: '2:00 PM – 5:00 PM', role: 'Drill Marshal', slots: 12, summary: 'Guide residents along evacuation routes during the community drill.', reminder: 'Arrive 30 minutes early for the briefing.' },
-  { id: 'e6', title: 'Donation Sorting', location: 'Jupiter Street', date: '2026-11-29', time: '9:00 AM – 12:00 PM', role: 'Sorting Volunteer', slots: 18, summary: 'Sort and label donated clothes and supplies for distribution.', reminder: 'Closed shoes are required.' },
-];
+// Filled from the `events` table (same array, updated in place)
+export const EVENTS = [];
 
-const KEY = 'gcare.volunteer.signups';
+let signups = [];
+let taken = {};
 const listeners = new Set();
-let cache = null;
+const notify = () => listeners.forEach((l) => l());
 
-function read() {
-  if (cache) return cache;
-  try {
-    cache = JSON.parse(localStorage.getItem(KEY)) || [];
-  } catch {
-    cache = [];
+export async function refresh() {
+  const [ev, su, tk] = await Promise.all([
+    supabase.from('events').select('*').order('event_date', { ascending: true }),
+    supabase.from('signups').select('*').order('created_at', { ascending: true }),
+    supabase.rpc('signup_counts'),
+  ]);
+
+  if (!ev.error && ev.data) {
+    EVENTS.length = 0;
+    ev.data.forEach((e) =>
+      EVENTS.push({
+        id: e.id,
+        title: e.title,
+        location: e.location,
+        date: e.event_date,
+        time: e.time_label,
+        role: e.role,
+        slots: e.slots,
+        summary: e.summary,
+        reminder: e.reminder,
+      }),
+    );
   }
-  return cache;
+
+  signups =
+    !su.error && su.data
+      ? su.data.map((s) => ({
+          id: s.id,
+          eventId: s.event_id,
+          email: s.email,
+          name: s.name,
+          status: s.status,
+          createdAt: s.created_at,
+        }))
+      : signups.slice();
+
+  if (!tk.error && tk.data) taken = Object.fromEntries(tk.data.map((r) => [r.event_id, Number(r.taken)]));
+  notify();
 }
 
-function write(next) {
-  cache = next;
-  try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    /* storage full or blocked: keep the in-memory copy */
-  }
-  listeners.forEach((l) => l());
-}
+refresh();
+supabase.auth.onAuthStateChange(() => setTimeout(refresh, 0));
 
 function subscribe(cb) {
   listeners.add(cb);
   return () => listeners.delete(cb);
 }
 
-export const useSignups = () => useSyncExternalStore(subscribe, read);
+export const useSignups = () => useSyncExternalStore(subscribe, () => signups);
 
 export const eventOf = (id) => EVENTS.find((e) => e.id === id);
 
@@ -57,16 +74,29 @@ export function formatEventDate(iso) {
   return new Date(`${iso}T00:00:00`).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-export function signUp(eventId, user) {
-  const all = read();
-  if (all.some((s) => s.eventId === eventId && s.email === user.email)) return;
-  write([...all, { id: `s${Date.now()}`, eventId, email: user.email, name: user.name, status: 'pending', createdAt: new Date().toISOString() }]);
+export async function signUp(eventId, user) {
+  const { data } = await supabase.auth.getSession();
+  const uid = data.session?.user?.id;
+  if (!uid) return;
+  const { error } = await supabase
+    .from('signups')
+    .insert({ event_id: eventId, user_id: uid, email: user.email, name: user.name });
+  if (error && error.code !== '23505') console.error('signup failed:', error.message);
+  await refresh();
 }
 
-export const cancelSignup = (id) => write(read().filter((s) => s.id !== id));
+export async function cancelSignup(id) {
+  const { error } = await supabase.from('signups').delete().eq('id', id);
+  if (error) console.error('cancel failed:', error.message);
+  await refresh();
+}
 
 /* Admin: approve or reject a signup */
-export const setSignupStatus = (id, status) => write(read().map((s) => (s.id === id ? { ...s, status } : s)));
+export async function setSignupStatus(id, status) {
+  const { error } = await supabase.from('signups').update({ status }).eq('id', id);
+  if (error) console.error('update failed:', error.message);
+  await refresh();
+}
 
-/* Slots left = capacity minus approved + pending signups */
-export const slotsLeft = (event, signups) => Math.max(0, event.slots - signups.filter((s) => s.eventId === event.id && s.status !== 'rejected').length);
+/* Slots left = capacity minus pending + approved signups (counted for everyone, not just you) */
+export const slotsLeft = (event) => Math.max(0, event.slots - (taken[event.id] || 0));

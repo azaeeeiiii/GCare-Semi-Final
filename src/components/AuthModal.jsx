@@ -118,19 +118,19 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal, onAu
 
   const succeed = (msg) => setStatus({ msg, ok: true, field: null });
 
-  function submitLogin(e) {
+  async function submitLogin(e) {
     e.preventDefault();
     if (!emailOk(login.email.trim())) return fail('Enter a valid email address.', 'loginEmail');
     if (!login.pass) return fail('Enter your password.', 'loginPass');
 
     // Demo auth (lib/auth.js). TODO: swap for the real sign-in call once the backend exists
-    const res = logIn({ email: login.email, pass: login.pass, remember: login.remember });
+    const res = await logIn({ email: login.email, pass: login.pass, remember: login.remember });
     if (!res.ok) return fail(res.error, res.field);
     succeed('Logged in. Taking you to the feed…');
     onAuthed?.(res.user);
   }
 
-  function submitSignup(e) {
+  async function submitSignup(e) {
     e.preventDefault();
     if (signup.name.trim().length < 2) return fail('Enter your full name.', 'signName');
     if (!emailOk(signup.email.trim())) return fail('Enter a valid email address.', 'signEmail');
@@ -139,7 +139,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onShowLegal, onAu
     if (!signup.terms) return fail('Agree to the Terms of Use and Privacy Policy to continue.');
 
     // Demo auth (lib/auth.js). TODO: swap for the real sign-up call
-    const res = signUp({ name: signup.name, email: signup.email, pass: signup.pass });
+    const res = await signUp({ name: signup.name, email: signup.email, pass: signup.pass });
     if (!res.ok) return fail(res.error, res.field);
     succeed('Account created. Taking you to the feed…');
     onAuthed?.(res.user);

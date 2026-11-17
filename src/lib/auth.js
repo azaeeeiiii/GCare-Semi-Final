@@ -1,120 +1,107 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
+import { supabase } from './supabase';
 
-/* ===================== auth.js =====================
-   FRONT-END ONLY demo auth, so the login gate can be built before a backend exists.
-   Accounts + session live in the browser (localStorage / sessionStorage).
+/* Supabase Auth. Same exports as before, but signUp, logIn, logOut and updatePassword are async.
+   Roles come from the `profiles` table (role = 'user' | 'admin'). */
 
-   NOT SECURE: passwords are stored as plain text and anyone can edit the browser storage.
-   When the backend is ready, replace the bodies of signUp(), logIn() and logOut()
-   (and getSession()) with real API calls. The rest of the app only uses these functions.
-   =================================================== */
+const listeners = new Set();
 
-const USERS_KEY = 'gcare_users';
-const SESSION_KEY = 'gcare_session';
-const CHANGE_EVENT = 'gcare-auth-change';
-
-const readUsers = () => {
+// Quick start from the saved session so the page does not flash "logged out" on refresh
+function readCached() {
   try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-  } catch {
-    return [];
-  }
-};
-
-const notify = () => window.dispatchEvent(new Event(CHANGE_EVENT));
-
-/* DEMO ADMIN so the "admin resolves reports" flow can be tried without a backend.
-   Log in with  admin@gcare.local / admin123  and open /admin.
-   TODO backend: remove this; real admin accounts and roles must live on the server. */
-function seedDemoAdmin() {
-  try {
-    const users = readUsers();
-    if (!users.some((u) => u.email === 'admin@gcare.local')) {
-      localStorage.setItem(
-        USERS_KEY,
-        JSON.stringify([...users, { name: 'GCare Admin', email: 'admin@gcare.local', pass: 'admin123', role: 'admin' }]),
-      );
-    }
-  } catch {
-    /* storage unavailable: ignore */
-  }
-}
-seedDemoAdmin();
-
-/* Returns the logged-in email (string) or null. A primitive so React can compare it cheaply. */
-export function getSession() {
-  try {
-    return sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY) || null;
+    const key = Object.keys(localStorage).find((k) => k.startsWith('sb-') && k.endsWith('-auth-token'));
+    if (!key) return null;
+    const u = JSON.parse(localStorage.getItem(key))?.user;
+    if (!u) return null;
+    return { name: u.user_metadata?.name || '', email: u.email, isAdmin: localStorage.getItem('gcare_role') === 'admin' };
   } catch {
     return null;
   }
 }
 
-function startSession(email, remember) {
-  sessionStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem(SESSION_KEY);
-  (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, email);
-  notify();
+let current = readCached();
+
+function setCurrent(next) {
+  const same =
+    (!next && !current) ||
+    (next && current && next.email === current.email && next.name === current.name && next.isAdmin === current.isAdmin);
+  if (same) return;
+  current = next;
+  listeners.forEach((l) => l());
 }
 
-export function signUp({ name, email, pass }) {
+async function loadUser(authUser) {
+  if (!authUser) {
+    localStorage.removeItem('gcare_role');
+    setCurrent(null);
+    return;
+  }
+  const { data } = await supabase.from('profiles').select('name, role').eq('id', authUser.id).maybeSingle();
+  const role = data?.role || 'user';
+  localStorage.setItem('gcare_role', role);
+  setCurrent({ name: data?.name || authUser.user_metadata?.name || '', email: authUser.email, isAdmin: role === 'admin' });
+}
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  setTimeout(() => loadUser(session?.user ?? null), 0);
+});
+
+export function getSession() {
+  return current ? current.email : null;
+}
+
+export async function signUp({ name, email, pass }) {
   const key = email.trim().toLowerCase();
-  const users = readUsers();
-  if (users.some((u) => u.email === key)) {
-    return { ok: false, field: 'signEmail', error: 'An account with this email already exists. Log in instead.' };
+  const { data, error } = await supabase.auth.signUp({
+    email: key,
+    password: pass,
+    options: { data: { name: name.trim() } },
+  });
+  const exists = 'An account with this email already exists. Log in instead.';
+  if (error) {
+    return { ok: false, field: 'signEmail', error: /already/i.test(error.message) ? exists : error.message };
   }
-  const user = { name: name.trim(), email: key, pass }; // TODO backend: never store plain passwords
-  localStorage.setItem(USERS_KEY, JSON.stringify([...users, user]));
-  startSession(key, true);
-  return { ok: true, user };
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    return { ok: false, field: 'signEmail', error: exists };
+  }
+  if (!data.session) {
+    return { ok: false, field: 'signEmail', error: 'Check your email to confirm your account, then log in.' };
+  }
+  await loadUser(data.user);
+  return { ok: true, user: current };
 }
 
-export function logIn({ email, pass, remember }) {
-  const key = email.trim().toLowerCase();
-  const user = readUsers().find((u) => u.email === key);
-  if (!user) {
-    return { ok: false, field: 'loginEmail', error: 'No account found for this email. Create an account first.' };
+export async function logIn({ email, pass }) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
+  if (error) {
+    const bad = /invalid login/i.test(error.message);
+    return { ok: false, field: 'loginPass', error: bad ? 'Incorrect email or password.' : error.message };
   }
-  if (user.pass !== pass) {
-    return { ok: false, field: 'loginPass', error: 'Incorrect password. Try again.' };
-  }
-  startSession(key, !!remember);
-  return { ok: true, user };
+  await loadUser(data.user);
+  return { ok: true, user: current };
 }
 
-export function logOut() {
-  sessionStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem(SESSION_KEY);
-  notify();
+export async function logOut() {
+  await supabase.auth.signOut();
+  setCurrent(null);
 }
 
-export function updatePassword(currentPass, nextPass) {
+export async function updatePassword(currentPass, nextPass) {
   const email = getSession();
   if (!email) return { ok: false, error: 'You are not signed in.' };
-  const users = readUsers();
-  const index = users.findIndex((u) => u.email === email);
-  if (index < 0 || users[index].pass !== currentPass) return { ok: false, error: 'Current password is incorrect.' };
-  users[index] = { ...users[index], pass: nextPass };
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  notify();
+  const { error: badCurrent } = await supabase.auth.signInWithPassword({ email, password: currentPass });
+  if (badCurrent) return { ok: false, error: 'Current password is incorrect.' };
+  const { error } = await supabase.auth.updateUser({ password: nextPass });
+  if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
 
 const subscribe = (cb) => {
-  window.addEventListener(CHANGE_EVENT, cb);
-  window.addEventListener('storage', cb);
-  return () => {
-    window.removeEventListener(CHANGE_EVENT, cb);
-    window.removeEventListener('storage', cb);
-  };
+  listeners.add(cb);
+  return () => listeners.delete(cb);
 };
 
-/* React hook: the current user ({ name, email }) or null when logged out. */
+/* React hook: the current user ({ name, email, isAdmin }) or null when logged out. */
 export function useUser() {
-  const email = useSyncExternalStore(subscribe, getSession, () => null);
-  return useMemo(() => {
-    if (!email) return null;
-    const u = readUsers().find((x) => x.email === email);
-    return u ? { name: u.name, email: u.email, isAdmin: u.role === 'admin' } : null;
-  }, [email]);
+  return useSyncExternalStore(subscribe, () => current, () => null);
 }
