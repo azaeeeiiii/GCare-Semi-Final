@@ -6,6 +6,7 @@ import Feed from './pages/Feed';
 import Report from './pages/Report';
 import Volunteer from './pages/Volunteer';
 import Admin from './pages/Admin';
+import ChatWidget from './components/ChatWidget';
 import AdminVolunteers from './pages/AdminVolunteers';
 import AdminAlerts from './pages/AdminAlerts';
 import AdminEvents from './pages/AdminEvents';
@@ -50,6 +51,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
+      <ChatWidget />
     </>
   );
 }
