@@ -187,6 +187,7 @@
 
 .profile-details {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   border-top: 1px solid #d7dbe0;
@@ -337,6 +338,15 @@
 .profile-card--signout strong { display: block; font-size: 16px; }
 .profile-card--signout > div { flex: 1; }
 .profile-form-message { padding: 8px 0 0; color: var(--ok); font-size: 13px; }
+.profile-form-message--error { color: #a00000; }
+.profile-setup { border-top: 1px solid #d7dbe0; padding-top: 18px; }
+.profile-setup__heading h2 { font-size: 18px; font-weight: 800; }
+.profile-setup__heading p { margin-top: 4px; color: #1d2431; font-size: 13px; }
+.profile-setup__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 12px; }
+.profile-setup label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; }
+.profile-setup input { min-width: 0; border: 1px solid #aeb5be; border-radius: 7px; padding: 9px; font: inherit; }
+.profile-button--primary { border-color: var(--navy); background: var(--navy); color: #fff; }
+.profile-button:disabled { cursor: wait; opacity: .65; }
 .profile-password { display: grid; gap: 10px; padding-top: 16px; }
 .profile-password label { display: grid; gap: 4px; font-size: 12px; font-weight: 700; }
 .profile-password input { border: 1px solid #aeb5be; border-radius: 7px; padding: 8px; }
@@ -354,6 +364,7 @@
   .profile-avatar { width: 90px; height: 90px; }
   .profile-avatar__upload { right: -8px; bottom: -8px; }
   .profile-details { align-items: flex-start; flex-direction: column; }
+  .profile-setup__fields { grid-template-columns: 1fr; }
   .profile-report { grid-template-columns: 74px minmax(0, 1fr) 18px; }
   .profile-status { grid-column: 2; grid-row: 2; justify-self: start; }
   .profile-report > svg { grid-column: 3; grid-row: 1; }

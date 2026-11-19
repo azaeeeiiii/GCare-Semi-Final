@@ -4,7 +4,7 @@ import { FeedHeader } from '../components/Header';
 import LocationModal from '../components/LocationModal';
 import NotificationModal from '../components/NotificationModal';
 import ConfirmModal from '../components/ConfirmModal';
-import { logOut, updatePassword, useUser } from '../lib/auth';
+import { logOut, updatePassword, updateProfile, useUser } from '../lib/auth';
 import { newsItems } from '../content';
 
 const iconProps = {
@@ -87,18 +87,57 @@ function PasswordEditor({ onDone }) {
   );
 }
 
+function ProfileSetup({ initialValues, onSaved }) {
+  const [values, setValues] = useState(initialValues);
+  const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!values.education.trim() || !values.location.trim()) {
+      setMessage('Add your education and location to finish setting up your profile.');
+      return;
+    }
+
+    setSaving(true);
+    setMessage('');
+    const result = await updateProfile(values);
+    setSaving(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    onSaved(result.user);
+  }
+
+  return (
+    <form className="profile-setup" onSubmit={submit}>
+      <div className="profile-setup__heading">
+        <div><h2>Finish setting up your profile</h2><p>Add a few details so your profile is complete.</p></div>
+      </div>
+      <div className="profile-setup__fields">
+        <label>Education<input type="text" value={values.education} onChange={(e) => setValues({ ...values, education: e.target.value })} placeholder="Your education" required /></label>
+        <label>Location<input type="text" value={values.location} onChange={(e) => setValues({ ...values, location: e.target.value })} placeholder="Your location" required /></label>
+      </div>
+      {message && <p className="profile-form-message profile-form-message--error" role="alert">{message}</p>}
+      <button type="submit" className="profile-button profile-button--primary" disabled={saving}>{saving ? 'Saving...' : 'Save Profile'}</button>
+    </form>
+  );
+}
+
 export default function Profile() {
   const user = useUser();
   const navigate = useNavigate();
   const [otpEnabled, setOtpEnabled] = useState(true);
   const [editingPassword, setEditingPassword] = useState(false);
   const [notice, setNotice] = useState('');
-  const [locations, setLocations] = useState([{ id: 'home', name: 'Home', address: 'Mars St, Golden Country Homes' }]);
+  const [locations, setLocations] = useState([]);
   const [locationsOpen, setLocationsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [avatar, setAvatar] = useState('');
   const [avatarMessage, setAvatarMessage] = useState('');
+  const [editingProfile, setEditingProfile] = useState(false);
   const [notificationPreferences, setNotificationPreferences] = useState({
     weather: true,
     emergency: true,
@@ -163,11 +202,18 @@ export default function Profile() {
             <div><h1>{user.name}</h1><p className="profile-email">{user.email}</p><span className="profile-verified"><CheckIcon /> Verified Account</span></div>
           </div>
           {avatarMessage && <p className="profile-form-message" role="status">{avatarMessage}</p>}
-          <div className="profile-details">
-            <div><strong>▰</strong><span>BS Computer Science<small>BatStateU Alangilan</small></span></div>
-            <div><PinIcon /><span>Golden Country Homes<small>Earth</small></span></div>
-            <div><strong>▣</strong><span>Joined<small>November 2026</small></span></div>
-          </div>
+          {editingProfile || !user.education || !user.location ? (
+            <ProfileSetup
+              initialValues={{ education: user.education || '', location: user.location || '' }}
+              onSaved={() => setEditingProfile(false)}
+            />
+          ) : (
+            <div className="profile-details">
+              <div><strong>▰</strong><span>{user.education}</span></div>
+              <div><PinIcon /><span>{user.location}</span></div>
+              <button type="button" className="profile-button profile-button--quiet" onClick={() => setEditingProfile(true)}>Edit</button>
+            </div>
+          )}
         </section>
 
         <section className="profile-card profile-card--security">

@@ -13,7 +13,13 @@ function readCached() {
     if (!key) return null;
     const u = JSON.parse(localStorage.getItem(key))?.user;
     if (!u) return null;
-    return { name: u.user_metadata?.name || '', email: u.email, isAdmin: localStorage.getItem('gcare_role') === 'admin' };
+    return {
+      name: u.user_metadata?.name || '',
+      email: u.email,
+      isAdmin: localStorage.getItem('gcare_role') === 'admin',
+      education: u.user_metadata?.education || '',
+      location: u.user_metadata?.location || '',
+    };
   } catch {
     return null;
   }
@@ -24,7 +30,8 @@ let current = readCached();
 function setCurrent(next) {
   const same =
     (!next && !current) ||
-    (next && current && next.email === current.email && next.name === current.name && next.isAdmin === current.isAdmin);
+    (next && current && next.email === current.email && next.name === current.name && next.isAdmin === current.isAdmin
+      && next.education === current.education && next.location === current.location);
   if (same) return;
   current = next;
   listeners.forEach((l) => l());
@@ -39,7 +46,13 @@ async function loadUser(authUser) {
   const { data } = await supabase.from('profiles').select('name, role').eq('id', authUser.id).maybeSingle();
   const role = data?.role || 'user';
   localStorage.setItem('gcare_role', role);
-  setCurrent({ name: data?.name || authUser.user_metadata?.name || '', email: authUser.email, isAdmin: role === 'admin' });
+  setCurrent({
+    name: data?.name || authUser.user_metadata?.name || '',
+    email: authUser.email,
+    isAdmin: role === 'admin',
+    education: authUser.user_metadata?.education || '',
+    location: authUser.user_metadata?.location || '',
+  });
 }
 
 supabase.auth.onAuthStateChange((_event, session) => {
@@ -94,6 +107,18 @@ export async function updatePassword(currentPass, nextPass) {
   const { error } = await supabase.auth.updateUser({ password: nextPass });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+export async function updateProfile({ education, location }) {
+  const { data, error } = await supabase.auth.updateUser({
+    data: {
+      education: education.trim(),
+      location: location.trim(),
+    },
+  });
+  if (error) return { ok: false, error: error.message };
+  await loadUser(data.user);
+  return { ok: true, user: current };
 }
 
 const subscribe = (cb) => {
