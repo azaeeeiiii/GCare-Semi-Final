@@ -24,6 +24,10 @@ const CalendarIcon = () => (
   <svg {...svg} className="feed-icon feed-icon--sm"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></svg>
 );
 
+const ReportDocIcon = () => (
+  <svg {...svg} className="feed-icon"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6" /></svg>
+);
+
 function NewsCard({ item, selected, onSelect }) {
   const [open, setOpen] = useState(false);
   return (
@@ -36,7 +40,7 @@ function NewsCard({ item, selected, onSelect }) {
         <img src={item.image} alt="" className="news-card__img" loading="lazy" />
       ) : (
         <div className="news-card__img news-card__img--empty" style={{ '--tone': item.tone }} aria-hidden="true">
-          <MegaphoneIcon />
+          <ReportDocIcon />
         </div>
       )}
 

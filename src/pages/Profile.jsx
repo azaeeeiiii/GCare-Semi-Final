@@ -17,10 +17,11 @@ const iconProps = {
   'aria-hidden': true,
 };
 
-const FeedIcon = () => <svg {...iconProps} className="feed-nav__icon"><path d="M4 6h16M4 12h16M4 18h16" /></svg>;
-const ReportIcon = () => <svg {...iconProps} className="feed-nav__icon"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V7L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6" /></svg>;
-const VolunteerIcon = () => <svg {...iconProps} className="feed-nav__icon"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z" /></svg>;
-const ProfileIcon = () => <svg {...iconProps} className="feed-nav__icon"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>;
+const navImg = (file) => <img src={`/images/${file}`} alt="" aria-hidden="true" className="feed-nav__icon feed-nav__icon--img" />;
+const FeedIcon = () => navImg('feed_icon.png');
+const ReportIcon = () => navImg('report_icon.png');
+const VolunteerIcon = () => navImg('volunteer_icon.png');
+const ProfileIcon = () => navImg('profile_icon.png');
 const CheckIcon = () => <svg {...iconProps}><path d="m5 12 4 4L19 6" /></svg>;
 const LockIcon = () => <svg {...iconProps}><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2" /></svg>;
 const ShieldIcon = () => <svg {...iconProps}><path d="m12 3 8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" /><path d="m8 12 2.5 2.5L16 9" /></svg>;
