@@ -4,6 +4,7 @@ import { PageHero } from '../components/ui';
 import Footer from '../components/Footer';
 import { useAlerts, ALERT_LEVELS } from '../lib/alerts';
 import { formatDateTime } from '../lib/reports';
+import { useNews, NEWS_CATEGORIES, formatNewsDate } from '../lib/news';
 
 const FILTERS = [['all', 'All'], ['critical', 'Critical'], ['warning', 'Warning'], ['advisory', 'Advisory']];
 
@@ -32,10 +33,33 @@ function AlertCard({ alert, open, onToggle }) {
   );
 }
 
+function NewsCard({ item, open, onToggle }) {
+  const cat = NEWS_CATEGORIES[item.category] || NEWS_CATEGORIES.update;
+  return (
+    <article className="acard" style={{ '--level': cat.color }}>
+      <div className="acard__top">
+        <span className="acard__level">{cat.label}</span>
+        <span className="acard__state">{formatNewsDate(item.createdAt)}</span>
+      </div>
+      <h3 className="acard__title">{item.title}</h3>
+      <p className="acard__meta"><ClockIcon />By {item.author}</p>
+      {item.image && <img src={item.image} alt="" className="ncard__img" loading="lazy" />}
+      <div className={`acard__body ${open ? '' : 'acard__body--clamp'}`.trim()}>
+        {item.body.map((p) => <p key={p}>{p}</p>)}
+      </div>
+      <button type="button" className="acard__more" aria-expanded={open} onClick={onToggle}>
+        {open ? 'Show less' : 'Read more'}
+      </button>
+    </article>
+  );
+}
+
 export default function News() {
   const ALERTS = useAlerts();
   const [filter, setFilter] = useState('all');
   const [openId, setOpenId] = useState(null);
+  const { news, loading } = useNews();
+  const [openNews, setOpenNews] = useState(null);
 
   useEffect(() => {
     document.title = 'Latest News – GCare';
@@ -80,7 +104,17 @@ export default function News() {
 
           <section id="news" className="news-section">
             <h2 className="news-section__title">News</h2>
-            <p className="placeholder">News and updates from the GCare team will appear here.</p>
+            {loading ? (
+              <p className="placeholder">Loading news…</p>
+            ) : news.length === 0 ? (
+              <p className="placeholder">No news yet. Updates from the GCare team will appear here.</p>
+            ) : (
+              <div className="alerts-grid">
+                {news.map((n) => (
+                  <NewsCard key={n.id} item={n} open={openNews === n.id} onToggle={() => setOpenNews(openNews === n.id ? null : n.id)} />
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </main>

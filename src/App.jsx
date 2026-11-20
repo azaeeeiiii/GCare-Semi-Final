@@ -10,6 +10,7 @@ import ChatWidget from './components/ChatWidget';
 import AdminVolunteers from './pages/AdminVolunteers';
 import AdminAlerts from './pages/AdminAlerts';
 import AdminEvents from './pages/AdminEvents';
+import AdminNews from './pages/AdminNews';
 import RequireAuth from './components/RequireAuth';
 import Legal from './pages/Legal';
 import ComingSoon from './pages/ComingSoon';
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/admin/volunteers" element={<RequireAuth admin><AdminVolunteers /></RequireAuth>} />
         <Route path="/admin/alerts" element={<RequireAuth admin><AdminAlerts /></RequireAuth>} />
         <Route path="/admin/events" element={<RequireAuth admin><AdminEvents /></RequireAuth>} />
+        <Route path="/admin/news" element={<RequireAuth admin><AdminNews /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="/news" element={<News />} />
         <Route path="/terms" element={<Legal which="terms" />} />

@@ -20,6 +20,7 @@ const ADMIN_NAV = [
   { to: '/admin/volunteers', label: 'Volunteers', icon: img('volunteer_icon.png') },
   { to: '/admin/alerts', label: 'Alerts', icon: <svg {...svg}><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9zM10 21h4" /></svg> },
   { to: '/admin/events', label: 'Events', icon: <svg {...svg}><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16" /></svg> },
+  { to: '/admin/news', label: 'News', icon: <svg {...svg}><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h6M8 13h6" /></svg> },
 ];
 
 export default function BottomNav() {
