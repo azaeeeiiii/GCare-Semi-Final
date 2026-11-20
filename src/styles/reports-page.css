@@ -1,0 +1,178 @@
+/* ==========================================================================
+   reports-page.css – "View All" reports page (/reports) + Feed additions
+   Add `@import './styles/reports-page.css';` at the END of src/index.css
+   ========================================================================== */
+
+/* ---------- Feed: announcements shortcut + empty/more states ---------- */
+.feed-announce {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background-color: var(--card);
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.feed-announce span {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.feed-announce .arrow-right-small {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.feed-announce:hover {
+  background-color: #e3e3e1;
+}
+
+.feed-news__empty {
+  border-radius: 14px;
+  background-color: var(--card);
+  padding: 22px 16px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.feed-news__empty a,
+.rempty a {
+  font-weight: 800;
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+.feed-news__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.feed-news__more .arrow-right-small {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- Report cards: status tags + reporter ---------- */
+.news-card__tag--status {
+  border: 1px solid currentColor;
+  background-color: #fff;
+}
+
+.news-card__tag--pending {
+  color: #4a5d7a;
+}
+
+.news-card__tag--review {
+  color: #c2570c;
+}
+
+.news-card__tag--resolved {
+  color: var(--ok);
+}
+
+.news-card__by {
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* ---------- View All page ---------- */
+.allrep {
+  display: flex;
+  flex-direction: column;
+}
+
+.allrep__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.allrep__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.allrep__search {
+  width: 100%;
+  margin-top: 14px;
+  min-height: 0;
+  height: 40px;
+  resize: none;
+}
+
+.allrep__selects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.allrep__selects .rtext {
+  width: auto;
+  min-width: 160px;
+  height: 38px;
+  min-height: 0;
+  flex: 1 1 160px;
+  max-width: 260px;
+  padding-block: 0;
+}
+
+.allrep__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+/* On this page the picture goes on top of the card so it can be big */
+.allrep__grid .news-card {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  padding: 10px;
+}
+
+.allrep__grid .news-card__img {
+  width: 100%;
+  height: 210px;
+  min-height: 0;
+}
+
+.allrep__grid .news-card__body {
+  padding-right: 44px;
+}
+
+.allrep__grid .news-card__title {
+  font-size: 20px;
+}
+
+.allrep__grid .news-card__text {
+  font-size: 13.5px;
+}
+
+/* phones: one card per row */
+@media (max-width: 700px) {
+  .allrep__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .allrep__grid .news-card__img {
+    height: 180px;
+  }
+}

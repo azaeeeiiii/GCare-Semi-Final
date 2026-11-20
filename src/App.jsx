@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import News from './pages/News';
 import Feed from './pages/Feed';
 import Report from './pages/Report';
+import Reports from './pages/Reports';
 import Volunteer from './pages/Volunteer';
 import Admin from './pages/Admin';
 import ChatWidget from './components/ChatWidget';
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
         <Route path="/report" element={<RequireAuth><Report /></RequireAuth>} />
+        <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
         <Route path="/volunteer" element={<Volunteer />} />
         <Route path="/admin" element={<RequireAuth admin><Admin /></RequireAuth>} />
         <Route path="/admin/volunteers" element={<RequireAuth admin><AdminVolunteers /></RequireAuth>} />

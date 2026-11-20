@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
@@ -7,13 +7,34 @@ import AuthModal from '../components/AuthModal';
 import { useUser } from '../lib/auth';
 import { LegalModal } from '../components/LegalModal';
 import { ArrowRight, MapPin, btn } from '../components/ui';
-import { activeAlert, areaStatus } from '../content';
+import { areaStatus } from '../content';
+import { ALERT_LEVELS, useAlerts } from '../lib/alerts';
+import { formatDateTime } from '../lib/reports';
+
+const SEVERITY = { critical: 3, warning: 2, advisory: 1 };
 
 export default function Landing() {
   const { hash, state } = useLocation();
   const navigate = useNavigate();
   const user = useUser();
+  const alerts = useAlerts();
   const [alertOpen, setAlertOpen] = useState(false);
+
+  // The banner shows the most severe ACTIVE alert the admin posted (newest first when equal)
+  const activeAlert = useMemo(() => {
+    const list = alerts
+      .filter((a) => a.active)
+      .sort((a, b) => (SEVERITY[b.level] || 0) - (SEVERITY[a.level] || 0) || b.issuedAt.localeCompare(a.issuedAt));
+    const a = list[0];
+    if (!a) return null;
+    return {
+      level: ALERT_LEVELS[a.level]?.label || a.level,
+      headline: a.title,
+      area: a.area,
+      issued: formatDateTime(a.issuedAt),
+      body: Array.isArray(a.body) ? a.body : [String(a.body || '')],
+    };
+  }, [alerts]);
   const [authTab, setAuthTab] = useState(null); // null = closed, 'login' | 'signup' = open
   const [legalKey, setLegalKey] = useState(null); // null | 'terms' | 'privacy'
 
@@ -33,7 +54,7 @@ export default function Landing() {
         <div aria-hidden="true" className="hero__photo" />
         <div aria-hidden="true" className="hero__overlay" />
 
-        <AlertBanner alert={activeAlert} onViewDetails={() => setAlertOpen(true)} />
+        {activeAlert && <AlertBanner alert={activeAlert} onViewDetails={() => setAlertOpen(true)} />}
 
         {/* Headline + status */}
         <div className="hero__intro">
@@ -45,9 +66,9 @@ export default function Landing() {
 
           <p className="hero__status">
             <span className="hero__status-dot" aria-hidden="true" />
-            <span>{areaStatus.text}</span>
+            <span>{activeAlert ? 'Active alert in effect. Stay alert' : areaStatus.text}</span>
             &bull; Updated:
-            <time className="hero__status-time">{areaStatus.updated}</time>
+            <time className="hero__status-time">{activeAlert ? activeAlert.issued : areaStatus.updated}</time>
           </p>
         </div>
 
@@ -96,7 +117,7 @@ export default function Landing() {
       <Footer />
 
       {/* ===== POP-UPS ===== */}
-      <AlertModal open={alertOpen} onClose={() => setAlertOpen(false)} alert={activeAlert} />
+      {activeAlert && <AlertModal open={alertOpen} onClose={() => setAlertOpen(false)} alert={activeAlert} />}
       <AuthModal
         tab={authTab}
         onTabChange={setAuthTab}

@@ -3,88 +3,43 @@ import { Link } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import IncidentMap from '../components/IncidentMap';
+import ReportCard from '../components/ReportCard';
 import { ArrowRight } from '../components/ui';
 import { useUser } from '../lib/auth';
-import { newsItems } from '../content';
-import { toFeedItem, useReports } from '../lib/reports';
+import { toFeedItem, useReportsState } from '../lib/reports';
 import { pointInPolygon } from '../lib/serviceArea';
 
 /* Feed page (members only, see RequireAuth in App.jsx). Browse-only:
-   reports on the left, a map of where they happened on the right. Reporting lives on the Report page. */
+   the latest resident reports on the left, a map of where they happened on the right.
+   - "View All" opens /reports (every report).
+   - "Announcements" opens /news (alerts + news posted by the admin).
+   Reporting lives on the Report page. */
+
+const LATEST_COUNT = 6; // cards shown in the left list; the rest are on /reports
 
 const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
 
+const ReportsIcon = () => (
+  <svg {...svg} className="feed-icon"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17.5v.01" /></svg>
+);
 const MegaphoneIcon = () => (
-  <svg {...svg} className="feed-icon"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V7L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11" /></svg>
+  <svg {...svg} className="feed-icon feed-icon--sm"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V7L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11" /></svg>
 );
 const PinIcon = () => (
   <svg {...svg} className="feed-icon"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
 );
-const CalendarIcon = () => (
-  <svg {...svg} className="feed-icon feed-icon--sm"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></svg>
-);
-
-const ReportDocIcon = () => (
-  <svg {...svg} className="feed-icon"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6" /></svg>
-);
-
-function NewsCard({ item, selected, onSelect }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <article
-      id={`card-${item.id}`}
-      className={`news-card ${selected ? 'news-card--selected' : ''}`.trim()}
-      onClick={() => onSelect(item.id)}
-    >
-      {item.image ? (
-        <img src={item.image} alt="" className="news-card__img" loading="lazy" />
-      ) : (
-        <div className="news-card__img news-card__img--empty" style={{ '--tone': item.tone }} aria-hidden="true">
-          <ReportDocIcon />
-        </div>
-      )}
-
-      <div className="news-card__body">
-        <div className="news-card__meta">
-          <span className="news-card__tag">{item.tag}</span>
-          {item.status === 'resolved' && <span className="news-card__tag news-card__tag--ok">Resolved</span>}
-          <time className="news-card__date"><CalendarIcon />{item.date}</time>
-        </div>
-        <h3 className="news-card__title">{item.title}</h3>
-        <p className="news-card__where">{item.location}</p>
-        <p className={`news-card__text ${open ? '' : 'news-card__text--clamp'}`.trim()}>
-          {item.excerpt}
-          {open && <><br />{item.body}</>}
-        </p>
-      </div>
-
-      <button
-        type="button"
-        className="news-card__go"
-        aria-expanded={open}
-        aria-label={open ? `Show less: ${item.title}` : `Read more: ${item.title}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen(!open);
-        }}
-      >
-        <ArrowRight className={`arrow-right ${open ? 'news-card__go-icon--open' : ''}`.trim()} />
-      </button>
-    </article>
-  );
-}
 
 export default function Feed() {
   const user = useUser();
-  const reports = useReports();
-  // reports published by residents come first, then the sample news from content.jsx
-const items = useMemo(
-  () =>
-    [...reports.map(toFeedItem), ...newsItems].filter((i) =>
-      pointInPolygon([i.lat, i.lng]),
-    ),
-  [reports],
-);  const [selectedId, setSelectedId] = useState(null);
+  const { reports, loading, error } = useReportsState();
+
+  // only reports inside the service area (same rule as the map), newest first
+  const items = useMemo(
+    () => reports.map(toFeedItem).filter((i) => pointInPolygon([i.lat, i.lng])),
+    [reports],
+  );
+  const latest = items.slice(0, LATEST_COUNT);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     document.title = 'Feed – GCare';
@@ -107,13 +62,30 @@ const items = useMemo(
       <main className="feed__main">
         <section className="feed-panel feed-news" aria-labelledby="newsTitle">
           <header className="feed-panel__head">
-            <h1 id="newsTitle" className="feed-panel__title"><MegaphoneIcon />Latest News</h1>
-            <Link to="/news" className="feed-pill feed-pill--light">View All<ArrowRight className="arrow-right-small" /></Link>
+            <h1 id="newsTitle" className="feed-panel__title"><ReportsIcon />Latest Reports</h1>
+            <Link to="/reports" className="feed-pill feed-pill--light">View All<ArrowRight className="arrow-right-small" /></Link>
           </header>
-          <div className="feed-news__list" tabIndex={0} aria-label="News list">
-            {items.map((item) => (
-              <NewsCard key={item.id} item={item} selected={item.id === selectedId} onSelect={(id) => select(id, true)} />
+
+          <Link to="/news" className="feed-announce">
+            <MegaphoneIcon />
+            <span><strong>Announcements &amp; Alerts</strong> from the GCare team</span>
+            <ArrowRight className="arrow-right-small" />
+          </Link>
+
+          <div className="feed-news__list" tabIndex={0} aria-label="Latest reports from residents">
+            {loading && <p className="feed-news__empty">Loading reports…</p>}
+            {!loading && error && <p className="feed-news__empty">{error}</p>}
+            {!loading && !error && latest.length === 0 && (
+              <p className="feed-news__empty">
+                No reports yet. If you see a flood, fire or other hazard, <Link to="/report">report it here</Link>.
+              </p>
+            )}
+            {latest.map((item) => (
+              <ReportCard key={item.id} item={item} selected={item.id === selectedId} onSelect={(id) => select(id, true)} />
             ))}
+            {items.length > LATEST_COUNT && (
+              <Link to="/reports" className="feed-news__more">See all {items.length} reports<ArrowRight className="arrow-right-small" /></Link>
+            )}
           </div>
         </section>
 

@@ -62,7 +62,7 @@ export default function News() {
   const [openNews, setOpenNews] = useState(null);
 
   useEffect(() => {
-    document.title = 'Latest News – GCare';
+    document.title = 'Announcements – GCare';
   }, []);
 
   const sorted = useMemo(
@@ -77,7 +77,7 @@ export default function News() {
       <PageHeader />
 
       <main className="page__main">
-        <PageHero title="Latest News" />
+        <PageHero title="Announcements" />
 
         <div className="page-content page-content--news">
           <section id="alerts" className="news-section">
@@ -103,7 +103,7 @@ export default function News() {
           </section>
 
           <section id="news" className="news-section">
-            <h2 className="news-section__title">News</h2>
+            <h2 className="news-section__title">News &amp; Announcements</h2>
             {loading ? (
               <p className="placeholder">Loading news…</p>
             ) : news.length === 0 ? (

@@ -59,16 +59,20 @@ export const ALERTS = [
   },
 ];
 
-// Reads alerts from Supabase. Falls back to the static list if empty or on error.
+// Reads alerts from Supabase. Falls back to the sample list only if the table can't be read.
+// If the table works but is empty, no alerts are shown (so lifted/deleted alerts really disappear).
 export function useAlerts() {
-  const [alerts, setAlerts] = useState(ALERTS);
+  const [alerts, setAlerts] = useState([]); // empty until loaded, so sample alerts never flash on screen
   useEffect(() => {
     supabase
       .from('alerts')
       .select('*')
       .order('issued_at', { ascending: false })
       .then(({ data, error }) => {
-        if (error || !data || data.length === 0) return;
+        if (error || !data) {
+          setAlerts(ALERTS); // table can't be read: show the sample list
+          return;
+        }
         setAlerts(data.map((a) => ({
           id: a.id,
           level: a.level,
