@@ -1,6 +1,8 @@
 import { btn, useDialog } from './ui';
 
-export default function ConfirmModal({ open, title, message, confirmLabel, onConfirm, onClose }) {
+export default function ConfirmModal({
+  open, title, message, confirmLabel, onConfirm, onClose, error = '', confirmDisabled = false,
+}) {
   const { ref, onMouseDown, onClick } = useDialog(open, onClose);
 
   return (
@@ -16,12 +18,13 @@ export default function ConfirmModal({ open, title, message, confirmLabel, onCon
         <div>
           <h2 id="confirmTitle">{title}</h2>
           <p>{message}</p>
+          {error && <p className="confirm-modal__error" role="alert">{error}</p>}
         </div>
         <button type="button" onClick={onClose} aria-label="Close" className="confirm-modal__close">&times;</button>
       </header>
       <footer className="confirm-modal__footer">
         <button type="button" className={btn('outlineDark')} onClick={onClose}>Cancel</button>
-        <button type="button" className="confirm-modal__confirm" onClick={onConfirm}>{confirmLabel}</button>
+        <button type="button" className="confirm-modal__confirm" onClick={onConfirm} disabled={confirmDisabled}>{confirmDisabled ? 'Working...' : confirmLabel}</button>
       </footer>
     </dialog>
   );

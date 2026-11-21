@@ -17,7 +17,7 @@ function readCached() {
       name: u.user_metadata?.name || '',
       email: u.email,
       isAdmin: localStorage.getItem('gcare_role') === 'admin',
-      education: u.user_metadata?.education || '',
+      userType: u.user_metadata?.user_type || '',
       location: u.user_metadata?.location || '',
     };
   } catch {
@@ -31,7 +31,7 @@ function setCurrent(next) {
   const same =
     (!next && !current) ||
     (next && current && next.email === current.email && next.name === current.name && next.isAdmin === current.isAdmin
-      && next.education === current.education && next.location === current.location);
+      && next.userType === current.userType && next.location === current.location);
   if (same) return;
   current = next;
   listeners.forEach((l) => l());
@@ -50,7 +50,7 @@ async function loadUser(authUser) {
     name: data?.name || authUser.user_metadata?.name || '',
     email: authUser.email,
     isAdmin: role === 'admin',
-    education: authUser.user_metadata?.education || '',
+    userType: authUser.user_metadata?.user_type || '',
     location: authUser.user_metadata?.location || '',
   });
 }
@@ -109,10 +109,10 @@ export async function updatePassword(currentPass, nextPass) {
   return { ok: true };
 }
 
-export async function updateProfile({ education, location }) {
+export async function updateProfile({ userType, location }) {
   const { data, error } = await supabase.auth.updateUser({
     data: {
-      education: education.trim(),
+      user_type: userType.trim(),
       location: location.trim(),
     },
   });
@@ -121,12 +121,32 @@ export async function updateProfile({ education, location }) {
   return { ok: true, user: current };
 }
 
+export async function updateEmail(email) {
+  const nextEmail = email.trim().toLowerCase();
+  const { data, error } = await supabase.auth.updateUser({ email: nextEmail });
+  if (error) return { ok: false, error: error.message };
+  await loadUser(data.user);
+  return {
+    ok: true,
+    email: data.user.email,
+    confirmationRequired: data.user.email !== nextEmail,
+    user: current,
+  };
+}
+
+export async function deleteAccount() {
+  return {
+    ok: false,
+    error: 'Account deletion is not available yet. Please contact GCare support to delete your account.',
+  };
+}
+
 const subscribe = (cb) => {
   listeners.add(cb);
   return () => listeners.delete(cb);
 };
 
-/* React hook: the current user ({ name, email, isAdmin }) or null when logged out. */
+/* React hook: the current user ({ name, email, userType, location, isAdmin }) or null when logged out. */
 export function useUser() {
   return useSyncExternalStore(subscribe, () => current, () => null);
 }
