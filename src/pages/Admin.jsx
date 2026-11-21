@@ -2,14 +2,14 @@ import { useEffect } from 'react';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
-import { STATUS, categoryOf, formatDateTime, setReportStatus, useReports } from '../lib/reports';
+import { STATUS, categoryOf, deleteReport, formatDateTime, setReportStatus, useReportsState } from '../lib/reports';
 
-/* TEMPORARY admin page (demo only): the admin moves reports Pending -> Under Review -> Resolved.
-   Log in with admin@gcare.local / admin123. Replace with the real admin panel + server checks later. */
+/* Admin page: the admin moves reports Pending -> Under Review -> Resolved, or deletes spam.
+   The database only accepts these changes from accounts whose profiles.role = 'admin'. */
 
 export default function Admin() {
   const user = useUser();
-  const reports = useReports();
+  const { reports, loading } = useReportsState();
 
   useEffect(() => {
     document.title = 'Admin – GCare';
@@ -24,7 +24,8 @@ export default function Admin() {
           <p className="rpt__sub">Review incoming reports and mark them resolved. Residents see the status in My Reports.</p>
 
           <div className="adm-list">
-            {reports.length === 0 && <p className="rempty">No reports yet.</p>}
+            {loading && <p className="rempty">Loading reports…</p>}
+            {!loading && reports.length === 0 && <p className="rempty">No reports yet.</p>}
             {reports.map((r) => (
               <article key={r.id} className="adm-row">
                 {r.photo && <img src={r.photo} alt="" className="adm-row__img" />}
@@ -38,6 +39,7 @@ export default function Admin() {
                   <span className={`rbadge rbadge--${r.status}`}>{STATUS[r.status].label}</span>
                   <button type="button" className="cmap__btn" disabled={r.status !== 'pending'} onClick={() => setReportStatus(r.id, 'review')}>Start review</button>
                   <button type="button" className="cmap__btn cmap__btn--primary" disabled={r.status === 'resolved'} onClick={() => setReportStatus(r.id, 'resolved')}>Mark resolved</button>
+                  <button type="button" className="vlink vlink--cancel" onClick={() => window.confirm(`Delete "${r.title}"?`) && deleteReport(r.id)}>Delete</button>
                 </div>
               </article>
             ))}

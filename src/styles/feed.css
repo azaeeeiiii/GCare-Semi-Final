@@ -384,6 +384,17 @@
   height: 24px;
 }
 
+.feed-nav__icon--img {
+  width: 30px;
+  height: 24px;
+  object-fit: contain;
+  opacity: 0.55;
+}
+
+.feed-nav__item[aria-current='page'] .feed-nav__icon--img {
+  opacity: 1;
+}
+
 /* ---------- Desktop: panels fill the screen between header and nav ---------- */
 @media (min-width: 861px) {
   .feed {

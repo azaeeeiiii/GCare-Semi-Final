@@ -6,7 +6,7 @@ import PhotoField from '../components/PhotoField';
 import { UserIcon } from '../components/ui';
 import { useUser } from '../lib/auth';
 import { AREA } from '../lib/serviceArea';
-import { CATEGORIES, STATUS, addReport, categoryOf, formatDate, formatDateTime, useReports } from '../lib/reports';
+import { CATEGORIES, GROUPS, STATUS, addReport, categoryOf, formatDate, formatDateTime, useReports } from '../lib/reports';
 
 /* Report page (members only): "Report" tab = create a report, "My Reports" tab = track its status.
    Only the admin can change a report's status (see Admin.jsx). */
@@ -62,6 +62,7 @@ function ReportForm({ user, tab, setTab, onPublished }) {
   const [photo, setPhoto] = useState('');
   const [pinned, setPinned] = useState(false); // has the user (or GPS) actually set the pin?
   const [errors, setErrors] = useState({});
+  const [sending, setSending] = useState(false);
   const locEdited = useRef(false);
 
   const set = (k) => (e) => {
@@ -91,8 +92,9 @@ function ReportForm({ user, tab, setTab, onPublished }) {
     };
   }, [pin, pinned]);
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
+    if (sending) return;
     const er = {};
     if (form.title.trim().length < 3) er.title = 'Enter a short title (at least 3 characters).';
     if (!form.category) er.category = 'Choose a category.';
@@ -101,12 +103,14 @@ function ReportForm({ user, tab, setTab, onPublished }) {
     if (!pinned) er.pin = 'Pin the exact spot on the map first.';
     setErrors(er);
     if (Object.keys(er).length) return;
+    setSending(true);
     try {
-      const report = addReport({ ...form, photo, lat: pin.lat, lng: pin.lng, user });
+      const report = await addReport({ ...form, photo, lat: pin.lat, lng: pin.lng, user });
       onPublished(report.id);
-    } catch {
-      // browser storage is full (photos are big). Not an issue once a backend stores them.
-      setErrors({ photo: 'Couldn’t save the report: browser storage is full. Remove the photo or delete older reports and try again.' });
+    } catch (err) {
+      setErrors({ photo: `Couldn’t publish the report: ${err.message || 'please try again.'}` });
+    } finally {
+      setSending(false);
     }
   }
 
@@ -116,14 +120,18 @@ function ReportForm({ user, tab, setTab, onPublished }) {
         <div className="rpt-col">
           <Head title="Report" sub="Help build a safer and more prepared community" tab={tab} setTab={setTab} />
 
-          <Field id="rTitle" label="News Title" icon={<TitleIcon />} error={errors.title}>
-            <input id="rTitle" className="auth-input" value={form.title} onChange={set('title')} placeholder="e.g. Road Closure Advisory" maxLength={90} />
+          <Field id="rTitle" label="Report Title" icon={<TitleIcon />} error={errors.title}>
+            <input id="rTitle" className="auth-input" value={form.title} onChange={set('title')} placeholder="e.g. Flooding along Mars Street" maxLength={90} />
           </Field>
 
           <Field id="rCat" label="Category" icon={<GridIcon />} error={errors.category}>
             <select id="rCat" className="auth-input rselect" value={form.category} onChange={set('category')}>
               <option value="">Select a category</option>
-              {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              {Object.entries(GROUPS).map(([gid, g]) => (
+                <optgroup key={gid} label={g.label}>
+                  {CATEGORIES.filter((c) => c.group === gid).map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </optgroup>
+              ))}
             </select>
           </Field>
 
@@ -153,13 +161,13 @@ function ReportForm({ user, tab, setTab, onPublished }) {
 
           <div className="rfield">
             <label className="rpt-maplabel" htmlFor="rSum">Short Summary</label>
-            <textarea id="rSum" className={`rtext ${errors.summary ? 'rtext--invalid' : ''}`.trim()} value={form.summary} onChange={set('summary')} placeholder="Write a short summary of the incident" rows={4} maxLength={600} />
+            <textarea id="rSum" className={`rtext ${errors.summary ? 'rtext--invalid' : ''}`.trim()} value={form.summary} onChange={set('summary')} placeholder="What happened? Describe what you saw, when it started and who is affected." rows={4} maxLength={600} />
             {errors.summary && <p className="rerr">{errors.summary}</p>}
           </div>
         </div>
       </div>
 
-      <button type="submit" className="rpt-publish"><SendIcon />Publish to Community Feed</button>
+      <button type="submit" className="rpt-publish" disabled={sending}><SendIcon />{sending ? 'Publishing…' : 'Publish to Community Feed'}</button>
     </form>
   );
 }
@@ -184,9 +192,9 @@ function Timeline({ report }) {
   );
 }
 
-function MyReports({ user, tab, setTab, focusId }) {
+function MyReports({ tab, setTab, focusId }) {
   const all = useReports();
-  const mine = useMemo(() => all.filter((r) => r.authorEmail === user.email), [all, user.email]);
+  const mine = useMemo(() => all.filter((r) => r.mine), [all]);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [picked, setPicked] = useState(focusId);
@@ -287,7 +295,7 @@ export default function Report() {
           {toast && <p role="status" className="rtoast">{toast}</p>}
           {tab === 'report'
             ? <ReportForm user={user} tab={tab} setTab={setTab} onPublished={published} />
-            : <MyReports key={focusId || 'mine'} user={user} tab={tab} setTab={setTab} focusId={focusId} />}
+            : <MyReports key={focusId || 'mine'} tab={tab} setTab={setTab} focusId={focusId} />}
         </section>
       </main>
       <BottomNav />

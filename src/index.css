@@ -7,6 +7,7 @@
 @import './styles/page.css';
 @import './styles/alerts.css';
 @import './styles/alerts-page.css';
+@import './styles/news.css';
 @import './styles/landing.css';
 @import './styles/auth.css';
 @import './styles/legal.css';
@@ -19,3 +20,4 @@
 @import './styles/confirm-modal.css';
 @import './styles/about.css';
 @import './styles/contact.css';
+@import './styles/reports-page.css';

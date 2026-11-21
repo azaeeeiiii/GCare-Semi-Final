@@ -1,30 +1,34 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+import { supabase } from './supabase';
 
 /* ===================== reports.js =====================
-   FRONT-END ONLY storage for incident reports (browser localStorage), so the Report page,
-   My Reports tab and Feed can be built before a backend exists.
+   Community reports, stored in Supabase (table `reports` + storage bucket `report-images`).
+   Run reports.sql once in the Supabase SQL Editor first.
 
    Status flow:  pending  ->  review  ->  resolved
-   Only the ADMIN changes the status (see setReportStatus + pages/Admin.jsx). Users can only view it.
-
-   When the backend is ready, replace addReport(), setReportStatus() and useReports() with API calls.
+   Only the ADMIN can change the status (enforced by the database policies, not just the browser).
    ======================================================= */
 
-const KEY = 'gcare_reports';
-const CHANGE_EVENT = 'gcare-reports-change';
+export const REPORT_BUCKET = 'report-images';
+
+/* group: 'disaster' = natural / major emergencies, 'risk' = hazards and safety concerns */
+export const GROUPS = {
+  disaster: { label: 'Disaster' },
+  risk: { label: 'Risk' },
+};
 
 export const CATEGORIES = [
-  { id: 'flood', label: 'Flood', tone: '#2f6f9f' },
-  { id: 'fire', label: 'Fire', tone: '#b3401b' },
-  { id: 'typhoon', label: 'Typhoon / Strong Wind', tone: '#4a5d7a' },
-  { id: 'landslide', label: 'Landslide', tone: '#7a5a2f' },
-  { id: 'earthquake', label: 'Earthquake', tone: '#6b4a8a' },
-  { id: 'road', label: 'Road Hazard / Closure', tone: '#8a6a2f' },
-  { id: 'power', label: 'Power Outage', tone: '#9a7b00' },
-  { id: 'water', label: 'Water Interruption', tone: '#2f7d8a' },
-  { id: 'medical', label: 'Medical Emergency', tone: '#a00000' },
-  { id: 'safety', label: 'Crime / Safety', tone: '#3b4357' },
-  { id: 'other', label: 'Other', tone: '#5b6479' },
+  { id: 'flood', label: 'Flood', tone: '#2f6f9f', group: 'disaster' },
+  { id: 'fire', label: 'Fire', tone: '#b3401b', group: 'disaster' },
+  { id: 'typhoon', label: 'Typhoon / Strong Wind', tone: '#4a5d7a', group: 'disaster' },
+  { id: 'landslide', label: 'Landslide', tone: '#7a5a2f', group: 'disaster' },
+  { id: 'earthquake', label: 'Earthquake', tone: '#6b4a8a', group: 'disaster' },
+  { id: 'road', label: 'Road Hazard / Closure', tone: '#8a6a2f', group: 'risk' },
+  { id: 'power', label: 'Power Outage / Live Wire', tone: '#9a7b00', group: 'risk' },
+  { id: 'water', label: 'Water Interruption / Leak', tone: '#2f7d8a', group: 'risk' },
+  { id: 'medical', label: 'Medical Emergency', tone: '#a00000', group: 'risk' },
+  { id: 'safety', label: 'Crime / Safety', tone: '#3b4357', group: 'risk' },
+  { id: 'other', label: 'Other Hazard', tone: '#5b6479', group: 'risk' },
 ];
 
 export const STATUS = {
@@ -34,78 +38,130 @@ export const STATUS = {
 };
 
 export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+export const groupOf = (id) => categoryOf(id).group;
 
-const snapshot = () => {
-  try {
-    return localStorage.getItem(KEY) || '[]';
-  } catch {
-    return '[]';
-  }
+/* ---------- Tiny shared store so every page sees the same list ---------- */
+let state = { reports: [], loading: true, error: '' };
+const listeners = new Set();
+let started = false;
+
+const emit = (next) => {
+  state = { ...state, ...next };
+  listeners.forEach((l) => l());
 };
+
+const fromRow = (r, uid) => ({
+  id: r.id,
+  title: r.title,
+  category: r.category,
+  location: r.location,
+  summary: r.summary,
+  photo: r.photo_url || '',
+  lat: r.lat,
+  lng: r.lng,
+  authorName: r.author_name || 'Resident',
+  mine: !!uid && r.author_id === uid, // no emails are stored on reports, so "mine" is matched by account id
+  status: r.status,
+  createdAt: r.created_at,
+  timeline: Array.isArray(r.timeline) && r.timeline.length ? r.timeline : [{ status: r.status, at: r.created_at }],
+});
+
+export async function refreshReports() {
+  const { data: sess } = await supabase.auth.getSession();
+  const uid = sess?.session?.user?.id;
+  if (!uid) {
+    emit({ reports: [], loading: false, error: '' });
+    return;
+  }
+  const { data, error } = await supabase.from('reports').select('*').order('created_at', { ascending: false });
+  if (error) {
+    emit({ loading: false, error: 'Could not load reports. Please try again.' });
+    return;
+  }
+  emit({ reports: data.map((r) => fromRow(r, uid)), loading: false, error: '' });
+}
+
+function start() {
+  if (started) return;
+  started = true;
+  refreshReports();
+  // reload when someone signs in/out
+  supabase.auth.onAuthStateChange(() => setTimeout(refreshReports, 0));
+  // live updates from other residents / the admin (needs the realtime line in reports.sql)
+  supabase
+    .channel('gcare-reports')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => refreshReports())
+    .subscribe();
+  window.addEventListener('focus', refreshReports);
+}
 
 const subscribe = (cb) => {
-  window.addEventListener(CHANGE_EVENT, cb);
-  window.addEventListener('storage', cb);
-  return () => {
-    window.removeEventListener(CHANGE_EVENT, cb);
-    window.removeEventListener('storage', cb);
-  };
+  listeners.add(cb);
+  return () => listeners.delete(cb);
 };
+const getState = () => state;
 
-const write = (list) => {
-  localStorage.setItem(KEY, JSON.stringify(list));
-  window.dispatchEvent(new Event(CHANGE_EVENT));
-};
+/* React hook: { reports, loading, error }. Newest first. */
+export function useReportsState() {
+  useEffect(start, []);
+  return useSyncExternalStore(subscribe, getState, getState);
+}
 
-const read = () => {
-  try {
-    return JSON.parse(snapshot());
-  } catch {
-    return [];
-  }
-};
-
-/* React hook: all reports, newest first. Re-renders whenever a report is added or its status changes. */
+/* React hook: just the list (newest first). */
 export function useReports() {
-  const raw = useSyncExternalStore(subscribe, snapshot, () => '[]');
-  return useMemo(() => {
-    try {
-      return JSON.parse(raw).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    } catch {
-      return [];
-    }
-  }, [raw]);
+  return useReportsState().reports;
 }
 
-export function addReport({ title, category, location, summary, lat, lng, photo, user }) {
-  const now = new Date().toISOString();
-  const report = {
-    id: `r-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-    title: title.trim(),
-    category,
-    location: location.trim(),
-    summary: summary.trim(),
-    photo: photo || '', // data URL for now. TODO backend: store the image on a server and keep its URL here
-    lat,
-    lng,
-    authorName: user.name,
-    authorEmail: user.email,
-    status: 'pending',
-    createdAt: now,
-    timeline: [{ status: 'pending', at: now }],
-  };
-  write([report, ...read()]);
-  return report;
+/* ---------- Write ---------- */
+async function uploadPhoto(dataUrl) {
+  if (!dataUrl || !dataUrl.startsWith('data:')) return dataUrl || '';
+  const blob = await (await fetch(dataUrl)).blob();
+  const path = `${crypto.randomUUID()}.jpg`;
+  const { error } = await supabase.storage.from(REPORT_BUCKET).upload(path, blob, { contentType: 'image/jpeg' });
+  if (error) throw new Error(error.message);
+  return supabase.storage.from(REPORT_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-/* ADMIN ONLY. TODO backend: this must be checked on the server, not in the browser. */
-export function setReportStatus(id, status) {
+/* Publishes a report. Throws an Error with a readable message if it fails. */
+export async function addReport({ title, category, location, summary, lat, lng, photo, user }) {
+  const photo_url = await uploadPhoto(photo);
   const now = new Date().toISOString();
-  write(
-    read().map((r) =>
-      r.id === id && r.status !== status ? { ...r, status, timeline: [...r.timeline, { status, at: now }] } : r,
-    ),
-  );
+  const { data, error } = await supabase
+    .from('reports')
+    .insert({
+      title: title.trim(),
+      category,
+      location: location.trim(),
+      summary: summary.trim(),
+      photo_url,
+      lat,
+      lng,
+      author_name: user.name,
+      status: 'pending',
+      timeline: [{ status: 'pending', at: now }],
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  await refreshReports();
+  return { id: data.id };
+}
+
+/* ADMIN ONLY (the database rejects anyone else). */
+export async function setReportStatus(id, status) {
+  const current = state.reports.find((r) => r.id === id);
+  if (!current || current.status === status) return;
+  const timeline = [...current.timeline, { status, at: new Date().toISOString() }];
+  const { error } = await supabase.from('reports').update({ status, timeline }).eq('id', id);
+  if (error) console.error('Could not update report:', error.message);
+  await refreshReports();
+}
+
+/* ADMIN ONLY: remove a spam / duplicate report */
+export async function deleteReport(id) {
+  const { error } = await supabase.from('reports').delete().eq('id', id);
+  if (error) console.error('Could not delete report:', error.message);
+  await refreshReports();
 }
 
 /* ---------- Display helpers ---------- */
@@ -115,21 +171,23 @@ export const formatDate = (iso) =>
 export const formatDateTime = (iso) =>
   `${formatDate(iso)} • ${new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
 
-/* A report shaped like a feed card / map pin (same fields as newsItems in content.jsx) */
+/* A report shaped like a feed card / map pin */
 export function toFeedItem(r) {
   const cat = categoryOf(r.category);
   return {
     id: r.id,
     tag: cat.label,
+    group: cat.group,
     date: formatDate(r.createdAt),
     title: r.title,
     excerpt: r.summary,
-    body: '',
     image: r.photo || '',
     tone: cat.tone,
     location: r.location,
+    author: r.authorName,
     lat: r.lat,
     lng: r.lng,
     status: r.status,
+    createdAt: r.createdAt,
   };
 }
