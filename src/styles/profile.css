@@ -409,3 +409,23 @@
   .profile-status { grid-column: 2; grid-row: 2; justify-self: start; }
   .profile-report > svg { grid-column: 3; grid-row: 1; }
 }
+
+/* Thinner line icons on the profile page */
+.profile-row > svg,
+.profile-card--preferences header svg,
+.profile-card--signout > svg,
+.profile-card--danger > svg {
+  stroke-width: 1.25;
+}
+
+.profile-details svg,
+.profile-view-all svg,
+.profile-report > svg,
+.profile-verified svg,
+.profile-status svg {
+  stroke-width: 1.75;
+}
+
+.profile-avatar__upload svg {
+  stroke-width: 1.75;
+}

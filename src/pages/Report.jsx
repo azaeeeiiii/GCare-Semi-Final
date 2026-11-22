@@ -4,10 +4,11 @@ import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import ReportMap, { MiniMap } from '../components/ReportMap';
 import PhotoField from '../components/PhotoField';
+import DeleteReportModal from '../components/DeleteReportModal';
 import { UserIcon } from '../components/ui';
 import { useUser } from '../lib/auth';
 import { AREA } from '../lib/serviceArea';
-import { CATEGORIES, GROUPS, STATUS, addReport, categoryOf, formatDate, formatDateTime, useReports } from '../lib/reports';
+import { CATEGORIES, GROUPS, STATUS, addReport, categoryOf, deleteOwnReport, formatDate, formatDateTime, useReports } from '../lib/reports';
 
 
 const ic = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className: 'rfield-icon' };
@@ -186,17 +187,25 @@ function Timeline({ report }) {
   );
 }
 
-function MyReports({ tab, setTab, focusId }) {
+function MyReports({ tab, setTab, focusId, onDeleted }) {
   const all = useReports();
   const mine = useMemo(() => all.filter((r) => r.mine), [all]);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [picked, setPicked] = useState(focusId);
+  const [deleting, setDeleting] = useState(null);
 
   const shown = mine.filter(
     (r) => (filter === 'all' || r.status === filter) && `${r.title} ${r.summary} ${r.location}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
   const current = mine.find((r) => r.id === picked) || shown[0] || null;
+
+  async function confirmDelete(reason, details) {
+    await deleteOwnReport(deleting.id, reason, details);
+    setDeleting(null);
+    setPicked(null);
+    onDeleted?.();
+  }
 
   return (
     <div className="rpt-cols">
@@ -253,12 +262,14 @@ function MyReports({ tab, setTab, focusId }) {
               <h3>Report Timeline</h3>
               <Timeline report={current} />
               <p className="rnote">You will be notified once there are updates on your report.</p>
+              <button type="button" className="rdelete" onClick={() => setDeleting(current)}>Delete this report</button>
             </div>
           </article>
         ) : (
           <p className="rempty rempty--panel">Select a report to see its details and timeline.</p>
         )}
       </div>
+      <DeleteReportModal open={!!deleting} report={deleting} onConfirm={confirmDelete} onClose={() => setDeleting(null)} />
     </div>
   );
 }
@@ -276,6 +287,11 @@ export default function Report() {
     document.title = 'Report – GCare';
   }, []);
 
+  function deleted() {
+    setToast('Your report was deleted.');
+    setTimeout(() => setToast(''), 5000);
+  }
+
   function published(id) {
     setFocusId(id);
     setTab('mine');
@@ -291,7 +307,7 @@ export default function Report() {
           {toast && <p role="status" className="rtoast">{toast}</p>}
           {tab === 'report'
             ? <ReportForm user={user} tab={tab} setTab={setTab} onPublished={published} />
-            : <MyReports key={focusId || 'mine'} tab={tab} setTab={setTab} focusId={focusId} />}
+            : <MyReports key={focusId || 'mine'} tab={tab} setTab={setTab} focusId={focusId} onDeleted={deleted} />}
         </section>
       </main>
       <BottomNav />

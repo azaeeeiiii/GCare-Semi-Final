@@ -1,0 +1,55 @@
+.delete-report__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 26px 18px;
+}
+
+.delete-report__reasons {
+  display: grid;
+  gap: 8px;
+}
+
+.delete-report__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d9dbe0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.delete-report__option--on {
+  border-color: #a00000;
+  background: #fff5f5;
+}
+
+.delete-report__option input {
+  accent-color: #a00000;
+}
+
+.rdelete {
+  align-self: flex-start;
+  margin-top: 16px;
+  border: 1px solid #a00000;
+  border-radius: 999px;
+  background: #fff;
+  padding: 8px 18px;
+  color: #a00000;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rdelete:hover {
+  background: #a00000;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .delete-report__body {
+    padding: 0 18px 16px;
+  }
+}

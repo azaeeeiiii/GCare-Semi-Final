@@ -146,6 +146,36 @@ export async function deleteReport(id) {
   if (error) console.error('Could not delete report:', error.message);
   await refreshReports();
 }
+export const DELETE_REASONS = [
+  { id: 'typo', label: 'Typo or mistake in the report' },
+  { id: 'wrong_location', label: 'Wrong location or pin' },
+  { id: 'duplicate', label: 'Duplicate report' },
+  { id: 'resolved', label: 'The issue is already resolved' },
+  { id: 'accident', label: 'Submitted by accident' },
+  { id: 'other', label: 'Other reason' },
+];
+
+export async function deleteOwnReport(id, reason, details = '') {
+  const { data: sess } = await supabase.auth.getSession();
+  const uid = sess?.session?.user?.id;
+  const current = state.reports.find((r) => r.id === id);
+  if (!uid || !current || !current.mine) throw new Error('You can only delete your own reports.');
+
+  const { data, error } = await supabase.from('reports').delete().eq('id', id).select('id');
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error('Could not delete this report. Please try again.');
+
+  const { error: logError } = await supabase.from('report_deletions').insert({
+    report_id: id,
+    report_title: current.title,
+    category: current.category,
+    reason,
+    details: details.trim() || null,
+  });
+  if (logError) console.warn('Could not save the deletion reason:', logError.message);
+
+  await refreshReports();
+}
 
 export const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });

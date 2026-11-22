@@ -53,7 +53,7 @@ export function Header({ onOpenAuth }) {
 }
 
 
-export function PageHeader() {
+export function PageHeader({ showHome = true }) {
   const goBack = useGoBack();
   return (
     <header className="site-header">
@@ -68,9 +68,11 @@ export function PageHeader() {
         </a>
         <Brand />
       </div>
-      <Link to="/" onClick={goBack} className={btn('outlineDark', 'site-header__home')}>
-        Back to home
-      </Link>
+      {showHome && (
+        <Link to="/" onClick={goBack} className={btn('outlineDark', 'site-header__home')}>
+          Back to home
+        </Link>
+      )}
     </header>
   );
 }

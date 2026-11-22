@@ -75,8 +75,8 @@ export default function News() {
 
   return (
     <div className="page">
-      <PageHeader />
-
+      <PageHeader showHome={false} />
+      
       <main className="page__main">
         <div className="page-content page-content--news">
           <section id="alerts" className="news-section">
