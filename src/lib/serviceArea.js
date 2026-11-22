@@ -6,7 +6,7 @@ export const AREA = {
   maxZoom: 19,
 };
 
-const SOUTH = 13.783603; 
+const SOUTH = 13.782603; 
 const NORTH = 13.787165; 
 const WEST = 121.069309;
 const EAST = 121.07834;

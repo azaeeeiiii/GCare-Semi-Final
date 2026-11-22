@@ -16,9 +16,7 @@ const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', stroke
 const ReportsIcon = () => (
   <svg {...svg} className="feed-icon"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17.5v.01" /></svg>
 );
-const MegaphoneIcon = () => (
-  <svg {...svg} className="feed-icon feed-icon--sm"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V7L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11" /></svg>
-);
+
 const PinIcon = () => (
   <svg {...svg} className="feed-icon"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
 );
@@ -27,7 +25,6 @@ export default function Feed() {
   const user = useUser();
   const { reports, loading, error } = useReportsState();
 
-  // only reports inside the service area (same rule as the map), newest first
   const items = useMemo(
     () => reports.map(toFeedItem).filter((i) => pointInPolygon([i.lat, i.lng])),
     [reports],
@@ -39,7 +36,6 @@ export default function Feed() {
     document.title = 'Feed – GCare';
   }, []);
 
-  // Picking a card (or a pin) highlights both; on phones the map sits below the list, so scroll to it
   function select(id, fromCard = true) {
     setSelectedId(id);
     if (fromCard && window.matchMedia('(max-width: 860px)').matches) {
@@ -61,7 +57,6 @@ export default function Feed() {
           </header>
 
           <Link to="/news" className="feed-announce">
-            <MegaphoneIcon />
             <span><strong>Announcements &amp; Alerts</strong> from the GCare team</span>
             <ArrowRight className="arrow-right-small" />
           </Link>

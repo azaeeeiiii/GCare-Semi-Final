@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PageHeader } from '../components/Header';
 import { PageHero } from '../components/ui';
-import Footer from '../components/Footer';
 import { useAlerts, ALERT_LEVELS } from '../lib/alerts';
 import { formatDateTime } from '../lib/reports';
 import { useNews, NEWS_CATEGORIES, formatNewsDate } from '../lib/news';
@@ -77,8 +75,6 @@ export default function News() {
       <PageHeader />
 
       <main className="page__main">
-        <PageHero title="Announcements" />
-
         <div className="page-content page-content--news">
           <section id="alerts" className="news-section">
             <h2 className="news-section__title">Alerts</h2>
