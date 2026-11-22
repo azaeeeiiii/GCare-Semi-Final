@@ -5,7 +5,7 @@ import LocationModal from '../components/LocationModal';
 import NotificationModal from '../components/NotificationModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { deleteAccount, logOut, updateEmail, updatePassword, updateProfile, useUser } from '../lib/auth';
-import { newsItems } from '../content';
+import { STATUS, formatDateTime, useReportsState } from '../lib/reports';
 
 const iconProps = {
   viewBox: '0 0 24 24',
@@ -37,12 +37,6 @@ const NAV = [
   { to: '/report', label: 'Report', icon: <ReportIcon /> },
   { to: '/volunteer', label: 'Volunteer', icon: <VolunteerIcon /> },
   { to: '/profile', label: 'Profile', icon: <ProfileIcon /> },
-];
-
-const reports = [
-  { title: 'Massive Flooding in Mars Street', date: 'November 8, 2026 • 02:15 PM', status: 'Under Review', tone: 'review' },
-  { title: newsItems[0].title, date: 'November 7, 2026 • 04:32 PM', status: 'Resolved', tone: 'resolved' },
-  { title: 'Power Outage', date: 'November 6, 2026 • 08:20 PM', status: 'In Progress', tone: 'progress' },
 ];
 
 function Avatar({ image, onUpload }) {
@@ -164,6 +158,8 @@ function EmailEditor({ currentEmail, onDone }) {
 export default function Profile() {
   const user = useUser();
   const navigate = useNavigate();
+  const { reports: allReports, loading: reportsLoading, error: reportsError } = useReportsState();
+  const mineReports = allReports.filter((report) => report.mine).slice(0, 3);
   const [editingPassword, setEditingPassword] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [notice, setNotice] = useState('');
@@ -269,7 +265,29 @@ export default function Profile() {
 
         <section className="profile-card profile-card--reports">
           <header><div><h2>Report History</h2><p>View your submitted reports.</p></div><Link to="/report" className="profile-view-all">View All <ArrowIcon /></Link></header>
-          <div className="profile-reports">{reports.map((report) => <div className="profile-report" key={report.title}><div className="profile-report__image"><span className="profile-avatar__cloud profile-avatar__cloud--one" /><span className="profile-avatar__hill" /></div><div className="profile-report__text"><strong>{report.title}</strong><span>{report.date}</span></div><span className={`profile-status profile-status--${report.tone}`}><CheckIcon />{report.status}</span><ArrowIcon /></div>)}</div>
+          <div className="profile-reports">
+            {reportsLoading && <p className="profile-report-empty">Loading reports...</p>}
+            {!reportsLoading && reportsError && <p className="profile-report-empty">{reportsError}</p>}
+            {!reportsLoading && !reportsError && mineReports.length === 0 && (
+              <p className="profile-report-empty">You haven’t submitted any reports yet.</p>
+            )}
+            {!reportsLoading && !reportsError && mineReports.map((report) => {
+              const statusTone = report.status === 'pending' ? 'pending' : report.status === 'resolved' ? 'resolved' : 'review';
+              return (
+                <div className="profile-report" key={report.id}>
+                  <div className="profile-report__image">
+                    {report.photo ? (
+                      <img src={report.photo} alt="" className="profile-report__photo" />
+                    ) : (
+                      <><span className="profile-avatar__cloud profile-avatar__cloud--one" /><span className="profile-avatar__hill" /></>
+                    )}
+                  </div>
+                  <div className="profile-report__text"><strong>{report.title}</strong><span>{formatDateTime(report.createdAt)}</span></div>
+                  <span className={`profile-status profile-status--${statusTone}`}><CheckIcon />{STATUS[report.status]?.label || report.status}</span><ArrowIcon />
+                </div>
+              );
+            })}
+          </div>
         </section>
         </div>
 

@@ -330,6 +330,18 @@
   border-radius: 7px;
   background: linear-gradient(#bfe9fa 0 62%, #d2e887 62%);
 }
+.profile-report__photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.profile-report-empty {
+  border-bottom: 1px solid #b9bec5;
+  padding: 20px 0;
+  color: #4f5766;
+  font-size: 13px;
+}
 
 .profile-report__image .profile-avatar__cloud { top: 8px; left: 17px; transform: scale(.55); transform-origin: left top; }
 .profile-report__image .profile-avatar__hill { height: 53%; }
@@ -337,6 +349,7 @@
 .profile-report__text strong { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .profile-report__text span { font-size: 12px; }
 .profile-status { font-size: 10px; white-space: nowrap; }
+.profile-status--pending { background: #dceaff; color: #1868c2; }
 .profile-status--review { background: #fff0d6; color: #a66300; }
 .profile-status--progress { background: #dceaff; color: #1868c2; }
 
