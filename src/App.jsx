@@ -18,6 +18,7 @@ import ComingSoon from './pages/ComingSoon';
 import Profile from './pages/Profile';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -32,9 +33,11 @@ function ScrollToHash() {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
   return (
     <>
       <ScrollToHash />
+      <ErrorBoundary key={pathname}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
@@ -54,6 +57,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
+      </ErrorBoundary>
       <ChatWidget />
     </>
   );

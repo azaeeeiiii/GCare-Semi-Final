@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { PageHeader } from '../components/Header';
+import Footer from '../components/Footer';
 import { PageHero } from '../components/ui';
 import { useAlerts, ALERT_LEVELS } from '../lib/alerts';
 import { formatDateTime } from '../lib/reports';
@@ -11,7 +13,8 @@ const PinIcon = () => <svg {...ic}><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C
 const ClockIcon = () => <svg {...ic}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>;
 
 function AlertCard({ alert, open, onToggle }) {
-  const level = ALERT_LEVELS[alert.level];
+  const level = ALERT_LEVELS[alert.level] || ALERT_LEVELS.advisory;
+  const body = Array.isArray(alert.body) ? alert.body : String(alert.body || '').split('\n').filter(Boolean);
   return (
     <article className={`acard ${alert.active ? '' : 'acard--off'}`.trim()} style={{ '--level': level.color }}>
       <div className="acard__top">
@@ -22,7 +25,7 @@ function AlertCard({ alert, open, onToggle }) {
       <p className="acard__meta"><PinIcon />{alert.area}</p>
       <p className="acard__meta"><ClockIcon />Issued: {formatDateTime(alert.issuedAt)}</p>
       <div className={`acard__body ${open ? '' : 'acard__body--clamp'}`.trim()}>
-        {alert.body.map((p) => <p key={p}>{p}</p>)}
+        {body.map((p, i) => <p key={i}>{p}</p>)}
       </div>
       <button type="button" className="acard__more" aria-expanded={open} onClick={onToggle}>
         {open ? 'Show less' : 'Read more'}
@@ -43,7 +46,7 @@ function NewsCard({ item, open, onToggle }) {
       <p className="acard__meta"><ClockIcon />By {item.author}</p>
       {item.image && <img src={item.image} alt="" className="ncard__img" loading="lazy" />}
       <div className={`acard__body ${open ? '' : 'acard__body--clamp'}`.trim()}>
-        {item.body.map((p) => <p key={p}>{p}</p>)}
+        {(item.body || []).map((p, i) => <p key={i}>{p}</p>)}
       </div>
       <button type="button" className="acard__more" aria-expanded={open} onClick={onToggle}>
         {open ? 'Show less' : 'Read more'}
@@ -64,7 +67,7 @@ export default function News() {
   }, []);
 
   const sorted = useMemo(
-    () => [...ALERTS].sort((a, b) => Number(b.active) - Number(a.active) || b.issuedAt.localeCompare(a.issuedAt)),
+    () => [...ALERTS].sort((a, b) => Number(b.active) - Number(a.active) || String(b.issuedAt || '').localeCompare(String(a.issuedAt || ''))),
     [ALERTS],
   );
   const shown = sorted.filter((a) => filter === 'all' || a.level === filter);
