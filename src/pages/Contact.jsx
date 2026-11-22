@@ -1,53 +1,61 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/Header';
 import Footer from '../components/Footer';
 import { PageHero, btn } from '../components/ui';
 import { useUser } from '../lib/auth';
+import { submitContactMessage } from '../lib/contact';
 import { CONTACT } from '../content';
 
 const MIN_LENGTH = 10;
 const MAX_LENGTH = 1000;
-const MESSAGES_KEY = 'gcare_messages';
-
-/* 
-   TODO backend: replace the body of this function with a fetch('/api/messages', { method: 'POST', ... })
-   so the message really reaches the GCare team (and/or sends an email). */
-function saveMessage({ category, message, user }) {
-  try {
-    const list = JSON.parse(localStorage.getItem(MESSAGES_KEY)) || [];
-    list.unshift({
-      id: `m-${Date.now().toString(36)}`,
-      category,
-      message,
-      authorName: user?.name || '',
-      authorEmail: user?.email || '',
-      createdAt: new Date().toISOString(),
-    });
-    localStorage.setItem(MESSAGES_KEY, JSON.stringify(list));
-  } catch {
-  }
-}
-
 export default function Contact() {
   const user = useUser();
+  const navigate = useNavigate();
+  const successDialogRef = useRef(null);
   const [category, setCategory] = useState('');
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState(null); 
+  const [status, setStatus] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   useEffect(() => {
     document.title = 'Contact Us – GCare';
   }, []);
 
-  function onSubmit(e) {
+  useEffect(() => {
+    const dialog = successDialogRef.current;
+    if (!dialog) return;
+    if (successOpen && !dialog.open) dialog.showModal();
+    if (!successOpen && dialog.open) dialog.close();
+  }, [successOpen]);
+
+  async function onSubmit(e) {
     e.preventDefault();
+    if (sending) return;
     if (!category) return setStatus({ ok: false, msg: 'Please select a message category.' });
     if (message.trim().length < MIN_LENGTH) {
       return setStatus({ ok: false, msg: `Please write at least ${MIN_LENGTH} characters in your message.` });
     }
-    saveMessage({ category, message: message.trim(), user });
-    setStatus({ ok: true, msg: 'Your message has been submitted. Thank you for reaching out!' });
+
+    setSending(true);
+    setStatus(null);
+    const result = await submitContactMessage({ category, message: message.trim(), user });
+    setSending(false);
+
+    if (!result.ok) {
+      setStatus({ ok: false, msg: result.error });
+      return;
+    }
+
     setCategory('');
     setMessage('');
+    setSuccessOpen(true);
+  }
+
+  function submitAnother() {
+    setSuccessOpen(false);
+    requestAnimationFrame(() => document.getElementById('contactMessage')?.focus());
   }
 
   return (
@@ -127,7 +135,7 @@ export default function Contact() {
               </div>
 
               <div className="contact-actions">
-                <button type="submit" className={btn('navy')}>{CONTACT.submit}</button>
+                <button type="submit" className={btn('navy')} disabled={sending}>{sending ? 'Submitting...' : CONTACT.submit}</button>
                 <p
                   role="status"
                   aria-live="polite"
@@ -146,6 +154,21 @@ export default function Contact() {
           </section>
         </div>
       </main>
+
+      <dialog
+        ref={successDialogRef}
+        className="contact-success-modal"
+        aria-labelledby="contactSuccessTitle"
+        onClose={() => setSuccessOpen(false)}
+      >
+        <div className="contact-success-modal__icon" aria-hidden="true">✓</div>
+        <h2 id="contactSuccessTitle">Successfully submitted</h2>
+        <p>Thank you! Your suggestion or message has been sent to GCare.</p>
+        <div className="contact-success-modal__actions">
+          <button type="button" className={btn('outlineDark')} onClick={() => navigate('/')}>Return to Home</button>
+          <button type="button" className={btn('navy')} onClick={submitAnother}>Submit Another</button>
+        </div>
+      </dialog>
 
       <Footer />
     </div>

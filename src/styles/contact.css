@@ -177,6 +177,56 @@
   margin-bottom: 0;
 }
 
+.contact-success-modal {
+  width: min(460px, calc(100% - 32px));
+  border: 0;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--navy);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 45%);
+  padding: 28px;
+  text-align: center;
+}
+
+.contact-success-modal::backdrop {
+  background: rgb(10 15 28 / 55%);
+}
+
+.contact-success-modal[open] {
+  animation: pop .18s ease-out;
+}
+
+.contact-success-modal__icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  place-items: center;
+  border-radius: 50%;
+  background: #daf2df;
+  color: #176b35;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.contact-success-modal h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.contact-success-modal p {
+  margin: 8px 0 22px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.contact-success-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 @media (max-width: 900px) {
   .contact-help {
     grid-template-columns: minmax(0, 1fr);
