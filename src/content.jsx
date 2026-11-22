@@ -353,8 +353,8 @@ export const newsItems = [
     image: '',
     tone: '#4a5d7a',
     location: 'Northern part of the subdivision',
-    lat: 13.7866,
-    lng: 121.0738,
+    lat: 13.7863,
+    lng: 121.0740,
   },
   {
     id: 'water-nov-6',
@@ -366,8 +366,8 @@ export const newsItems = [
     image: '',
     tone: '#2f7d8a',
     location: 'Central area',
-    lat: 13.7858,
-    lng: 121.0752,
+    lat: 13.7851,
+    lng: 121.0747,
   },
   {
     id: 'classes-nov-6',
@@ -379,8 +379,8 @@ export const newsItems = [
     image: '',
     tone: '#8a6a2f',
     location: 'Southern part of the subdivision',
-    lat: 13.7845,
-    lng: 121.0742,
+    lat: 13.7840,
+    lng: 121.0754,
   },
 ];
 
