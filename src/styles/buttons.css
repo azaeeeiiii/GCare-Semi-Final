@@ -1,10 +1,3 @@
-/* ==========================================================================
-   buttons.css – the pill buttons used across the site.
-   Use:  <button className="btn btn--navy">   (also works on <a> / <Link>)
-   Variants: btn--navy | btn--outline-dark | btn--outline-light | btn--white
-   In React, ui.jsx has a helper:  btn('navy', 'extra-class')
-   ========================================================================== */
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -28,22 +21,16 @@
   transform: scale(0.97);
 }
 
-/* Solid navy -> outlined on hover */
 .btn--navy {
   background-color: var(--navy);
   color: #fff;
 }
 
-/* Navy text on a clear background -> solid navy on hover.
-   NOTE: in the original Tailwind build the navy outline never actually showed (the
-   "border-transparent" class won over "border-navy"), so this matches what the site
-   looked like. To show the outline, add:  border-color: var(--navy);  below. */
 .btn--outline-dark {
   background-color: transparent;
   color: var(--navy);
 }
 
-/* White outline (for dark / red backgrounds) */
 .btn--outline-light {
   border-color: #fff;
   background-color: transparent;
@@ -55,7 +42,6 @@
   color: var(--navy);
 }
 
-/* Hover styles only on devices that really hover (mouse / trackpad) */
 @media (hover: hover) and (pointer: fine) {
   .btn--navy:hover {
     border-color: var(--navy);

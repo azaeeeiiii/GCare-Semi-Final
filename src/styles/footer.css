@@ -1,7 +1,3 @@
-/* ==========================================================================
-   footer.css – site footer (Footer.jsx)
-   ========================================================================== */
-
 .site-footer {
   display: flex;
   min-height: 52px;
@@ -36,7 +32,6 @@
   }
 }
 
-/* thin vertical line between the two link groups */
 .site-footer__divider {
   height: 24px;
   width: 2px;

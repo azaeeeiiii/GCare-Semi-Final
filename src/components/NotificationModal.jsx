@@ -1,3 +1,5 @@
+// Lets users customize and save their GCare notification preferences.
+
 import { useEffect, useState } from 'react';
 import { btn, useDialog } from './ui';
 

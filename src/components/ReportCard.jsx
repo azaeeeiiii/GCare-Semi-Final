@@ -1,9 +1,8 @@
+// Displays a community incident report card with its details, status, and expandable description.
+
 import { useState } from 'react';
 import { ArrowRight } from './ui';
 import { STATUS } from '../lib/reports';
-
-/* One community report as a card. Used by the Feed (left list) and the View All page (/reports).
-   `item` comes from toFeedItem() in lib/reports.js. */
 
 const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
 

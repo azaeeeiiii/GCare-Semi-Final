@@ -32,7 +32,6 @@ const ShieldSvg = () => (
   </svg>
 );
 
-/* Real images for the cards. 'volunteer' has no image yet, so it uses the SVG above. */
 const ICON_SRC = {
   bell: '/images/bell_icon_circle.png',
   hazard: '/images/hazard_icon_circle.png',
@@ -84,7 +83,7 @@ export default function About() {
               <strong>{ABOUT.banner.title}</strong>
               <span>{ABOUT.banner.text}</span>
             </p>
-            {/* clouds.png is shown grey here via CSS (see .about-banner__clouds) */}
+            {}
             <img src="/images/clouds.png" alt="" aria-hidden="true" className="about-banner__clouds" />
           </div>
         </div>

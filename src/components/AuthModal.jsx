@@ -1,3 +1,6 @@
+// Handles GCare's login, signup, and password recovery modal,
+// including form validation and authentication.
+
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,

@@ -1,3 +1,5 @@
+// Displays GCare's footer with navigation links and copyright information.
+
 import { Link, useLocation } from 'react-router-dom';
 
 const link = 'site-footer__link';

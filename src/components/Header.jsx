@@ -1,9 +1,9 @@
+// Defines GCare's headers, including branding, navigation,
+// authentication buttons, and logout functionality.
+
 import { Link, useNavigate } from 'react-router-dom';
 import { logOut } from '../lib/auth';
 import { ArrowLeft, btn, useGoBack } from './ui';
-
-/* Brand logo + the landing header (Sign in / Create Account) + the inner-page header (back arrow) */
-
 
 function Brand() {
   return (
@@ -17,7 +17,6 @@ function Brand() {
   );
 }
 
-/* Brand-only header (About page) */
 export function SimpleHeader() {
   return (
     <header className="site-header">
@@ -27,7 +26,6 @@ export function SimpleHeader() {
 }
 
 
-/* Landing-page header: brand + Sign in / Create Account */
 export function Header({ onOpenAuth }) {
   return (
     <header className="site-header">
@@ -53,7 +51,6 @@ export function Header({ onOpenAuth }) {
 }
 
 
-/* Inner-page header (news, terms, privacy): back arrow + brand + "Back to home" */
 export function PageHeader() {
   const goBack = useGoBack();
   return (
@@ -77,7 +74,6 @@ export function PageHeader() {
 }
 
 
-/* Feed header: brand + the signed-in user + Log out */
 export function FeedHeader({ user }) {
   const navigate = useNavigate();
   return (

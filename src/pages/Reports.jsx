@@ -6,7 +6,6 @@ import ReportCard from '../components/ReportCard';
 import { useUser } from '../lib/auth';
 import { CATEGORIES, GROUPS, toFeedItem, useReportsState } from '../lib/reports';
 
-/* "View All" page (/reports, members only): every report residents posted, with search and filters. */
 
 const TYPES = [['all', 'All'], ['disaster', GROUPS.disaster.label], ['risk', GROUPS.risk.label]];
 const STATES = [['all', 'Any status'], ['pending', 'Pending'], ['review', 'Under Review'], ['resolved', 'Resolved']];

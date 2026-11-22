@@ -1,3 +1,6 @@
+// Handles the floating GCare AI chat assistant, including dragging,
+// chat messages, and sending questions to the chat service.
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUser } from '../lib/auth';

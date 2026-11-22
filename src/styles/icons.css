@@ -1,17 +1,9 @@
-
-/* ==========================================================================
-   icons.css – sizes and stroke styles for icons (see ui.jsx)
-   ========================================================================== */
-
-/* ---------- ARROW ICONS ---------- */
-
 .arrow-right {
   width: 16px;
   height: 16px;
   flex: none;
 }
 
-/* Smaller arrow inside the community-card buttons */
 .arrow-right-small {
   width: 14px;
   height: 14px;

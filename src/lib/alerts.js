@@ -1,3 +1,5 @@
+// Defines GCare alert levels and sample alerts, and retrieves alert data from Supabase.
+
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 
@@ -59,10 +61,8 @@ export const ALERTS = [
   },
 ];
 
-// Reads alerts from Supabase. Falls back to the sample list only if the table can't be read.
-// If the table works but is empty, no alerts are shown (so lifted/deleted alerts really disappear).
 export function useAlerts() {
-  const [alerts, setAlerts] = useState([]); // empty until loaded, so sample alerts never flash on screen
+  const [alerts, setAlerts] = useState([]); 
   useEffect(() => {
     supabase
       .from('alerts')
@@ -70,7 +70,7 @@ export function useAlerts() {
       .order('issued_at', { ascending: false })
       .then(({ data, error }) => {
         if (error || !data) {
-          setAlerts(ALERTS); // table can't be read: show the sample list
+          setAlerts(ALERTS); 
           return;
         }
         setAlerts(data.map((a) => ({

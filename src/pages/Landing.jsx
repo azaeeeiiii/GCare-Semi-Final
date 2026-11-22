@@ -20,7 +20,6 @@ export default function Landing() {
   const alerts = useAlerts();
   const [alertOpen, setAlertOpen] = useState(false);
 
-  // The banner shows the most severe ACTIVE alert the admin posted (newest first when equal)
   const activeAlert = useMemo(() => {
     const list = alerts
       .filter((a) => a.active)
@@ -35,10 +34,9 @@ export default function Landing() {
       body: Array.isArray(a.body) ? a.body : [String(a.body || '')],
     };
   }, [alerts]);
-  const [authTab, setAuthTab] = useState(null); // null = closed, 'login' | 'signup' = open
-  const [legalKey, setLegalKey] = useState(null); // null | 'terms' | 'privacy'
+  const [authTab, setAuthTab] = useState(null); 
+  const [legalKey, setLegalKey] = useState(null);
 
-  // Optional deep links: /#signup  /#signin  /#login
   useEffect(() => {
     if (hash === '#signup') setAuthTab('signup');
     else if (hash === '#signin' || hash === '#login') setAuthTab('login');
@@ -48,15 +46,13 @@ export default function Landing() {
     <>
       <Header onOpenAuth={setAuthTab} />
 
-      {/* ===== HERO ===== */}
       <main className="hero">
-        {/* Background photo (fades in from the left on desktop, full-bleed + dark overlay on mobile) */}
+        {}
         <div aria-hidden="true" className="hero__photo" />
         <div aria-hidden="true" className="hero__overlay" />
 
         {activeAlert && <AlertBanner alert={activeAlert} onViewDetails={() => setAlertOpen(true)} />}
 
-        {/* Headline + status */}
         <div className="hero__intro">
           <h1 className="hero__title">
             Stay Informed.<br />
@@ -72,7 +68,6 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* Explore map */}
         <Link
           to="/feed"
           className={btn('white', 'hero__map-btn')}
@@ -82,7 +77,6 @@ export default function Landing() {
           <ArrowRight />
         </Link>
 
-        {/* Community card */}
         <section aria-labelledby="communityTitle" className="community-card">
           <img
             src="/images/person_landing.png"
@@ -116,7 +110,6 @@ export default function Landing() {
 
       <Footer />
 
-      {/* ===== POP-UPS ===== */}
       {activeAlert && <AlertModal open={alertOpen} onClose={() => setAlertOpen(false)} alert={activeAlert} />}
       <AuthModal
         tab={authTab}

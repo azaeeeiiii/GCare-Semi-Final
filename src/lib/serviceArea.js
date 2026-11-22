@@ -1,5 +1,3 @@
-// Defines GCare's coverage area and manages report locations on the map.
-
 export const AREA = {
   name: 'Golden Country Homes',
   center: [13.785579, 121.074656], 
@@ -14,10 +12,10 @@ const WEST = 121.069309;
 const EAST = 121.07834;
 
 export const BOUNDARY = [
-  [NORTH, WEST], // top-left
-  [NORTH, EAST], // top-right
-  [SOUTH, EAST], // bottom-right
-  [SOUTH, WEST], // bottom-left
+  [NORTH, WEST], 
+  [NORTH, EAST],
+  [SOUTH, EAST], 
+  [SOUTH, WEST], 
 ];
 
 export function pointInPolygon([lat, lng], poly = BOUNDARY) {
@@ -52,6 +50,5 @@ export function clearReportLocation() {
   try {
     localStorage.removeItem(LOCATION_KEY);
   } catch {
-    /* ignore */
   }
 }

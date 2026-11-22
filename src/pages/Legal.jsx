@@ -8,7 +8,6 @@ import { LEGAL } from '../content';
 
 const LABEL = { terms: 'Terms of Use', privacy: 'Privacy Policy' };
 
-/* Used for both /terms and /privacy */
 export default function Legal({ which }) {
   const data = LEGAL[which];
   const [activeId, setActiveId] = useState(null);
@@ -17,7 +16,6 @@ export default function Legal({ which }) {
     document.title = `${data.title} – GCare`;
   }, [data.title]);
 
-  // Highlight the current section in "On this page" while scrolling
   useEffect(() => {
     setActiveId(null);
     if (!('IntersectionObserver' in window)) return;
@@ -40,7 +38,6 @@ export default function Legal({ which }) {
         </PageHero>
 
         <div className="legal-layout">
-          {/* Table of contents (sticky on desktop) */}
           <nav aria-label="On this page" className="legal-toc">
             <p className="legal-toc__title">On this page</p>
             <ol className="legal-toc__list">

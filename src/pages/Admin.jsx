@@ -4,8 +4,6 @@ import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
 import { STATUS, categoryOf, deleteReport, formatDateTime, setReportStatus, useReportsState } from '../lib/reports';
 
-/* Admin page: the admin moves reports Pending -> Under Review -> Resolved, or deletes spam.
-   The database only accepts these changes from accounts whose profiles.role = 'admin'. */
 
 export default function Admin() {
   const user = useUser();

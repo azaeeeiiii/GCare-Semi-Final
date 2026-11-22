@@ -1,3 +1,6 @@
+// Displays a confirmation modal for actions, with confirm,
+// cancel, and error handling options.
+
 import { btn, useDialog } from './ui';
 
 export default function ConfirmModal({

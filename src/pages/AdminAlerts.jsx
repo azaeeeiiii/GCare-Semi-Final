@@ -8,7 +8,6 @@ import { formatDateTime } from '../lib/reports';
 
 const EMPTY = { level: 'warning', title: '', area: '', body: '' };
 
-/* Admin: post, lift and delete alerts (/admin/alerts) */
 export default function AdminAlerts() {
   const user = useUser();
   const [rows, setRows] = useState([]);

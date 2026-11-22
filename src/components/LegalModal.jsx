@@ -1,9 +1,8 @@
+// Displays the Terms and Privacy Policy sections in a modal, with navigation, scrolling, and close controls.
+
 import { useEffect, useRef } from 'react';
 import { LEGAL } from '../content';
 import { LegalLinkContext, btn, useDialog } from './ui';
-
-/* Renders the Terms/Privacy sections (used by the full pages and the pop-up) + the pop-up itself */
-
 
 export function LegalSections({ which, sectionClass = '' }) {
   return LEGAL[which].sections.map((s, i) => (
@@ -14,9 +13,6 @@ export function LegalSections({ which, sectionClass = '' }) {
   ));
 }
 
-
-/* Terms / Privacy pop-up. `which` is null (closed) | 'terms' | 'privacy'.
-   Same content as the full pages (src/data/legal.jsx) — only one copy to edit. */
 export function LegalModal({ which, onChange, onClose }) {
   const open = which !== null;
   const lastShown = useRef('terms');
@@ -27,7 +23,6 @@ export function LegalModal({ which, onChange, onClose }) {
   const { ref, onMouseDown, onClick } = useDialog(open, onClose);
   const bodyRef = useRef(null);
 
-  // Jump back to the top whenever Terms <-> Privacy swaps
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
   }, [which]);

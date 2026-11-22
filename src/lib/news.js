@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 
-/* News data layer (Supabase table `news` + storage bucket `news-images`).
-   - Everyone can read published news. Only admins can post, edit or delete.
-   - If the `news` table does not exist yet (SQL not run), the sample stories below are shown instead. */
-
 export const NEWS_CATEGORIES = {
   update: { label: 'Update', color: '#1b2437' },
   community: { label: 'Community', color: '#067647' },
@@ -83,7 +79,6 @@ const fromRow = (n) => ({
   published: n.published,
 });
 
-/* Public News page: published stories, newest first */
 export function useNews() {
   const [news, setNews] = useState(MOCK_NEWS);
   const [loading, setLoading] = useState(true);
@@ -106,7 +101,6 @@ export function useNews() {
   return { news, loading };
 }
 
-/* Admin: every story, including drafts */
 export async function fetchAllNews() {
   const { data, error } = await supabase.from('news').select('*').order('created_at', { ascending: false });
   return { rows: (data || []).map(fromRow), error };
@@ -125,7 +119,6 @@ async function shrink(file) {
   return new Promise((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error('Could not read that image.'))), 'image/jpeg', 0.82));
 }
 
-/* Upload an image to Supabase Storage and return its public URL */
 export async function uploadNewsImage(file) {
   const blob = await shrink(file);
   const path = `${crypto.randomUUID()}.jpg`;
@@ -134,7 +127,6 @@ export async function uploadNewsImage(file) {
   return supabase.storage.from(NEWS_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-/* Remove an uploaded image (best effort) */
 export async function deleteNewsImage(url) {
   const marker = `/${NEWS_BUCKET}/`;
   const i = url ? url.indexOf(marker) : -1;

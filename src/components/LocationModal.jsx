@@ -1,3 +1,5 @@
+// Allows users to add, edit, and delete saved locations for safety updates.
+
 import { useEffect, useState } from 'react';
 import { btn, useDialog } from './ui';
 

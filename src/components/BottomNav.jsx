@@ -1,9 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useUser } from '../lib/auth';
 
-/* Bottom navigation shared by the Feed, Report, Volunteer, Profile and Admin pages.
-   Residents never see anything admin. The admin menu only shows on /admin pages. */
-
 const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className: 'feed-nav__icon' };
 
 const img = (file) => <img src={`/images/${file}`} alt="" aria-hidden="true" className="feed-nav__icon feed-nav__icon--img" />;

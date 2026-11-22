@@ -22,7 +22,6 @@ export const activeAlert = {
   ],
 };
 
-/* Status line. Update from your backend / location check later. */
 export const areaStatus = {
   text: 'No active emergency in your area',
   updated: 'November 7, 2026 3:39 PM',

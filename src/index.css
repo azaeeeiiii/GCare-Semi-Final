@@ -1,4 +1,3 @@
-/* All site styles. Order matters: base first, then shared pieces, then pages. */
 @import './styles/base.css';
 @import './styles/icons.css';
 @import './styles/buttons.css';

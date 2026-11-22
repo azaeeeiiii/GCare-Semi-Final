@@ -1,17 +1,8 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
 
-/* ===================== reports.js =====================
-   Community reports, stored in Supabase (table `reports` + storage bucket `report-images`).
-   Run reports.sql once in the Supabase SQL Editor first.
-
-   Status flow:  pending  ->  review  ->  resolved
-   Only the ADMIN can change the status (enforced by the database policies, not just the browser).
-   ======================================================= */
-
 export const REPORT_BUCKET = 'report-images';
 
-/* group: 'disaster' = natural / major emergencies, 'risk' = hazards and safety concerns */
 export const GROUPS = {
   disaster: { label: 'Disaster' },
   risk: { label: 'Risk' },
@@ -40,7 +31,6 @@ export const STATUS = {
 export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
 export const groupOf = (id) => categoryOf(id).group;
 
-/* ---------- Tiny shared store so every page sees the same list ---------- */
 let state = { reports: [], loading: true, error: '' };
 const listeners = new Set();
 let started = false;
@@ -60,7 +50,7 @@ const fromRow = (r, uid) => ({
   lat: r.lat,
   lng: r.lng,
   authorName: r.author_name || 'Resident',
-  mine: !!uid && r.author_id === uid, // no emails are stored on reports, so "mine" is matched by account id
+  mine: !!uid && r.author_id === uid, 
   status: r.status,
   createdAt: r.created_at,
   timeline: Array.isArray(r.timeline) && r.timeline.length ? r.timeline : [{ status: r.status, at: r.created_at }],
@@ -87,7 +77,6 @@ function start() {
   refreshReports();
   // reload when someone signs in/out
   supabase.auth.onAuthStateChange(() => setTimeout(refreshReports, 0));
-  // live updates from other residents / the admin (needs the realtime line in reports.sql)
   supabase
     .channel('gcare-reports')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => refreshReports())
@@ -101,18 +90,15 @@ const subscribe = (cb) => {
 };
 const getState = () => state;
 
-/* React hook: { reports, loading, error }. Newest first. */
 export function useReportsState() {
   useEffect(start, []);
   return useSyncExternalStore(subscribe, getState, getState);
 }
 
-/* React hook: just the list (newest first). */
 export function useReports() {
   return useReportsState().reports;
 }
 
-/* ---------- Write ---------- */
 async function uploadPhoto(dataUrl) {
   if (!dataUrl || !dataUrl.startsWith('data:')) return dataUrl || '';
   const blob = await (await fetch(dataUrl)).blob();
@@ -122,7 +108,6 @@ async function uploadPhoto(dataUrl) {
   return supabase.storage.from(REPORT_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-/* Publishes a report. Throws an Error with a readable message if it fails. */
 export async function addReport({ title, category, location, summary, lat, lng, photo, user }) {
   const photo_url = await uploadPhoto(photo);
   const now = new Date().toISOString();
@@ -147,7 +132,6 @@ export async function addReport({ title, category, location, summary, lat, lng, 
   return { id: data.id };
 }
 
-/* ADMIN ONLY (the database rejects anyone else). */
 export async function setReportStatus(id, status) {
   const current = state.reports.find((r) => r.id === id);
   if (!current || current.status === status) return;
@@ -157,21 +141,18 @@ export async function setReportStatus(id, status) {
   await refreshReports();
 }
 
-/* ADMIN ONLY: remove a spam / duplicate report */
 export async function deleteReport(id) {
   const { error } = await supabase.from('reports').delete().eq('id', id);
   if (error) console.error('Could not delete report:', error.message);
   await refreshReports();
 }
 
-/* ---------- Display helpers ---------- */
 export const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
 export const formatDateTime = (iso) =>
   `${formatDate(iso)} • ${new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
 
-/* A report shaped like a feed card / map pin */
 export function toFeedItem(r) {
   const cat = categoryOf(r.category);
   return {

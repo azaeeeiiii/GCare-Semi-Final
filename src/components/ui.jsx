@@ -1,14 +1,7 @@
+// Provides reusable icons, button styles, page layouts, dialog controls, navigation helpers, and legal links.
+
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-
-/* ===================== ui.jsx =====================
-   Small shared pieces used all over the site:
-   icons, button styles, the navy page title band, pop-up + back-button helpers,
-   and the links used inside the Terms / Privacy text.
-   ================================================== */
-
-/* ---------- ICONS ---------- */
-/* All icons as small components so they can be restyled with className (styles: styles/icons.css) */
 
 export const ArrowRight = ({ className = 'arrow-right' }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -95,7 +88,6 @@ export const GoogleIcon = () => (
   </svg>
 );
 
-/* Welcome-panel icons (white circle, navy glyph) */
 const side = 'landing-icon';
 
 export const BellIcon = () => (
@@ -120,9 +112,6 @@ export const PeopleIcon = () => (
   />
 );
 
-/* ---------- BUTTON STYLES ---------- */
-/* Pill buttons used across the site (styles/buttons.css). Use with <button>, <a> or <Link>.
-   btn('navy')  ->  "btn btn--navy"      btn('white', 'my-class')  ->  "btn btn--white my-class" */
 const variants = {
   navy: 'btn--navy',
   outlineDark: 'btn--outline-dark',
@@ -132,8 +121,6 @@ const variants = {
 
 export const btn = (variant = 'navy', extra = '') => `btn ${variants[variant]} ${extra}`.trim();
 
-/* ---------- PAGE TITLE BAND ---------- */
-/* Navy title band used on News / Terms / Privacy */
 export function PageHero({ title, children, innerClass = '' }) {
   return (
     <section className="page-hero">
@@ -145,14 +132,6 @@ export function PageHero({ title, children, innerClass = '' }) {
   );
 }
 
-/* ---------- HELPERS (hooks) ---------- */
-
-/**
- * Wires a native <dialog> to React state.
- * - `open` true/false -> showModal()/close()
- * - Esc / close() -> calls onClose (so state stays in sync)
- * - Backdrop click closes (but not when a text-selection drag ends outside the card)
- */
 export function useDialog(open, onClose) {
   const ref = useRef(null);
   const downOnBackdrop = useRef(false);
@@ -166,7 +145,7 @@ export function useDialog(open, onClose) {
 
   return {
     ref,
-    onClose, // native "close" event (fires for Esc, form close, el.close())
+    onClose, 
     onMouseDown: (e) => {
       downOnBackdrop.current = e.target === ref.current;
     },
@@ -176,9 +155,6 @@ export function useDialog(open, onClose) {
   };
 }
 
-
-/* Back arrow / "Back to home": go to the previous page if it was on this site,
-   otherwise fall back to "/". */
 export function useGoBack() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -189,12 +165,7 @@ export function useGoBack() {
   };
 }
 
-/* ---------- LINKS INSIDE TERMS / PRIVACY TEXT ---------- */
-
-/* Lets the same legal text work in two places:
-   - on the full page   -> real router links
-   - inside the pop-up  -> Terms <-> Privacy swap in place */
-export const LegalLinkContext = createContext(null); // null = full page, fn(key) = pop-up
+export const LegalLinkContext = createContext(null); 
 
 const PATHS = { terms: '/terms', privacy: '/privacy' };
 

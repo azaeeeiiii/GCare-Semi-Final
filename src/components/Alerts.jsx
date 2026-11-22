@@ -1,10 +1,8 @@
+// Displays active alerts and provides a modal for viewing alert details.
+
 import { Link } from 'react-router-dom';
 import { ArrowRight, btn, useDialog } from './ui';
 
-/* The red alert banner on the landing page + its details pop-up */
-
-
-/* Red "ACTIVE ALERTS" pill at the top of the hero */
 export function AlertBanner({ alert, onViewDetails }) {
   return (
     <section aria-label="Active alerts" className="alert-banner">

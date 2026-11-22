@@ -1,8 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
 
-/* Volunteer data layer on Supabase (events + signups tables).
-   Same exports as before, so Volunteer.jsx and Admin.jsx keep working. */
 
 export const SIGNUP_STATUS = {
   pending: { label: 'Pending', note: 'Waiting for the admin to confirm your slot.' },
@@ -10,7 +8,6 @@ export const SIGNUP_STATUS = {
   rejected: { label: 'Not accepted', note: 'This slot is full or no longer available.' },
 };
 
-// Filled from the `events` table (same array, updated in place)
 export const EVENTS = [];
 
 let signups = [];

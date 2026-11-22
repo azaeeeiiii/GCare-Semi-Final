@@ -5,8 +5,6 @@ import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
 import { EVENTS, SIGNUP_STATUS, cancelSignup, eventOf, formatEventDate, signUp, slotsLeft, useSignups } from '../lib/volunteer';
 
-/* Volunteer page: "Explore" = browse events and sign up, "My Activities" = track signups.
-   Guests can browse; signing up needs an account. The admin approves signups (see Admin.jsx). */
 
 const ic = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, width: 16, height: 16 };
 const PinIcon = () => <svg {...ic}><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>;
@@ -27,7 +25,6 @@ function Badge({ status }) {
   return <span className={`vbadge vbadge--${status}`}>{SIGNUP_STATUS[status].label}</span>;
 }
 
-/* ------------------------- Explore tab ------------------------- */
 function Explore({ user, signups }) {
   const mineByEvent = useMemo(() => new Map(signups.filter((s) => s.email === user?.email).map((s) => [s.eventId, s])), [signups, user]);
 
@@ -67,7 +64,6 @@ function Explore({ user, signups }) {
   );
 }
 
-/* ------------------------- My Activities tab ------------------------- */
 function MyActivities({ user, signups, setTab }) {
   if (!user) {
     return (
@@ -109,7 +105,6 @@ function MyActivities({ user, signups, setTab }) {
   );
 }
 
-/* ------------------------- Page ------------------------- */
 export default function Volunteer() {
   const user = useUser();
   const signups = useSignups();

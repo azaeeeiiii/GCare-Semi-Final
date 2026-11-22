@@ -9,13 +9,7 @@ import { useUser } from '../lib/auth';
 import { toFeedItem, useReportsState } from '../lib/reports';
 import { pointInPolygon } from '../lib/serviceArea';
 
-/* Feed page (members only, see RequireAuth in App.jsx). Browse-only:
-   the latest resident reports on the left, a map of where they happened on the right.
-   - "View All" opens /reports (every report).
-   - "Announcements" opens /news (alerts + news posted by the admin).
-   Reporting lives on the Report page. */
-
-const LATEST_COUNT = 6; // cards shown in the left list; the rest are on /reports
+const LATEST_COUNT = 6; 
 
 const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
 

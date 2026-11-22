@@ -8,8 +8,6 @@ import { useUser } from '../lib/auth';
 import { AREA } from '../lib/serviceArea';
 import { CATEGORIES, GROUPS, STATUS, addReport, categoryOf, formatDate, formatDateTime, useReports } from '../lib/reports';
 
-/* Report page (members only): "Report" tab = create a report, "My Reports" tab = track its status.
-   Only the admin can change a report's status (see Admin.jsx). */
 
 const ic = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className: 'rfield-icon' };
 const TitleIcon = () => <svg {...ic}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>;
@@ -41,7 +39,6 @@ function Badge({ status }) {
   return <span className={`rbadge rbadge--${status}`}>{STATUS[status].label}</span>;
 }
 
-/* Defined at module level (not inside ReportForm) so inputs keep focus while typing */
 function Field({ id, label, icon, error, children }) {
   return (
     <div className="rfield">
@@ -55,7 +52,6 @@ function Field({ id, label, icon, error, children }) {
   );
 }
 
-/* ------------------------- Report tab ------------------------- */
 function ReportForm({ user, tab, setTab, onPublished }) {
   const [form, setForm] = useState({ title: '', category: '', location: '', summary: '' });
   const [pin, setPin] = useState(DEFAULT_PIN);
@@ -71,7 +67,6 @@ function ReportForm({ user, tab, setTab, onPublished }) {
     setErrors((er) => ({ ...er, [k]: undefined }));
   };
 
-  /* Fill the Location box from the pin (OpenStreetMap Nominatim), unless the user typed their own */
   useEffect(() => {
     if (!pinned) return undefined;
     const ctrl = new AbortController();
@@ -83,7 +78,6 @@ function ReportForm({ user, tab, setTab, onPublished }) {
         const label = [a.road, a.suburb || a.neighbourhood || a.quarter || a.village, a.city || a.town || a.municipality].filter(Boolean).join(', ') || d.display_name || '';
         if (label && !locEdited.current) setForm((f) => ({ ...f, location: label }));
       } catch {
-        /* offline or aborted: the user can type the location */
       }
     }, 450);
     return () => {
@@ -172,7 +166,6 @@ function ReportForm({ user, tab, setTab, onPublished }) {
   );
 }
 
-/* ------------------------- My Reports tab ------------------------- */
 function Timeline({ report }) {
   return (
     <ol className="rtl">
@@ -269,7 +262,6 @@ function MyReports({ tab, setTab, focusId }) {
   );
 }
 
-/* ------------------------- Page ------------------------- */
 export default function Report() {
   const user = useUser();
   const [tab, setTab] = useState('report');

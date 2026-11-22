@@ -1,8 +1,3 @@
-/* ==========================================================================
-   header.css – brand logo, landing header, inner-page header (Header.jsx)
-   ========================================================================== */
-
-/* ---------- Brand (logo + name) ---------- */
 .brand {
   display: flex;
   align-items: center;
@@ -33,7 +28,6 @@
   font-weight: 600;
 }
 
-/* ---------- Header bar (landing + inner pages) ---------- */
 .site-header {
   display: flex;
   height: 58px;
@@ -55,7 +49,6 @@
   gap: 12px;
 }
 
-/* round back arrow on inner pages */
 .back-link {
   display: grid;
   width: 38px;
@@ -100,7 +93,6 @@
     gap: 8px;
   }
 
-  /* smaller Sign in / Create Account buttons */
   .btn.site-header__btn {
     padding-left: 12px;
     padding-right: 12px;
@@ -109,7 +101,6 @@
 }
 
 @media (max-width: 480px) {
-  /* hide the "Back to home" pill on very small screens */
   .btn.site-header__home {
     display: none;
   }

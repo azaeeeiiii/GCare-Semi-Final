@@ -1,16 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+//TODO backend: upload the original file to your server/storage instead of keeping a data URL. */
+// Handles incident photo capture and upload, including image compression and webcam support.
 
-/* Photo for a report: take a picture or upload one. Works on phones and computers.
-   - Phones/tablets: "Take photo" opens the device camera (the `capture` file input).
-   - Computers: "Take photo" opens a webcam window (getUserMedia; needs https or localhost).
-   - "Upload photo" opens the normal file picker everywhere.
-   Photos are shrunk (max 1280px, JPEG) before saving so they fit in browser storage.
-   TODO backend: upload the original file to your server/storage instead of keeping a data URL. */
+import { useEffect, useRef, useState } from 'react';
 
 const MAX_SIDE = 1280;
 const QUALITY = 0.72;
 
-/* Draw an image/video frame onto a canvas at a sensible size and return a JPEG data URL */
 function toDataUrl(source, w, h) {
   const scale = Math.min(1, MAX_SIDE / Math.max(w, h));
   const canvas = document.createElement('canvas');
@@ -42,7 +37,6 @@ async function compressFile(file) {
   }
 }
 
-/* ---------- Webcam window (computers) ---------- */
 function CameraModal({ onCapture, onClose, onError }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -72,7 +66,6 @@ function CameraModal({ onCapture, onClose, onError }) {
       window.removeEventListener('keydown', onKey);
       streamRef.current?.getTracks().forEach((t) => t.stop()); // turn the camera light off
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function snap() {
@@ -97,7 +90,6 @@ function CameraModal({ onCapture, onClose, onError }) {
   );
 }
 
-/* ---------- The form field ---------- */
 export default function PhotoField({ value, onChange, error }) {
   const uploadRef = useRef(null);
   const cameraRef = useRef(null);
@@ -107,7 +99,7 @@ export default function PhotoField({ value, onChange, error }) {
 
   async function picked(e) {
     const file = e.target.files?.[0];
-    e.target.value = ''; // so picking the same file again still triggers
+    e.target.value = ''; 
     if (!file) return;
     setMsg('');
     setBusy(true);
@@ -122,8 +114,8 @@ export default function PhotoField({ value, onChange, error }) {
   function takePhoto() {
     setMsg('');
     const phone = window.matchMedia('(pointer: coarse)').matches;
-    if (phone) cameraRef.current.click(); // opens the device camera app
-    else if (navigator.mediaDevices?.getUserMedia) setCamOpen(true); // webcam window
+    if (phone) cameraRef.current.click(); 
+    else if (navigator.mediaDevices?.getUserMedia) setCamOpen(true); 
     else uploadRef.current.click(); // no camera support: fall back to picking a file
   }
 

@@ -7,7 +7,6 @@ import { formatEventDate, refresh } from '../lib/volunteer';
 
 const EMPTY = { title: '', location: '', event_date: '', time_label: '', role: '', slots: '10', summary: '', reminder: '' };
 
-/* Admin: create and delete volunteer events (/admin/events) */
 export default function AdminEvents() {
   const user = useUser();
   const [rows, setRows] = useState([]);

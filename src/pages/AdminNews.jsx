@@ -9,7 +9,6 @@ import {
 
 const EMPTY = { title: '', category: 'update', summary: '', body: '', image: '', published: true };
 
-/* Admin: post, edit, hide and delete news (/admin/news) */
 export default function AdminNews() {
   const user = useUser();
   const fileRef = useRef(null);

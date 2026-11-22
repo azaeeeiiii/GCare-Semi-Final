@@ -1,11 +1,9 @@
+// Displays the GCare incident map, report pins, and service area boundary, with an optional boundary tracing tool.
+
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AREA, BOUNDARY } from '../lib/serviceArea';
-
-/* Read-only map for the feed: one pin per report, limited to the service area.
-   Tap a pin to see details (and highlight its card); picking a card flies the map to its pin.
-   Boundary helper: open /feed?trace=1 and click the corners of the area. */
 
 const pinSvg = (color) =>
   `<svg viewBox="0 0 32 44" width="32" height="44" aria-hidden="true"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 43 16 43s15-16 15-27.2C31 7.6 24.3 1 16 1z" fill="${color}" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg>`;
@@ -62,8 +60,6 @@ if (trace) {
   );
   L.control.layers({ Street: street, Satellite: satellite }, null, { position: 'topright' }).addTo(map);
 }
-
-    // dim everything outside the service area, then outline it
     const world = [[-85, -180], [-85, 180], [85, 180], [85, -180]];
     L.polygon([world, BOUNDARY], { stroke: false, fillColor: '#1b2437', fillOpacity: 0.42, interactive: false }).addTo(map);
     L.polygon(BOUNDARY, { color: '#a00000', weight: 3, dashArray: '7 6', fill: false, interactive: false }).addTo(map);
@@ -91,7 +87,6 @@ if (trace) {
     };
   }, [items]);
 
-  // a card was picked: fly to its pin and open the details
   useEffect(() => {
     const m = markers.current[selectedId];
     const map = mapRef.current;

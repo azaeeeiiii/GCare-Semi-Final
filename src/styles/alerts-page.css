@@ -1,6 +1,3 @@
-/* "View all alerts" page (News.jsx). Cards are colored by alert level via --level.
-   Layout: 2 columns on laptop/desktop, 1 column on tablet and mobile. */
-
 .alerts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

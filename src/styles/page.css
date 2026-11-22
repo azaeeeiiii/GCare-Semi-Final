@@ -1,8 +1,3 @@
-/* ==========================================================================
-   page.css – inner-page layout, navy title band, News + Coming soon pages
-   ========================================================================== */
-
-/* Full-height page: header / main / footer */
 .page {
   display: flex;
   min-height: 100vh;
@@ -13,7 +8,6 @@
   flex: 1 1 0%;
 }
 
-/* ---------- Navy title band (News / Terms / Privacy / Coming soon) ---------- */
 .page-hero {
   background-color: var(--navy);
   padding: 34px clamp(16px, 5vw, 64px) 30px;
@@ -42,7 +36,6 @@
   opacity: 0.85;
 }
 
-/* ---------- Content area under the title band ---------- */
 .page-content {
   margin-left: auto;
   margin-right: auto;
@@ -54,7 +47,6 @@
   padding-bottom: 56px;
 }
 
-/* "Coming soon" style dashed box */
 .placeholder {
   margin: 0;
   border-radius: 14px;

@@ -5,14 +5,11 @@ import { PageHero, btn } from '../components/ui';
 import { useUser } from '../lib/auth';
 import { CONTACT } from '../content';
 
-/* Contact page (/contact). Same layout as Terms / Privacy. Text lives in content.jsx -> CONTACT.
-   Styles: styles/contact.css */
-
 const MIN_LENGTH = 10;
 const MAX_LENGTH = 1000;
 const MESSAGES_KEY = 'gcare_messages';
 
-/* FRONT-END ONLY for now: the message is saved in this browser (localStorage), like reports.js.
+/* 
    TODO backend: replace the body of this function with a fetch('/api/messages', { method: 'POST', ... })
    so the message really reaches the GCare team (and/or sends an email). */
 function saveMessage({ category, message, user }) {
@@ -28,7 +25,6 @@ function saveMessage({ category, message, user }) {
     });
     localStorage.setItem(MESSAGES_KEY, JSON.stringify(list));
   } catch {
-    /* storage unavailable: ignore */
   }
 }
 
@@ -36,7 +32,7 @@ export default function Contact() {
   const user = useUser();
   const [category, setCategory] = useState('');
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState(null); // null | { ok: boolean, msg: string }
+  const [status, setStatus] = useState(null); 
 
   useEffect(() => {
     document.title = 'Contact Us – GCare';

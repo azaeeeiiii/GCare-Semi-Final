@@ -6,7 +6,6 @@ import { SIGNUP_STATUS, eventOf, formatEventDate, setSignupStatus, useSignups } 
 
 const BADGE = { pending: 'review', approved: 'resolved', rejected: 'rejected' };
 
-/* Admin: approve or reject volunteer signups (/admin/volunteers) */
 export default function AdminVolunteers() {
   const user = useUser();
   const signups = useSignups();

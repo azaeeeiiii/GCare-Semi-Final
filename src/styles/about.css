@@ -1,8 +1,3 @@
-/* ==========================================================================
-   about.css – About GCare page (pages/About.jsx)
-   Uses the shared page layout (navy title band + white content, see page.css).
-   ========================================================================== */
-
 .about-content {
   padding-bottom: 56px;
 }
@@ -46,10 +41,6 @@
   background-color: var(--navy);
 }
 
-/* The *_icon_circle.png files are a WHITE circle with a NAVY symbol.
-   This flips them to a navy circle with a white symbol to match the design:
-   invert + grayscale makes the circle black / symbol white, then "screen" lets the navy show through the black.
-   If you get icon files that are already navy circle + white symbol, delete the filter and mix-blend-mode lines. */
 .about-card__img {
   display: block;
   width: 100%;
@@ -59,7 +50,6 @@
   mix-blend-mode: screen;
 }
 
-/* the SVG placeholder icon (Volunteer) */
 .about-card__svg {
   width: 56%;
   height: 56%;
@@ -120,7 +110,7 @@
   font-weight: 800;
 }
 
-/* clouds.png turned grey and faded so it sits quietly in the banner corner */
+
 .about-banner__clouds {
   position: absolute;
   right: 8px;

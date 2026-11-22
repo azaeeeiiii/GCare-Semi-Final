@@ -1,11 +1,9 @@
+// Displays an interactive incident map for selecting and validating report locations, plus a small map preview.
+
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AREA, BOUNDARY, pointInPolygon } from '../lib/serviceArea';
-
-/* Pin-the-exact-spot map for the Report page (and a tiny read-only version for My Reports).
-   - Asks for the user's location once, when the map opens, and drops the pin there if it is inside the area.
-   - The pin can be dragged, or moved by tapping the map. It can never leave the service area. */
 
 const pinSvg = (color) =>
   `<svg viewBox="0 0 32 44" width="32" height="44" aria-hidden="true"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 27 16 43 16 43s15-16 15-27.2C31 7.6 24.3 1 16 1z" fill="${color}" stroke="#fff" stroke-width="2"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg>`;
@@ -21,7 +19,6 @@ function addAreaLayers(map) {
   L.polygon(BOUNDARY, { color: '#a00000', weight: 3, dashArray: '7 6', fill: false, interactive: false }).addTo(map);
 }
 
-/* ---------------- Interactive pin map ---------------- */
 export default function ReportMap({ pin, onPin }) {
   const elRef = useRef(null);
   const mapRef = useRef(null);
@@ -32,7 +29,6 @@ export default function ReportMap({ pin, onPin }) {
   const [full, setFull] = useState(false);
   const [locating, setLocating] = useState(false);
 
-  /* Move the pin if it's inside the area; otherwise tell the user. Called by every way of moving it. */
   api.current.move = (lat, lng, { fly = false } = {}) => {
     if (!pointInPolygon([lat, lng])) {
       setNotice({ text: `That spot is outside ${AREA.name}. Pin a location inside the outlined area.`, error: true });
@@ -112,7 +108,6 @@ export default function ReportMap({ pin, onPin }) {
       mapRef.current = null;
       markerRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -143,7 +138,6 @@ export default function ReportMap({ pin, onPin }) {
   );
 }
 
-/* ---------------- Tiny read-only map (My Reports detail) ---------------- */
 export function MiniMap({ lat, lng }) {
   const elRef = useRef(null);
 
