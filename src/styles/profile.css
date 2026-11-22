@@ -395,7 +395,6 @@
 }
 
 @media (max-width: 560px) {
-  .profile-page .site-header__user { display: none; }
   .profile-card { border-radius: 16px; padding: 16px; }
   .profile-identity { gap: 14px; }
   .profile-avatar-wrap,
