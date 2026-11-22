@@ -1,0 +1,11 @@
+.cw__msg:has(.cw__hot) { max-width: 95%; white-space: normal; }
+.cw__hot-title { font-weight: 700; margin-bottom: 6px; }
+.cw__hot-group + .cw__hot-group { margin-top: 10px; }
+.cw__hot-label { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #6b7487; margin-bottom: 4px; }
+.cw__hot-item { display: flex; flex-direction: column; gap: 2px; border-top: 1px solid #e7eaf0; padding: 7px 0; }
+.cw__hot-item strong { font-size: 13px; line-height: 1.25; }
+.cw__hot-nums { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.cw__hot-nums a { color: #1b5fb4; font-weight: 700; text-decoration: none; }
+.cw__hot-nums a:hover { text-decoration: underline; }
+.cw__hot-item small { font-size: 12px; color: #4f5766; }
+.cw__hot-foot { margin-top: 8px; font-size: 12px; color: #4f5766; }

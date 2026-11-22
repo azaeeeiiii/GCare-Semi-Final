@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUser } from '../lib/auth';
 import { supabase } from '../lib/supabase';
+import { findHotlines, telHref } from '../lib/hotlines';
 
 const WELCOME = { role: 'bot', text: "Hi! I'm the GCare Assistant. Ask me about reports, alerts, and volunteer events." };
-const SUGGEST = ['Are there any alerts right now?', 'Which volunteer events are open?', 'How do I report a hazard?'];
+const SUGGEST = ['Who do I call in an emergency?', 'Are there any alerts right now?', 'Which volunteer events are open?', 'How do I report a hazard?'];
 const SIZE = 54;
 const KEY = 'gcare-chat-pos-v2';
 
@@ -20,6 +21,29 @@ function loadPos() {
     if (s && typeof s.x === 'number' && typeof s.y === 'number') return s;
   } catch (_) {}
   return defaultPos();
+}
+
+function HotlineList({ data }) {
+  return (
+    <div className="cw__hot">
+      <p className="cw__hot-title">{data.title}</p>
+      {data.groups.map((g) => (
+        <div key={g.label} className="cw__hot-group">
+          <p className="cw__hot-label">{g.label}</p>
+          {g.items.map((h) => (
+            <div key={h.name} className="cw__hot-item">
+              <strong>{h.name}</strong>
+              <span className="cw__hot-nums">
+                {h.numbers.map((n) => <a key={n} href={telHref(n)}>{n}</a>)}
+              </span>
+              {h.note && <small>{h.note}</small>}
+            </div>
+          ))}
+        </div>
+      ))}
+      <p className="cw__hot-foot">Tap a number to call. If someone is in immediate danger, call right away.</p>
+    </div>
+  );
 }
 
 /* Floating, draggable AI assistant. Calls the "chat" Edge Function. */
@@ -84,8 +108,13 @@ export default function ChatWidget() {
     const next = [...msgs, { role: 'user', text: q }];
     setMsgs(next);
     setInput('');
+    const hot = findHotlines(q);
+    if (hot) {
+      setMsgs([...next, { role: 'bot', hotlines: hot }]);
+      return;
+    }
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke('chat', { body: { messages: next.slice(1) } });
+    const { data, error } = await supabase.functions.invoke('chat', { body: { messages: next.slice(1).filter((m) => m.text) } });
     const reply = error || !data?.reply ? 'Connection problem. Please try again later.' : data.reply;
     setMsgs([...next, { role: 'bot', text: reply }]);
     setBusy(false);
@@ -119,7 +148,9 @@ export default function ChatWidget() {
 
           <div className="cw__list">
             {msgs.map((m, i) => (
-              <div key={i} className={`cw__msg cw__msg--${m.role}`}>{m.text}</div>
+              <div key={i} className={`cw__msg cw__msg--${m.role}`}>
+                {m.hotlines ? <HotlineList data={m.hotlines} /> : m.text}
+              </div>
             ))}
             {msgs.length === 1 && (
               <div className="cw__chips">
