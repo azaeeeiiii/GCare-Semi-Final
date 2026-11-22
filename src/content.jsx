@@ -408,12 +408,12 @@ export const ABOUT = {
    Text shown on pages/Contact.jsx. Edit the wording here. */
 export const CONTACT = {
   title: 'Contact Us',
-  tagline: 'We’d Love to Hear From You!',
+  tagline: 'We would love to hear from you!',
   intro: [
     'Have suggestions, questions, or feedback about GCare? We’re here to listen! Whether you want to recommend a feature, clarify our Terms of Use, or ask about our Privacy Policy, feel free to reach out.',
     'Your feedback helps us improve GCare and provide a better experience for our community.',
   ],
-  helpTitle: 'How Can We Help You?',
+  helpTitle: 'How can we help you?',
   help: [
     {
       title: 'Suggestions and Feedback',
@@ -428,7 +428,7 @@ export const CONTACT = {
       text: 'Do you have questions about how GCare collects, uses, stores, or protects your personal information? You may contact us regarding our Privacy Policy and data protection practices.',
     },
   ],
-  formTitle: 'Send Us a Message',
+  formTitle: 'Send us a message!',
   formIntro: 'Select the purpose of your message and provide the necessary details below.',
   categoryLabel: 'Message Category',
   categories: ['Suggestions and Feedback', 'Terms of Use Inquiry', 'Privacy Policy Inquiry', 'Other Inquiries'],
@@ -436,7 +436,7 @@ export const CONTACT = {
   messageHelp: 'Describe your suggestion, question, or inquiry in the space provided.',
   placeholder: 'Write your message here...',
   submit: 'Submit Message',
-  thanksTitle: 'Thank You for Reaching Out!',
+  thanksTitle: 'Thank you for reaching out!',
   thanksText:
     'We appreciate your time and feedback. Your messages help us improve GCare, maintain transparency, and build a safer and more informed community.',
 };

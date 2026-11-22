@@ -163,7 +163,7 @@ export default function Contact() {
       >
         <div className="contact-success-modal__icon" aria-hidden="true">✓</div>
         <h2 id="contactSuccessTitle">Successfully submitted</h2>
-        <p>Thank you! Your suggestion or message has been sent to GCare.</p>
+        <p>Thank you! Your suggestion or message has been submitted successfully.</p>
         <div className="contact-success-modal__actions">
           <button type="button" className={btn('outlineDark')} onClick={() => navigate('/')}>Return to Home</button>
           <button type="button" className={btn('navy')} onClick={submitAnother}>Submit Another</button>

@@ -274,7 +274,12 @@ export default function Profile() {
             {!reportsLoading && !reportsError && mineReports.map((report) => {
               const statusTone = report.status === 'pending' ? 'pending' : report.status === 'resolved' ? 'resolved' : 'review';
               return (
-                <div className="profile-report" key={report.id}>
+                <Link
+                  className="profile-report"
+                  to={`/report?tab=mine&report=${encodeURIComponent(report.id)}`}
+                  key={report.id}
+                  aria-label={`View ${report.title} in My Reports`}
+                >
                   <div className="profile-report__image">
                     {report.photo ? (
                       <img src={report.photo} alt="" className="profile-report__photo" />
@@ -284,7 +289,7 @@ export default function Profile() {
                   </div>
                   <div className="profile-report__text"><strong>{report.title}</strong><span>{formatDateTime(report.createdAt)}</span></div>
                   <span className={`profile-status profile-status--${statusTone}`}><CheckIcon />{STATUS[report.status]?.label || report.status}</span><ArrowIcon />
-                </div>
+                </Link>
               );
             })}
           </div>

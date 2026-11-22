@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import ReportMap, { MiniMap } from '../components/ReportMap';
@@ -264,8 +265,11 @@ function MyReports({ tab, setTab, focusId }) {
 
 export default function Report() {
   const user = useUser();
-  const [tab, setTab] = useState('report');
-  const [focusId, setFocusId] = useState(null);
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'mine' ? 'mine' : 'report';
+  const initialReportId = searchParams.get('report');
+  const [tab, setTab] = useState(initialTab);
+  const [focusId, setFocusId] = useState(initialReportId);
   const [toast, setToast] = useState('');
 
   useEffect(() => {
