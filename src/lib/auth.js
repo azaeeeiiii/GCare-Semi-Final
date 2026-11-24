@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
+import { api } from './api';
+import { fileToDataUrl } from './http';
 
 const listeners = new Set();
 
@@ -47,23 +49,28 @@ async function loadUser(authUser) {
     return;
   }
 
-  const { data } = await supabase
-    .from('profiles')
-    .select('name, education, location, role, avatar_url')
-    .eq('id', authUser.id)
-    .maybeSingle();
+  let data = null;
+  let error = null;
+  try {
+    ({ profile: data } = await api('/me'));
+  } catch (err) {
+    error = err;
+  }
 
-  const role = data?.role || 'user';
+
+  const role = error || !data
+    ? localStorage.getItem('gcare_role') || 'user'
+    : data.role || 'user';
   localStorage.setItem('gcare_role', role);
 
   setCurrent({
-    name: data?.name || authUser.user_metadata?.name || '',
+    name: data?.name || authUser.user_metadata?.name || current?.name || '',
     email: authUser.email,
     education: data?.education || '',
     location: data?.location || '',
     isAdmin: role === 'admin',
     userType: data?.education || authUser.user_metadata?.user_type || '',
-    avatar: data?.avatar_url || '',
+    avatar: data?.avatar_url || current?.avatar || '',
   });
 }
 
@@ -283,18 +290,14 @@ export async function updateProfile({ education, location, userType }) {
   const user = authData.user;
   const profileType = (userType || education || '').trim();
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      education: profileType,
-      location: location.trim(),
-    })
-    .eq('id', user.id)
-    .select('name, education, location, role, avatar_url')
-    .single();
-
-  if (error) {
-    return { ok: false, error: error.message };
+  let data;
+  try {
+    ({ profile: data } = await api('/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ education: profileType, location: (location || '').trim() }),
+    }));
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
 
   const role = data?.role || 'user';
@@ -318,25 +321,17 @@ export async function updateProfile({ education, location, userType }) {
 /* ---------- UPDATE AVATAR ---------- */
 
 export async function updateAvatar(file) {
-  const { data: authData } = await supabase.auth.getUser();
-  const uid = authData?.user?.id;
-  if (!uid) return { ok: false, error: 'You are not signed in.' };
-
-  const ext = (file.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
-  const path = `${uid}/${Date.now()}.${ext}`;
-
-  const { error: upErr } = await supabase.storage
-    .from('avatars')
-    .upload(path, file, { contentType: file.type });
-  if (upErr) return { ok: false, error: upErr.message };
-
-  const url = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-
-  const { error } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', uid);
-  if (error) return { ok: false, error: error.message };
-
-  setCurrent({ ...current, avatar: url });
-  return { ok: true, url };
+  try {
+    const image = await fileToDataUrl(file);
+    const { url } = await api('/me/avatar', {
+      method: 'POST',
+      body: JSON.stringify({ image }),
+    });
+    setCurrent({ ...current, avatar: url });
+    return { ok: true, url };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
 /* ---------- SUBSCRIPTIONS ---------- */
@@ -357,6 +352,6 @@ export function useUser() {
 
 /* ---------- PASSWORD RECOVERY HOOK ---------- */
 
-export function usePasswordRecovery() {
+export function usePasswordRecovery(S) {
   return useSyncExternalStore(subscribeRecovery, () => recovering, () => false);
 }

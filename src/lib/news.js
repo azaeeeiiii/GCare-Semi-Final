@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
+import { api, fileToDataUrl } from './http';
 
 export const NEWS_CATEGORIES = {
   update: { label: 'Update', color: '#1b2437' },
@@ -85,15 +85,13 @@ export function useNews() {
 
   useEffect(() => {
     let alive = true;
-    supabase
-      .from('news')
-      .select('*')
-      .eq('published', true)
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!alive) return;
-        if (!error && data) setNews(data.map(fromRow)); // table exists: show real data (even if empty)
-        setLoading(false);
+    api('/api/news')
+      .then(({ rows }) => {
+        if (alive) setNews(rows.map(fromRow)); // server reachable: show real data (even if empty)
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (alive) setLoading(false);
       });
     return () => { alive = false; };
   }, []);
@@ -101,12 +99,41 @@ export function useNews() {
   return { news, loading };
 }
 
+/* Admin */
 export async function fetchAllNews() {
-  const { data, error } = await supabase.from('news').select('*').order('created_at', { ascending: false });
-  return { rows: (data || []).map(fromRow), error };
+  try {
+    const { rows } = await api('/api/admin/news');
+    return { rows: rows.map(fromRow), error: null };
+  } catch (err) {
+    return { rows: [], error: err };
+  }
 }
 
-/* Shrink a photo (max 1600px, JPEG) so uploads are small and fast */
+export async function saveNews(id, payload) {
+  try {
+    await api(id ? `/api/admin/news/${id}` : '/api/admin/news', {
+      method: id ? 'PATCH' : 'POST',
+      body: JSON.stringify(payload),
+    });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
+export async function setNewsPublished(id, published) {
+  return saveNews(id, { published });
+}
+
+export async function removeNews(id) {
+  try {
+    await api(`/api/admin/news/${id}`, { method: 'DELETE' });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
 async function shrink(file) {
   if (!file.type.startsWith('image/')) throw new Error('Please choose an image file (JPG or PNG).');
   const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
@@ -121,17 +148,18 @@ async function shrink(file) {
 
 export async function uploadNewsImage(file) {
   const blob = await shrink(file);
-  const path = `${crypto.randomUUID()}.jpg`;
-  const { error } = await supabase.storage.from(NEWS_BUCKET).upload(path, blob, { contentType: 'image/jpeg' });
-  if (error) throw new Error(error.message);
-  return supabase.storage.from(NEWS_BUCKET).getPublicUrl(path).data.publicUrl;
+  const image = await fileToDataUrl(blob);
+  const { url } = await api('/api/admin/news/image', { method: 'POST', body: JSON.stringify({ image }) });
+  return url;
 }
 
 export async function deleteNewsImage(url) {
-  const marker = `/${NEWS_BUCKET}/`;
-  const i = url ? url.indexOf(marker) : -1;
-  if (i === -1) return;
-  await supabase.storage.from(NEWS_BUCKET).remove([url.slice(i + marker.length)]);
+  if (!url) return;
+  try {
+    await api('/api/admin/news/image', { method: 'DELETE', body: JSON.stringify({ url }) });
+  } catch {
+    
+  }
 }
 
 export const formatNewsDate = (iso) =>

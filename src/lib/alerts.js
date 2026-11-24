@@ -1,8 +1,7 @@
-// Defines GCare alert levels and sample alerts, and retrieves alert data from Supabase.
+// Defines GCare alert levels and sample alerts, and retrieves alert data from the Express server.
 
 import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
-
+import { api } from './http';
 
 export const ALERT_LEVELS = {
   critical: { label: 'Critical', color: '#a00000' },
@@ -62,18 +61,11 @@ export const ALERTS = [
 ];
 
 export function useAlerts() {
-  const [alerts, setAlerts] = useState([]); 
+  const [alerts, setAlerts] = useState([]);
   useEffect(() => {
-    supabase
-      .from('alerts')
-      .select('*')
-      .order('issued_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error || !data) {
-          setAlerts(ALERTS); 
-          return;
-        }
-        setAlerts(data.map((a) => ({
+    api('/api/alerts')
+      .then(({ rows }) => {
+        setAlerts(rows.map((a) => ({
           id: a.id,
           level: a.level,
           title: a.title,
@@ -82,7 +74,45 @@ export function useAlerts() {
           active: a.active,
           body: a.body,
         })));
-      });
+      })
+      .catch(() => setAlerts(ALERTS));
   }, []);
   return alerts;
+}
+
+/* Admin */
+export async function fetchAllAlerts() {
+  try {
+    const { rows } = await api('/api/alerts');
+    return { rows, error: null };
+  } catch (err) {
+    return { rows: [], error: err };
+  }
+}
+
+export async function createAlert(payload) {
+  try {
+    await api('/api/admin/alerts', { method: 'POST', body: JSON.stringify(payload) });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
+export async function setAlertActive(id, active) {
+  try {
+    await api(`/api/admin/alerts/${id}`, { method: 'PATCH', body: JSON.stringify({ active }) });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
+export async function removeAlert(id) {
+  try {
+    await api(`/api/admin/alerts/${id}`, { method: 'DELETE' });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
 }

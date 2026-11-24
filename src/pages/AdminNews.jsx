@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
-import { supabase } from '../lib/supabase';
 import {
   NEWS_CATEGORIES, fetchAllNews, uploadNewsImage, deleteNewsImage, formatNewsDate,
+  saveNews, setNewsPublished, removeNews,
 } from '../lib/news';
 
 const EMPTY = { title: '', category: 'update', summary: '', body: '', image: '', published: true };
@@ -22,7 +22,7 @@ export default function AdminNews() {
 
   async function load() {
     const { rows: list, error } = await fetchAllNews();
-    if (error) say(`Could not load news: ${error.message}. Did you run the SQL setup?`, true);
+    if (error) say(`Could not load news: ${error.message}`, true);
     setRows(list);
   }
 
@@ -72,13 +72,10 @@ export default function AdminNews() {
       category: form.category,
       summary: form.summary.trim(),
       body: form.body.trim(),
-      image_url: form.image || null,
+      image_url: form.image || '',
       published: form.published,
-      author: user?.name || 'GCare Team',
     };
-    const { error } = editing
-      ? await supabase.from('news').update(payload).eq('id', editing)
-      : await supabase.from('news').insert(payload);
+    const { error } = await saveNews(editing, payload);
     setBusy(false);
     if (error) return say(error.message, true);
     say(editing ? 'News updated.' : 'News posted. Everyone can see it on the News page.');
@@ -88,13 +85,14 @@ export default function AdminNews() {
   }
 
   async function togglePublished(n) {
-    await supabase.from('news').update({ published: !n.published }).eq('id', n.id);
+    const { error } = await setNewsPublished(n.id, !n.published);
+    if (error) return say(error.message, true);
     load();
   }
 
   async function remove(n) {
-    if (!window.confirm(`Delete "${n.title}"?`)) return;
-    const { error } = await supabase.from('news').delete().eq('id', n.id);
+    if (!window.confirm(`Delete "${n.title}"?\n\nThis cannot be undone.`)) return;
+    const { error } = await removeNews(n.id);
     if (error) return say(error.message, true);
     await deleteNewsImage(n.image);
     if (editing === n.id) cancelEdit();

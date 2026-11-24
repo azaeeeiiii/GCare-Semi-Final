@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
+import VerifiedBadge from '../components/VerifiedBadge';
 import { useUser } from '../lib/auth';
 import { listVerifications, reviewVerification, signedUrl } from '../lib/verification';
 import { formatDateTime } from '../lib/reports';
-import VerifiedBadge from '../components/VerifiedBadge';
 
 const BADGE = { pending: 'pending', approved: 'resolved', rejected: 'review' };
 const LABEL = { pending: 'Pending', approved: 'Approved', rejected: 'Rejected' };
@@ -85,6 +85,7 @@ export default function AdminVerifications() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('pending');
   const [viewer, setViewer] = useState(null);
+  const [busyId, setBusyId] = useState(null);
 
   const load = useCallback(async () => {
     const { rows: r, error: e } = await listVerifications();
@@ -99,7 +100,10 @@ export default function AdminVerifications() {
   }, [load]);
 
   async function approve(r) {
+    if (!window.confirm(`Approve ${r.name}'s ID?\n\nThey will get a verified badge.`)) return;
+    setBusyId(r.user_id);
     const res = await reviewVerification(r.user_id, 'approved');
+    setBusyId(null);
     if (!res.ok) setError(res.error);
     load();
   }
@@ -107,7 +111,14 @@ export default function AdminVerifications() {
   async function reject(r) {
     const reason = window.prompt(`Reason for rejecting ${r.name}'s ID:`);
     if (reason === null) return;
+    if (!reason.trim()) {
+      window.alert('Please enter a reason so the user knows what to fix.');
+      return;
+    }
+    if (!window.confirm(`Reject ${r.name}'s ID?\n\nReason: ${reason.trim()}`)) return;
+    setBusyId(r.user_id);
     const res = await reviewVerification(r.user_id, 'rejected', reason);
+    setBusyId(null);
     if (!res.ok) setError(res.error);
     load();
   }
@@ -150,8 +161,8 @@ export default function AdminVerifications() {
                 </div>
                 <div className="adm-row__actions">
                   <span className={`rbadge rbadge--${BADGE[r.status]}`}>{LABEL[r.status]}</span>
-                  <button type="button" className="cmap__btn cmap__btn--primary" disabled={r.status === 'approved'} onClick={() => approve(r)}>Approve</button>
-                  <button type="button" className="cmap__btn" disabled={r.status === 'rejected'} onClick={() => reject(r)}>Reject</button>
+                  <button type="button" className="cmap__btn cmap__btn--primary" disabled={r.status === 'approved' || busyId === r.user_id} onClick={() => approve(r)}>Approve</button>
+                  <button type="button" className="cmap__btn" disabled={r.status === 'rejected' || busyId === r.user_id} onClick={() => reject(r)}>Reject</button>
                 </div>
               </article>
             ))}

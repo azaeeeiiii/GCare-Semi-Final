@@ -2,8 +2,8 @@
 // authentication buttons, and logout functionality.
 
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { logOut } from '../lib/auth';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { logOut, useUser } from '../lib/auth';
 import { STATUS, formatDateTime, useReportsState } from '../lib/reports';
 import { ArrowLeft, btn, useDialog, useGoBack } from './ui';
 
@@ -29,6 +29,39 @@ export function SimpleHeader() {
 
 
 export function Header({ onOpenAuth }) {
+  const user = useUser();
+  const navigate = useNavigate();
+
+  if (user) {
+    return (
+      <header className="site-header">
+        <Brand />
+        <nav className="site-header__nav" aria-label="Account">
+          <span className="site-header__user">{user.name}</span>
+          <Link to="/feed" className={btn('navy', 'site-header__btn')}>
+            Go to Feed
+          </Link>
+          {user.isAdmin && (
+            <Link to="/admin" className={btn('outlineDark', 'site-header__btn')}>
+              Admin
+            </Link>
+          )}
+          <button
+            type="button"
+            className={btn('outlineDark', 'site-header__btn')}
+            onClick={() => {
+              if (!window.confirm('Log out of GCare?')) return;
+              logOut();
+              navigate('/');
+            }}
+          >
+            Log out
+          </button>
+        </nav>
+      </header>
+    );
+  }
+
   return (
     <header className="site-header">
       <Brand />
@@ -80,6 +113,8 @@ export function PageHeader({ showHome = true }) {
 
 export function FeedHeader({ user }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const inAdmin = pathname.startsWith('/admin');
   const { reports } = useReportsState();
   const [open, setOpen] = useState(false);
   const { ref, onMouseDown, onClick } = useDialog(open, () => setOpen(false));
@@ -143,10 +178,22 @@ export function FeedHeader({ user }) {
           </button>
           <span className="site-header__user">{user.name}</span>
         </div>
+
+        {user?.isAdmin && (inAdmin ? (
+          <Link to="/feed" className={btn('outlineDark', 'site-header__btn')}>
+            Feed
+          </Link>
+        ) : (
+          <Link to="/admin" className={btn('navy', 'site-header__btn')}>
+            Admin
+          </Link>
+        ))}
+
         <button
           type="button"
           className={btn('outlineDark', 'site-header__btn')}
           onClick={() => {
+            if (!window.confirm('Log out of GCare?')) return;
             logOut();
             navigate('/');
           }}

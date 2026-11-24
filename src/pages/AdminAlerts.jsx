@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
-import { supabase } from '../lib/supabase';
-import { ALERT_LEVELS } from '../lib/alerts';
+import { ALERT_LEVELS, createAlert, fetchAllAlerts, removeAlert, setAlertActive } from '../lib/alerts';
 import { formatDateTime } from '../lib/reports';
 
 const EMPTY = { level: 'warning', title: '', area: '', body: '' };
@@ -15,8 +14,8 @@ export default function AdminAlerts() {
   const [msg, setMsg] = useState('');
 
   async function load() {
-    const { data } = await supabase.from('alerts').select('*').order('issued_at', { ascending: false });
-    setRows(data || []);
+    const { rows: list } = await fetchAllAlerts();
+    setRows(list);
   }
 
   useEffect(() => {
@@ -28,7 +27,7 @@ export default function AdminAlerts() {
     e.preventDefault();
     const body = form.body.split('\n').map((s) => s.trim()).filter(Boolean);
     if (!form.title.trim() || !form.area.trim() || body.length === 0) return setMsg('Fill in the title, area and message.');
-    const { error } = await supabase.from('alerts').insert({ level: form.level, title: form.title.trim(), area: form.area.trim(), body });
+    const { error } = await createAlert({ level: form.level, title: form.title.trim(), area: form.area.trim(), body });
     if (error) return setMsg(error.message);
     setForm(EMPTY);
     setMsg('Alert posted.');
@@ -36,13 +35,17 @@ export default function AdminAlerts() {
   }
 
   async function toggle(a) {
-    await supabase.from('alerts').update({ active: !a.active }).eq('id', a.id);
+    const next = !a.active;
+    if (!window.confirm(`${next ? 'Reactivate' : 'Lift'} "${a.title}"?`)) return;
+    const { error } = await setAlertActive(a.id, next);
+    if (error) return setMsg(error.message);
     load();
   }
 
   async function remove(a) {
-    if (!window.confirm(`Delete "${a.title}"?`)) return;
-    await supabase.from('alerts').delete().eq('id', a.id);
+    if (!window.confirm(`Delete "${a.title}"?\n\nThis cannot be undone.`)) return;
+    const { error } = await removeAlert(a.id);
+    if (error) return setMsg(error.message);
     load();
   }
 

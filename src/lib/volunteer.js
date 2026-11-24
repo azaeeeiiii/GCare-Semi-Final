@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
-
+import { api } from './http';
 
 export const SIGNUP_STATUS = {
   pending: { label: 'Pending', note: 'Waiting for the admin to confirm your slot.' },
@@ -16,15 +16,14 @@ const listeners = new Set();
 const notify = () => listeners.forEach((l) => l());
 
 export async function refresh() {
-  const [ev, su, tk] = await Promise.all([
-    supabase.from('events').select('*').order('event_date', { ascending: true }),
-    supabase.from('signups').select('*').order('created_at', { ascending: true }),
-    supabase.rpc('signup_counts'),
+  const [evRes, suRes] = await Promise.all([
+    api('/api/events').catch(() => null),
+    api('/api/signups').catch(() => null), 
   ]);
 
-  if (!ev.error && ev.data) {
+  if (evRes) {
     EVENTS.length = 0;
-    ev.data.forEach((e) =>
+    evRes.events.forEach((e) =>
       EVENTS.push({
         id: e.id,
         title: e.title,
@@ -37,21 +36,20 @@ export async function refresh() {
         reminder: e.reminder,
       }),
     );
+    taken = evRes.taken || {};
   }
 
-  signups =
-    !su.error && su.data
-      ? su.data.map((s) => ({
-          id: s.id,
-          eventId: s.event_id,
-          email: s.email,
-          name: s.name,
-          status: s.status,
-          createdAt: s.created_at,
-        }))
-      : signups.slice();
+  signups = suRes
+    ? suRes.rows.map((s) => ({
+        id: s.id,
+        eventId: s.event_id,
+        email: s.email,
+        name: s.name,
+        status: s.status,
+        createdAt: s.created_at,
+      }))
+    : [];
 
-  if (!tk.error && tk.data) taken = Object.fromEntries(tk.data.map((r) => [r.event_id, Number(r.taken)]));
   notify();
 }
 
@@ -71,29 +69,58 @@ export function formatEventDate(iso) {
   return new Date(`${iso}T00:00:00`).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-export async function signUp(eventId, user) {
-  const { data } = await supabase.auth.getSession();
-  const uid = data.session?.user?.id;
-  if (!uid) return;
-  const { error } = await supabase
-    .from('signups')
-    .insert({ event_id: eventId, user_id: uid, email: user.email, name: user.name });
-  if (error && error.code !== '23505') console.error('signup failed:', error.message);
+export async function signUp(eventId) {
+  try {
+    await api('/api/signups', { method: 'POST', body: JSON.stringify({ eventId }) });
+  } catch (err) {
+    console.error('signup failed:', err.message);
+  }
   await refresh();
 }
 
 export async function cancelSignup(id) {
-  const { error } = await supabase.from('signups').delete().eq('id', id);
-  if (error) console.error('cancel failed:', error.message);
+  try {
+    await api(`/api/signups/${id}`, { method: 'DELETE' });
+  } catch (err) {
+    console.error('cancel failed:', err.message);
+  }
   await refresh();
 }
 
-/* Admin: approve or reject a signup */
 export async function setSignupStatus(id, status) {
-  const { error } = await supabase.from('signups').update({ status }).eq('id', id);
-  if (error) console.error('update failed:', error.message);
+  try {
+    await api(`/api/admin/signups/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  } catch (err) {
+    console.error('update failed:', err.message);
+  }
   await refresh();
 }
 
-/* Slots left = capacity minus pending + approved signups (counted for everyone, not just you) */
+export async function fetchEventRows() {
+  try {
+    const { events } = await api('/api/events');
+    return events;
+  } catch {
+    return [];
+  }
+}
+
+export async function createEvent(payload) {
+  try {
+    await api('/api/admin/events', { method: 'POST', body: JSON.stringify(payload) });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
+export async function removeEvent(id) {
+  try {
+    await api(`/api/admin/events/${id}`, { method: 'DELETE' });
+    return { error: null };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
 export const slotsLeft = (event) => Math.max(0, event.slots - (taken[event.id] || 0));

@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUser } from '../lib/auth';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 import { findHotlines, telHref } from '../lib/hotlines';
 
 const WELCOME = { role: 'bot', text: "Hi! I'm the GCare Assistant. Ask me about reports, alerts, and volunteer events." };
@@ -46,7 +46,7 @@ function HotlineList({ data }) {
   );
 }
 
-/* Floating, draggable AI assistant. Calls the "chat" Edge Function. */
+/* Floating, draggable AI assistant. Sends questions to the Express server. */
 export default function ChatWidget() {
   const user = useUser();
   const { pathname } = useLocation();
@@ -114,8 +114,14 @@ export default function ChatWidget() {
       return;
     }
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke('chat', { body: { messages: next.slice(1).filter((m) => m.text) } });
-    const reply = error || !data?.reply ? 'Connection problem. Please try again later.' : data.reply;
+    let reply = 'Connection problem. Please try again later.';
+    try {
+      const data = await api('/chat', {
+        method: 'POST',
+        body: JSON.stringify({ messages: next.slice(1).filter((m) => m.text) }),
+      });
+      if (data?.reply) reply = data.reply;
+    } catch (_) {}
     setMsgs([...next, { role: 'bot', text: reply }]);
     setBusy(false);
   }

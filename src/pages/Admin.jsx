@@ -14,6 +14,16 @@ export default function Admin() {
     document.title = 'Admin – GCare';
   }, []);
 
+  function markResolved(r) {
+    if (!window.confirm(`Mark "${r.title}" as resolved?\n\nThe resident will be notified.`)) return;
+    setReportStatus(r.id, 'resolved');
+  }
+
+  function remove(r) {
+    if (!window.confirm(`Delete "${r.title}"?\n\nThis cannot be undone.`)) return;
+    deleteReport(r.id);
+  }
+
   return (
     <div className="feed">
       <FeedHeader user={user} />
@@ -38,8 +48,8 @@ export default function Admin() {
                 <div className="adm-row__actions">
                   <span className={`rbadge rbadge--${r.status}`}>{STATUS[r.status].label}</span>
                   <button type="button" className="cmap__btn" disabled={r.status !== 'pending'} onClick={() => setReportStatus(r.id, 'review')}>Start review</button>
-                  <button type="button" className="cmap__btn cmap__btn--primary" disabled={r.status === 'resolved'} onClick={() => setReportStatus(r.id, 'resolved')}>Mark resolved</button>
-                  <button type="button" className="vlink vlink--cancel" onClick={() => window.confirm(`Delete "${r.title}"?`) && deleteReport(r.id)}>Delete</button>
+                  <button type="button" className="cmap__btn cmap__btn--primary" disabled={r.status === 'resolved'} onClick={() => markResolved(r)}>Mark resolved</button>
+                  <button type="button" className="vlink vlink--cancel" onClick={() => remove(r)}>Delete</button>
                 </div>
               </article>
             ))}

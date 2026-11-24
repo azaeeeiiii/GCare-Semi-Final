@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
-import { supabase } from '../lib/supabase';
-import { formatEventDate, refresh } from '../lib/volunteer';
+import { createEvent, fetchEventRows, formatEventDate, refresh, removeEvent } from '../lib/volunteer';
 
 const EMPTY = { title: '', location: '', event_date: '', time_label: '', role: '', slots: '10', summary: '', reminder: '' };
 
@@ -14,8 +13,7 @@ export default function AdminEvents() {
   const [msg, setMsg] = useState('');
 
   async function load() {
-    const { data } = await supabase.from('events').select('*').order('event_date', { ascending: true });
-    setRows(data || []);
+    setRows(await fetchEventRows());
   }
 
   useEffect(() => {
@@ -33,7 +31,7 @@ export default function AdminEvents() {
     }
     const slots = Number(form.slots);
     if (!slots || slots < 1) return setMsg('Slots must be at least 1.');
-    const { error } = await supabase.from('events').insert({
+    const { error } = await createEvent({
       title: title.trim(), location: location.trim(), event_date, time_label: time_label.trim(),
       role: role.trim(), slots, summary: summary.trim(), reminder: form.reminder.trim(),
     });
@@ -45,8 +43,9 @@ export default function AdminEvents() {
   }
 
   async function remove(ev) {
-    if (!window.confirm(`Delete "${ev.title}" and its signups?`)) return;
-    await supabase.from('events').delete().eq('id', ev.id);
+    if (!window.confirm(`Delete "${ev.title}" and its signups?\n\nThis cannot be undone.`)) return;
+    const { error } = await removeEvent(ev.id);
+    if (error) return setMsg(error.message);
     load();
     refresh();
   }

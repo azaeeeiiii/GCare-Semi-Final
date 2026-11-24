@@ -1,8 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
 
-export const REPORT_BUCKET = 'report-images';
-
 export const GROUPS = {
   disaster: { label: 'Disaster' },
   risk: { label: 'Risk' },
@@ -31,6 +29,29 @@ export const STATUS = {
 export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
 export const groupOf = (id) => categoryOf(id).group;
 
+/* ---------- API helper (React -> Express) ---------- */
+async function api(path, options = {}) {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  const res = await fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+  let body = null;
+  try {
+    body = await res.json();
+  } catch {
+    body = null;
+  }
+  if (!res.ok) throw new Error(body?.error || `Request failed (${res.status}).`);
+  return body;
+}
+
+/* ---------- Store ---------- */
 let state = { reports: [], loading: true, error: '' };
 const listeners = new Set();
 let started = false;
@@ -49,8 +70,8 @@ const fromRow = (r, uid) => ({
   photo: r.photo_url || '',
   lat: r.lat,
   lng: r.lng,
+  authorId: r.author_id,
   authorName: r.author_name || 'Resident',
-  authorId: r.author_id || null,
   mine: !!uid && r.author_id === uid,
   status: r.status,
   createdAt: r.created_at,
@@ -59,30 +80,25 @@ const fromRow = (r, uid) => ({
 
 export async function refreshReports() {
   const { data: sess } = await supabase.auth.getSession();
-  const uid = sess?.session?.user?.id;
-  if (!uid) {
+  if (!sess?.session?.user?.id) {
     emit({ reports: [], loading: false, error: '' });
     return;
   }
-  const { data, error } = await supabase.from('reports').select('*').order('created_at', { ascending: false });
-  if (error) {
+  try {
+    const { reports, uid } = await api('/api/reports');
+    emit({ reports: reports.map((r) => fromRow(r, uid)), loading: false, error: '' });
+  } catch {
     emit({ loading: false, error: 'Could not load reports. Please try again.' });
-    return;
   }
-  emit({ reports: data.map((r) => fromRow(r, uid)), loading: false, error: '' });
 }
 
 function start() {
   if (started) return;
   started = true;
   refreshReports();
-  // reload when someone signs in/out
   supabase.auth.onAuthStateChange(() => setTimeout(refreshReports, 0));
-  supabase
-    .channel('gcare-reports')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => refreshReports())
-    .subscribe();
   window.addEventListener('focus', refreshReports);
+  setInterval(refreshReports, 15000); 
 }
 
 const subscribe = (cb) => {
@@ -100,53 +116,34 @@ export function useReports() {
   return useReportsState().reports;
 }
 
-async function uploadPhoto(dataUrl) {
-  if (!dataUrl || !dataUrl.startsWith('data:')) return dataUrl || '';
-  const blob = await (await fetch(dataUrl)).blob();
-  const path = `${crypto.randomUUID()}.jpg`;
-  const { error } = await supabase.storage.from(REPORT_BUCKET).upload(path, blob, { contentType: 'image/jpeg' });
-  if (error) throw new Error(error.message);
-  return supabase.storage.from(REPORT_BUCKET).getPublicUrl(path).data.publicUrl;
-}
-
-export async function addReport({ title, category, location, summary, lat, lng, photo, user }) {
-  const photo_url = await uploadPhoto(photo);
-  const now = new Date().toISOString();
-  const { data, error } = await supabase
-    .from('reports')
-    .insert({
-      title: title.trim(),
-      category,
-      location: location.trim(),
-      summary: summary.trim(),
-      photo_url,
-      lat,
-      lng,
-      author_name: user.name,
-      status: 'pending',
-      timeline: [{ status: 'pending', at: now }],
-    })
-    .select()
-    .single();
-  if (error) throw new Error(error.message);
+/* ---------- Actions ---------- */
+export async function addReport({ title, category, location, summary, lat, lng, photo }) {
+  const { id } = await api('/api/reports', {
+    method: 'POST',
+    body: JSON.stringify({ title, category, location, summary, lat, lng, photo: photo || '' }),
+  });
   await refreshReports();
-  return { id: data.id };
+  return { id };
 }
 
 export async function setReportStatus(id, status) {
-  const current = state.reports.find((r) => r.id === id);
-  if (!current || current.status === status) return;
-  const timeline = [...current.timeline, { status, at: new Date().toISOString() }];
-  const { error } = await supabase.from('reports').update({ status, timeline }).eq('id', id);
-  if (error) console.error('Could not update report:', error.message);
+  try {
+    await api(`/api/admin/reports/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  } catch (err) {
+    console.error('Could not update report:', err.message);
+  }
   await refreshReports();
 }
 
 export async function deleteReport(id) {
-  const { error } = await supabase.from('reports').delete().eq('id', id);
-  if (error) console.error('Could not delete report:', error.message);
+  try {
+    await api(`/api/admin/reports/${id}`, { method: 'DELETE' });
+  } catch (err) {
+    console.error('Could not delete report:', err.message);
+  }
   await refreshReports();
 }
+
 export const DELETE_REASONS = [
   { id: 'typo', label: 'Typo or mistake in the report' },
   { id: 'wrong_location', label: 'Wrong location or pin' },
@@ -157,24 +154,9 @@ export const DELETE_REASONS = [
 ];
 
 export async function deleteOwnReport(id, reason, details = '') {
-  const { data: sess } = await supabase.auth.getSession();
-  const uid = sess?.session?.user?.id;
   const current = state.reports.find((r) => r.id === id);
-  if (!uid || !current || !current.mine) throw new Error('You can only delete your own reports.');
-
-  const { data, error } = await supabase.from('reports').delete().eq('id', id).select('id');
-  if (error) throw new Error(error.message);
-  if (!data || data.length === 0) throw new Error('Could not delete this report. Please try again.');
-
-  const { error: logError } = await supabase.from('report_deletions').insert({
-    report_id: id,
-    report_title: current.title,
-    category: current.category,
-    reason,
-    details: details.trim() || null,
-  });
-  if (logError) console.warn('Could not save the deletion reason:', logError.message);
-
+  if (!current || !current.mine) throw new Error('You can only delete your own reports.');
+  await api(`/api/reports/${id}`, { method: 'DELETE', body: JSON.stringify({ reason, details }) });
   await refreshReports();
 }
 
