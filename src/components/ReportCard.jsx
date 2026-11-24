@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowRight } from './ui';
+import { VerifiedMark } from './VerifiedBadge';
 import { STATUS } from '../lib/reports';
 
 const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
@@ -39,7 +40,12 @@ export default function ReportCard({ item, selected = false, onSelect }) {
         <h3 className="news-card__title">{item.title}</h3>
         <p className="news-card__where">{item.location}</p>
         <p className={`news-card__text ${open ? '' : 'news-card__text--clamp'}`.trim()}>{item.excerpt}</p>
-        {open && <p className="news-card__by">Reported by {item.author}</p>}
+        {open && (
+          <p className="news-card__by">
+            Reported by {item.author}
+            <VerifiedMark userId={item.authorId} size={14} />
+          </p>
+        )}
       </div>
 
       <button

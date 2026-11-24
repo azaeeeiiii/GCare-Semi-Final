@@ -4,7 +4,9 @@ import { FeedHeader } from '../components/Header';
 import LocationModal from '../components/LocationModal';
 import NotificationModal from '../components/NotificationModal';
 import ConfirmModal from '../components/ConfirmModal';
-import { deleteAccount, logOut, updateEmail, updatePassword, updateProfile, useUser } from '../lib/auth';
+import IdVerification from '../components/IdVerification';
+import { MyVerifiedBadge } from '../components/VerifiedBadge';
+import { deleteAccount, logOut, updateAvatar, updateEmail, updatePassword, updateProfile, useUser } from '../lib/auth';
 import { STATUS, formatDateTime, useReportsState } from '../lib/reports';
 
 const iconProps = {
@@ -170,7 +172,6 @@ export default function Profile() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
-  const [avatar, setAvatar] = useState('');
   const [avatarMessage, setAvatarMessage] = useState('');
   const [editingProfile, setEditingProfile] = useState(false);
   const [notificationPreferences, setNotificationPreferences] = useState({
@@ -180,20 +181,13 @@ export default function Profile() {
     volunteer: false,
   });
 
+  const avatar = user?.avatar || '';
+
   useEffect(() => {
     document.title = 'Profile – GCare';
   }, []);
 
-  useEffect(() => {
-    if (!user?.email) return;
-    try {
-      setAvatar(localStorage.getItem(`gcare_avatar_${user.email}`) || '');
-    } catch {
-      setAvatar('');
-    }
-  }, [user?.email]);
-
-  function uploadAvatar(e) {
+  async function uploadAvatar(e) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
@@ -201,25 +195,13 @@ export default function Profile() {
       setAvatarMessage('Please choose an image file.');
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
       setAvatarMessage('Please choose an image smaller than 5 MB.');
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = String(reader.result);
-      try {
-        localStorage.setItem(`gcare_avatar_${user.email}`, image);
-        setAvatar(image);
-        setAvatarMessage('Profile photo updated.');
-      } catch {
-        setAvatarMessage('The photo could not be saved. Try a smaller image.');
-      }
-    };
-    reader.onerror = () => setAvatarMessage('The photo could not be uploaded. Try another image.');
-    reader.readAsDataURL(file);
+    setAvatarMessage('Uploading...');
+    const result = await updateAvatar(file);
+    setAvatarMessage(result.ok ? 'Profile photo updated.' : result.error);
   }
 
   function signOut() {
@@ -246,7 +228,7 @@ export default function Profile() {
         <section className="profile-card profile-card--identity">
           <div className="profile-identity">
             <Avatar image={avatar} onUpload={uploadAvatar} />
-            <div><h1>{user.name}</h1><p className="profile-email">{user.email}</p></div>
+            <div><h1>{user.name}<MyVerifiedBadge size={26} /></h1><p className="profile-email">{user.email}</p></div>
           </div>
           {avatarMessage && <p className="profile-form-message" role="status">{avatarMessage}</p>}
           {editingProfile || !user.userType || !user.location ? (
@@ -262,6 +244,8 @@ export default function Profile() {
             </div>
           )}
         </section>
+
+        <IdVerification />
 
         <section className="profile-card profile-card--reports">
           <header><div><h2>Report History</h2><p>View your submitted reports.</p></div><Link to="/report" className="profile-view-all">View All <ArrowIcon /></Link></header>

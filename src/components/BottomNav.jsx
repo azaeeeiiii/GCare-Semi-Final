@@ -18,6 +18,7 @@ const ADMIN_NAV = [
   { to: '/admin/alerts', label: 'Alerts', icon: <svg {...svg}><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9zM10 21h4" /></svg> },
   { to: '/admin/events', label: 'Events', icon: <svg {...svg}><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16" /></svg> },
   { to: '/admin/news', label: 'News', icon: <svg {...svg}><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h6M8 13h6" /></svg> },
+  { to: '/admin/verifications', label: 'ID', icon: <svg {...svg}><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="11" r="2" /><path d="M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2M14 10h4M14 14h3" /></svg> },
 ];
 
 export default function BottomNav() {

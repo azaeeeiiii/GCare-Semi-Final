@@ -6,6 +6,7 @@ import ReportMap, { MiniMap } from '../components/ReportMap';
 import PhotoField from '../components/PhotoField';
 import DeleteReportModal from '../components/DeleteReportModal';
 import { UserIcon } from '../components/ui';
+import { MyVerifiedBadge } from '../components/VerifiedBadge';
 import { useUser } from '../lib/auth';
 import { AREA } from '../lib/serviceArea';
 import { CATEGORIES, GROUPS, STATUS, addReport, categoryOf, deleteOwnReport, formatDate, formatDateTime, useReports } from '../lib/reports';
@@ -135,7 +136,7 @@ function ReportForm({ user, tab, setTab, onPublished }) {
             <input id="rLoc" className="auth-input" value={form.location} onChange={set('location')} placeholder="e.g. Mars Street" maxLength={120} />
           </Field>
 
-          <Field id="rBy" label="Reported by" icon={<UserIcon />}>
+          <Field id="rBy" label={<>Reported by <MyVerifiedBadge size={16} /></>} icon={<UserIcon />}>
             <input id="rBy" className="auth-input" value={user.name} readOnly />
           </Field>
 
