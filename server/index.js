@@ -14,8 +14,8 @@ app.use(express.json({ limit: '25mb' }));
 
 const h = (fn) => (req, res, next) => fn(req, res).catch(next);
 const str = (v, n) => String(v ?? '').trim().slice(0, n);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-/* ---------- auth helpers ---------- */
 const tokenOf = (req) => (req.headers.authorization || '').replace('Bearer ', '');
 
 async function isAdminToken(token) {
@@ -42,8 +42,6 @@ async function requireUser(req, res, next) {
     next(err);
   }
 }
-
-// Para sa mga page na pwedeng gamitin kahit hindi naka-login
 async function optionalUser(req, res, next) {
   try {
     req.user = null;
@@ -80,7 +78,7 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'gcare-server', time: new Date().toISOString() });
 });
 
-/* ---------- helpers ---------- */
+
 const CATEGORY_IDS = ['flood', 'fire', 'typhoon', 'landslide', 'earthquake', 'road', 'power', 'water', 'medical', 'safety', 'other'];
 const USER_TYPES = ['', 'Student', 'Homeowner / Resident', 'Other'];
 const NEWS_CATS = ['update', 'community', 'safety', 'event', 'announcement'];
@@ -116,9 +114,7 @@ async function nameOf(user) {
   return prof?.name || user.user_metadata?.name || '';
 }
 
-/* =====================================================
-   PUBLIC (hindi kailangang naka-login)
-   ===================================================== */
+
 app.get('/api/alerts', h(async (req, res) => {
   const { data, error } = await admin.from('alerts').select('*').order('issued_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -149,29 +145,31 @@ app.get('/api/events', h(async (req, res) => {
   res.json({ events: ev.data, taken });
 }));
 
-/* ---------- Contact (pwede kahit hindi naka-login) ---------- */
+
 app.post('/api/contact', optionalUser, h(async (req, res) => {
   const category = str(req.body?.category, 60);
   const message = str(req.body?.message, 2000);
   if (!category) return res.status(400).json({ error: 'Choose a category.' });
   if (message.length < 3) return res.status(400).json({ error: 'Message is too short.' });
 
+  const email = req.user?.email || str(req.body?.email, 160);
+  if (!EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address so we can reply to you.' });
+  }
+  const name = req.user ? (await nameOf(req.user)) || str(req.body?.name, 80) : str(req.body?.name, 80);
+
   const { error } = await admin.from('contact_messages').insert({
     category,
     message,
-    author_name: req.user ? await nameOf(req.user) : '',
-    author_email: req.user?.email || '',
+    author_name: name,
+    author_email: email,
     user_id: req.user?.id || null,
   });
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 }));
 
-/* =====================================================
-   SIGNED-IN USERS
-   ===================================================== */
 
-/* ---------- My profile ---------- */
 app.get('/api/me', requireUser, h(async (req, res) => {
   const { data, error } = await admin
     .from('profiles')
@@ -216,7 +214,6 @@ app.post('/api/me/avatar', requireUser, h(async (req, res) => {
   res.json({ url });
 }));
 
-/* ---------- My ID verification ---------- */
 app.get('/api/verification/me', requireUser, h(async (req, res) => {
   const { data, error } = await admin
     .from('id_verifications')
@@ -275,14 +272,14 @@ app.post('/api/verification', requireUser, h(async (req, res) => {
   res.json({ row: data });
 }));
 
-/* ---------- Verified users (para sa badge) ---------- */
+
 app.get('/api/verified', requireUser, h(async (req, res) => {
   const { data, error } = await admin.from('verified_users').select('user_id');
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ids: (data || []).map((r) => r.user_id) });
 }));
 
-/* ---------- Reports ---------- */
+
 app.get('/api/reports', requireUser, h(async (req, res) => {
   const { data, error } = await admin.from('reports').select('*').order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -356,7 +353,6 @@ app.delete('/api/reports/:id', requireUser, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/* ---------- Volunteer signups ---------- */
 app.get('/api/signups', requireUser, h(async (req, res) => {
   const isAdmin = await isAdminToken(req.token);
   let q = admin.from('signups').select('*').order('created_at', { ascending: true });
@@ -401,7 +397,6 @@ app.delete('/api/signups/:id', requireUser, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/* ---------- Chat assistant ---------- */
 app.post('/api/chat', requireUser, h(async (req, res) => {
   const messages = (Array.isArray(req.body?.messages) ? req.body.messages : [])
     .slice(-20)
@@ -421,11 +416,28 @@ app.post('/api/chat', requireUser, h(async (req, res) => {
   res.json({ reply: data.reply });
 }));
 
-/* =====================================================
-   ADMIN
-   ===================================================== */
 
-/* ---------- ID verifications ---------- */
+app.get('/api/admin/contact', requireAdmin, h(async (req, res) => {
+  const { data, error } = await admin
+    .from('contact_messages')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ rows: data });
+}));
+
+app.patch('/api/admin/contact/:id', requireAdmin, h(async (req, res) => {
+  if (typeof req.body?.is_read !== 'boolean') return res.status(400).json({ error: 'Invalid value.' });
+  const { data, error } = await admin
+    .from('contact_messages')
+    .update({ is_read: req.body.is_read })
+    .eq('id', req.params.id)
+    .select('id');
+  if (error) return res.status(500).json({ error: error.message });
+  if (!data?.length) return res.status(404).json({ error: 'Message not found.' });
+  res.json({ ok: true });
+}));
+
 app.get('/api/admin/verifications', requireAdmin, h(async (req, res) => {
   const { data, error } = await admin
     .from('id_verifications')
@@ -470,7 +482,6 @@ app.post('/api/admin/verifications/:userId/review', requireAdmin, h(async (req, 
   res.json({ ok: true });
 }));
 
-/* ---------- Reports ---------- */
 app.patch('/api/admin/reports/:id/status', requireAdmin, h(async (req, res) => {
   const { status } = req.body || {};
   if (!['pending', 'review', 'resolved'].includes(status)) {
@@ -496,7 +507,6 @@ app.delete('/api/admin/reports/:id', requireAdmin, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/* ---------- Volunteer signups ---------- */
 app.patch('/api/admin/signups/:id', requireAdmin, h(async (req, res) => {
   const { status } = req.body || {};
   if (!['pending', 'approved', 'rejected'].includes(status)) {
@@ -508,7 +518,6 @@ app.patch('/api/admin/signups/:id', requireAdmin, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/* ---------- Events ---------- */
 app.post('/api/admin/events', requireAdmin, h(async (req, res) => {
   const b = req.body || {};
   const title = str(b.title, 120);
@@ -538,7 +547,6 @@ app.delete('/api/admin/events/:id', requireAdmin, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/* ---------- Alerts ---------- */
 app.post('/api/admin/alerts', requireAdmin, h(async (req, res) => {
   const b = req.body || {};
   const level = String(b.level || '');
@@ -567,7 +575,7 @@ app.delete('/api/admin/alerts/:id', requireAdmin, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/* ---------- News ---------- */
+
 app.get('/api/admin/news', requireAdmin, h(async (req, res) => {
   const { data, error } = await admin.from('news').select('*').order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });

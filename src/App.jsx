@@ -13,6 +13,7 @@ import AdminAlerts from './pages/AdminAlerts';
 import AdminEvents from './pages/AdminEvents';
 import AdminNews from './pages/AdminNews';
 import AdminVerifications from './pages/AdminVerifications';
+import AdminContact from './pages/AdminContact';
 import RequireAuth from './components/RequireAuth';
 import Legal from './pages/Legal';
 import ComingSoon from './pages/ComingSoon';
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/admin/events" element={<RequireAuth admin><AdminEvents /></RequireAuth>} />
         <Route path="/admin/news" element={<RequireAuth admin><AdminNews /></RequireAuth>} />
         <Route path="/admin/verifications" element={<RequireAuth admin><AdminVerifications /></RequireAuth>} />
+        <Route path="/admin/contact" element={<RequireAuth admin><AdminContact /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="/news" element={<News />} />
         <Route path="/terms" element={<Legal which="terms" />} />

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import VerifiedBadge from '../components/VerifiedBadge';
@@ -79,7 +78,6 @@ function SecureImg({ path, alt, onOpen }) {
 
 export default function AdminVerifications() {
   const user = useUser();
-  const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -130,12 +128,6 @@ export default function AdminVerifications() {
       <FeedHeader user={user} />
       <main className="feed__main rpt-main">
         <section className="rpt" aria-label="ID Verifications">
-          <p>
-            <button type="button" className="cmap__btn" onClick={() => navigate('/admin')}>
-              ← Back to Reports
-            </button>
-          </p>
-
           <h1 className="rpt__title">Admin: ID Verifications</h1>
           <p className="rpt__sub">Review submitted IDs. Click a picture to enlarge it. Only admins can see these images.</p>
 

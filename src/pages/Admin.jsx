@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { useUser } from '../lib/auth';
 import { STATUS, categoryOf, deleteReport, formatDateTime, setReportStatus, useReportsState } from '../lib/reports';
-
 
 export default function Admin() {
   const user = useUser();
@@ -31,7 +29,6 @@ export default function Admin() {
         <section className="rpt" aria-label="Admin">
           <h1 className="rpt__title">Admin: Reports</h1>
           <p className="rpt__sub">Review incoming reports and mark them resolved. Residents see the status in My Reports.</p>
-          <p><Link to="/admin/verifications" className="cmap__btn cmap__btn--primary">ID Verifications</Link></p>
 
           <div className="adm-list">
             {loading && <p className="rempty">Loading reports…</p>}

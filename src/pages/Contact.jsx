@@ -9,19 +9,30 @@ import { CONTACT } from '../content';
 
 const MIN_LENGTH = 10;
 const MAX_LENGTH = 1000;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export default function Contact() {
   const user = useUser();
   const navigate = useNavigate();
   const successDialogRef = useRef(null);
   const [category, setCategory] = useState('');
   const [message, setMessage] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [status, setStatus] = useState(null);
   const [sending, setSending] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
 
+  const loggedInEmail = user?.email || '';
+
   useEffect(() => {
     document.title = 'Contact Us – GCare';
   }, []);
+
+  useEffect(() => {
+    if (user?.email) setEmail(user.email);
+    if (user?.name) setName(user.name);
+  }, [user?.email, user?.name]);
 
   useEffect(() => {
     const dialog = successDialogRef.current;
@@ -37,10 +48,18 @@ export default function Contact() {
     if (message.trim().length < MIN_LENGTH) {
       return setStatus({ ok: false, msg: `Please write at least ${MIN_LENGTH} characters in your message.` });
     }
+    if (!EMAIL_RE.test(email.trim())) {
+      return setStatus({ ok: false, msg: 'Please enter a valid email address so we can reply to you.' });
+    }
 
     setSending(true);
     setStatus(null);
-    const result = await submitContactMessage({ category, message: message.trim(), user });
+    const result = await submitContactMessage({
+      category,
+      message: message.trim(),
+      name: name.trim(),
+      email: email.trim(),
+    });
     setSending(false);
 
     if (!result.ok) {
@@ -50,6 +69,10 @@ export default function Contact() {
 
     setCategory('');
     setMessage('');
+    if (!loggedInEmail) {
+      setName('');
+      setEmail('');
+    }
     setSuccessOpen(true);
   }
 
@@ -57,6 +80,8 @@ export default function Contact() {
     setSuccessOpen(false);
     requestAnimationFrame(() => document.getElementById('contactMessage')?.focus());
   }
+
+  const inputStyle = { minHeight: 'auto', height: 'auto', resize: 'none' };
 
   return (
     <div className="page">
@@ -68,14 +93,14 @@ export default function Contact() {
         </PageHero>
 
         <div className="page-content contact-content">
-          {/* Intro */}
+          { }
           <section className="contact-intro">
             {CONTACT.intro.map((text) => (
               <p key={text}>{text}</p>
             ))}
           </section>
 
-          {/* How can we help */}
+          { }
           <section aria-labelledby="helpTitle" className="contact-section">
             <h2 id="helpTitle" className="contact-section__title">{CONTACT.helpTitle}</h2>
             <ul className="contact-help">
@@ -88,7 +113,7 @@ export default function Contact() {
             </ul>
           </section>
 
-          {/* Message form */}
+          { }
           <section aria-labelledby="formTitle" className="contact-section">
             <h2 id="formTitle" className="contact-section__title">{CONTACT.formTitle}</h2>
             <p className="contact-section__text">{CONTACT.formIntro}</p>
@@ -114,6 +139,45 @@ export default function Contact() {
                   ))}
                 </div>
               </fieldset>
+
+              <div className="contact-field">
+                <label htmlFor="contactName" className="contact-label">Your Name (optional)</label>
+                <input
+                  id="contactName"
+                  type="text"
+                  className="contact-textarea"
+                  style={inputStyle}
+                  maxLength={80}
+                  autoComplete="name"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setStatus(null);
+                  }}
+                />
+              </div>
+
+              <div className="contact-field">
+                <label htmlFor="contactEmail" className="contact-label">Your Email (required)</label>
+                <p id="contactEmailHelp" className="contact-help-text">We'll use your email only to reply to you.</p>
+                <input
+                  id="contactEmail"
+                  type="email"
+                  className="contact-textarea"
+                  style={inputStyle}
+                  maxLength={160}
+                  autoComplete="email"
+                  required
+                  readOnly={Boolean(loggedInEmail)}
+                  aria-describedby="contactEmailHelp"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setStatus(null);
+                  }}
+                />
+              </div>
 
               <div className="contact-field">
                 <label htmlFor="contactMessage" className="contact-label">{CONTACT.messageLabel}</label>
@@ -147,7 +211,7 @@ export default function Contact() {
             </form>
           </section>
 
-          {/* Thank you */}
+          { }
           <section className="contact-thanks" aria-labelledby="thanksTitle">
             <h2 id="thanksTitle" className="contact-section__title">{CONTACT.thanksTitle}</h2>
             <p className="contact-section__text">{CONTACT.thanksText}</p>

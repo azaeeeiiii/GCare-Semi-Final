@@ -1,31 +1,38 @@
-import { supabase } from './supabase';
+import { api } from './api';
 
-export async function submitContactMessage({ category, message, user }) {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const userId = sessionData?.session?.user?.id || null;
-
-  const { error } = await supabase
-    .from('contact_messages')
-    .insert({
-      category,
-      message,
-      author_name: user?.name || '',
-      author_email: user?.email || '',
-      user_id: userId,
+export async function submitContactMessage({ category, message, name = '', email = '' }) {
+  try {
+    await api('/contact', {
+      method: 'POST',
+      body: JSON.stringify({ category, message, name, email }),
     });
-
-  if (error) {
-    const missingTable =
-      /Could not find the table|schema cache/i.test(error.message || '');
-    console.error('Contact submission failed:', error.message);
-
-    return {
-      ok: false,
-      error: missingTable
-        ? 'The contact service is temporarily unavailable. Please try again later.'
-        : 'Your suggestion could not be submitted. Please try again.',
-    };
+    return { ok: true };
+  } catch (err) {
+    console.error('Contact submission failed:', err.message);
+    if (/email/i.test(err.message)) {
+      return { ok: false, error: err.message };
+    }
+    return { ok: false, error: 'Your suggestion could not be submitted. Please try again.' };
   }
+}
 
-  return { ok: true };
+export async function listContactMessages() {
+  try {
+    const { rows } = await api('/admin/contact');
+    return { rows };
+  } catch (err) {
+    return { rows: [], error: err.message };
+  }
+}
+
+export async function setContactRead(id, isRead) {
+  try {
+    await api(`/admin/contact/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_read: isRead }),
+    });
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
