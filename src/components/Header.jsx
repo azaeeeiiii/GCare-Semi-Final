@@ -5,6 +5,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { logOut, useUser } from '../lib/auth';
 import { STATUS, formatDateTime, useReportsState } from '../lib/reports';
+import { useAlerts, ALERT_LEVELS } from '../lib/alerts';
+import { useNews } from '../lib/news';
+import { eventOf, useSignups } from '../lib/volunteer';
+import { getMyVerification } from '../lib/verification';
+import { useNotificationPrefs } from '../lib/NotificationPrefs';
 import { ArrowLeft, btn, useDialog, useGoBack } from './ui';
 
 function Brand() {
@@ -116,6 +121,11 @@ export function FeedHeader({ user }) {
   const { pathname } = useLocation();
   const inAdmin = pathname.startsWith('/admin');
   const { reports } = useReportsState();
+  const alerts = useAlerts();
+  const { news, loading: newsLoading } = useNews();
+  const signups = useSignups();
+  const [prefs] = useNotificationPrefs(user?.email);
+  const [verification, setVerification] = useState(null);
   const [open, setOpen] = useState(false);
   const { ref, onMouseDown, onClick } = useDialog(open, () => setOpen(false));
   const seenKey = `gcare_notifications_seen_${user?.email || 'guest'}`;
@@ -127,15 +137,100 @@ export function FeedHeader({ user }) {
     }
   });
 
-  const notifications = useMemo(() => reports
-    .filter((report) => report.mine)
-    .flatMap((report) => (report.timeline || []).map((item) => ({
-      id: `${report.id}:${item.status}:${item.at}`,
-      reportId: report.id,
-      title: report.title,
-      status: item.status,
-      at: item.at,
-    }))), [reports]);
+  useEffect(() => {
+    if (!user?.email) return undefined;
+    let alive = true;
+    getMyVerification().then(({ row }) => {
+      if (alive) setVerification(row);
+    });
+    return () => { alive = false; };
+  }, [user?.email]);
+
+  const notifications = useMemo(() => {
+    const items = [];
+
+    // Community Reports: only when one of your reports is under review or resolved.
+    if (prefs.community) {
+      reports
+        .filter((report) => report.mine)
+        .forEach((report) => (report.timeline || []).forEach((item) => {
+          if (item.status !== 'review' && item.status !== 'resolved') return;
+          items.push({
+            id: `report:${report.id}:${item.status}:${item.at}`,
+            type: 'community',
+            tone: item.status,
+            heading: item.status === 'review' ? 'Report under review' : 'Report resolved',
+            text: report.title,
+            note: STATUS[item.status]?.note || '',
+            at: item.at,
+          });
+        }));
+    }
+
+    // Alerts: active alerts posted by the GCare team.
+    if (prefs.alerts) {
+      alerts
+        .filter((alert) => alert.active)
+        .forEach((alert) => items.push({
+          id: `alert:${alert.id}`,
+          type: 'alerts',
+          tone: 'alert',
+          heading: `${ALERT_LEVELS[alert.level]?.label || 'New'} alert`,
+          text: alert.title,
+          note: alert.area,
+          at: alert.issuedAt,
+        }));
+    }
+
+    // Announcements: posted by the admin in Alerts & Announcements.
+    if (prefs.announcements && !newsLoading) {
+      news
+        .filter((story) => story.category === 'announcement')
+        .forEach((story) => items.push({
+          id: `announcement:${story.id}`,
+          type: 'announcements',
+          tone: 'announcement',
+          heading: 'New announcement',
+          text: story.title,
+          note: story.summary || '',
+          at: story.createdAt,
+        }));
+    }
+
+    // Volunteer: only once your volunteer sign-up has been approved.
+    if (prefs.volunteer) {
+      signups
+        .filter((signup) => signup.status === 'approved' && (!signup.email || signup.email === user?.email))
+        .forEach((signup) => {
+          const event = eventOf(signup.eventId);
+          items.push({
+            id: `volunteer:${signup.id}:approved`,
+            type: 'volunteer',
+            tone: 'resolved',
+            heading: 'Volunteer application approved',
+            text: event?.title || 'Volunteer activity',
+            note: 'You are confirmed. See you there!',
+            at: signup.createdAt,
+          });
+        });
+    }
+
+    // Profile Verification: ID verification result.
+    if (prefs.verification && verification && (verification.status === 'approved' || verification.status === 'rejected')) {
+      const approved = verification.status === 'approved';
+      items.push({
+        id: `verification:${verification.status}:${verification.reviewed_at || verification.created_at || ''}`,
+        type: 'verification',
+        tone: approved ? 'resolved' : 'rejected',
+        heading: approved ? 'ID verified' : 'ID verification rejected',
+        text: approved ? 'Your profile is now verified.' : 'Your ID could not be verified.',
+        note: approved ? '' : `Reason: ${verification.reject_reason || 'Not specified.'} You can submit again.`,
+        at: verification.reviewed_at || verification.created_at || new Date(0).toISOString(),
+      });
+    }
+
+    return items;
+  }, [reports, alerts, news, newsLoading, signups, verification, prefs, user?.email]);
 
   const unreadCount = notifications.filter((item) => !seen.has(item.id)).length;
 
@@ -212,31 +307,21 @@ export function FeedHeader({ user }) {
         <header className="profile-notifications-modal__header">
           <div>
             <h2 id="notificationsTitle">Notifications</h2>
-            <p>Updates about your submitted reports.</p>
+            <p>Updates based on your notification preferences.</p>
           </div>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="profile-notifications-modal__close">&times;</button>
         </header>
         <div className="profile-notifications-modal__body">
           {notifications.length === 0 ? (
-            <p className="profile-notifications-empty">You don’t have any report notifications yet.</p>
+            <p className="profile-notifications-empty">You don’t have any notifications yet.</p>
           ) : (
             [...notifications].sort((a, b) => new Date(b.at) - new Date(a.at)).map((item) => (
               <article className="profile-notification-item" key={item.id}>
-                <span className={`profile-notification-item__status profile-notification-item__status--${item.status}`} aria-hidden="true" />
+                <span className={`profile-notification-item__status profile-notification-item__status--${item.tone}`} aria-hidden="true" />
                 <div>
-                  <strong>
-                    {item.status === 'pending'
-                      ? 'Report pending'
-                      : item.status === 'review'
-                        ? 'Report under review'
-                        : item.status === 'verified'
-                          ? 'Report verified'
-                          : item.status === 'resolved'
-                            ? 'Report resolved'
-                            : 'Report submitted'}
-                  </strong>
-                  <p>{item.title}</p>
-                  <small>{STATUS[item.status]?.note || ''}</small>
+                  <strong>{item.heading}</strong>
+                  <p>{item.text}</p>
+                  {item.note && <small>{item.note}</small>}
                   <time>{formatDateTime(item.at)}</time>
                 </div>
               </article>

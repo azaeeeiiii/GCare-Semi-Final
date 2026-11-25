@@ -291,3 +291,15 @@
     display: none;
   }
 }
+
+.profile-notification-item__status--alert {
+  background: #c2570c;
+}
+
+.profile-notification-item__status--announcement {
+  background: #2f6f9f;
+}
+
+.profile-notification-item__status--rejected {
+  background: #a00000;
+}
