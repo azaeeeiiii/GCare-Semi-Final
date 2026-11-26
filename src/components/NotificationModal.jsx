@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import { btn, useDialog } from './ui';
 
 const OPTIONS = [
-  { key: 'alerts', title: 'Alerts', description: 'Important alerts and emergency updates from GCare.' },
-  { key: 'announcements', title: 'Announcements', description: 'Latest news and notices from the administration.' },
-  { key: 'community', title: 'Community Reports', description: 'Updates on your submitted reports.' },
-  { key: 'volunteer', title: 'Volunteer', description: 'Updates on your volunteer applications.' },
-  { key: 'verification', title: 'Profile Verification', description: 'Updates on your identity verification status.' },
+  { key: 'alerts', title: 'Alerts', description: 'Alerts & Announcements from the GCare team.' },
+  { key: 'announcements', title: 'Announcements', description: 'Announcements from the admin, found in Alerts & Announcements from the GCare team.' },
+  { key: 'community', title: 'My Report Updates', description: 'Updates when your report is under review or has been resolved.' },
+  // CHANGED wording: now covers both new and resolved reports from other residents
+  { key: 'newReports', title: 'Community Report Updates', description: 'Updates when other residents post a new report or when their report has been resolved.' },
+  { key: 'volunteer', title: 'Volunteer', description: 'Updates when your volunteer application has been approved.' },
+  { key: 'verification', title: 'Profile Verification', description: 'Updates on your profile verification, such as ID verification.' },
 ];
 
 export default function NotificationModal({ open, preferences, onSave, onClose }) {

@@ -12,6 +12,11 @@ import { getMyVerification } from '../lib/verification';
 import { useNotificationPrefs } from '../lib/notificationPrefs';
 import { ArrowLeft, btn, useDialog, useGoBack } from './ui';
 
+// How recent a community report (new or resolved) must be to show in the bell,
+// and the max number of those notifications shown.
+const NEW_REPORT_DAYS = 7;
+const MAX_NEW_REPORTS = 20;
+
 function Brand() {
   return (
     <Link to="/" className="brand" aria-label="GCare home">
@@ -88,8 +93,6 @@ export function Header({ onOpenAuth }) {
 }
 
 
-// CHANGED: showHome now defaults to false, so the "Back to home" button
-// no longer appears on About, Contact, Privacy, Terms, etc.
 export function PageHeader({ showHome = false }) {
   const goBack = useGoBack();
   return (
@@ -148,7 +151,7 @@ export function FeedHeader({ user }) {
   const notifications = useMemo(() => {
     const items = [];
 
-    // Community Reports: only when one of your reports is under review or resolved.
+    // My Report Updates: only when one of YOUR reports is under review or resolved.
     if (prefs.community) {
       reports
         .filter((report) => report.mine)
@@ -166,6 +169,53 @@ export function FeedHeader({ user }) {
             to: `/report?tab=mine&report=${encodeURIComponent(report.id)}`,
           });
         }));
+    }
+
+    // Community Report Updates: other residents' reports (new + resolved).
+    if (prefs.newReports) {
+      const cutoff = Date.now() - NEW_REPORT_DAYS * 24 * 60 * 60 * 1000;
+      const isRecent = (iso) => new Date(iso).getTime() >= cutoff;
+      const communityItems = [];
+
+      reports
+        .filter((report) => !report.mine)
+        .forEach((report) => {
+          const link = `/reports?report=${encodeURIComponent(report.id)}`;
+          const where = report.location ? ` · ${report.location}` : '';
+
+          // A resident posted a new report.
+          if (isRecent(report.createdAt)) {
+            communityItems.push({
+              id: `newreport:${report.id}`,
+              type: 'newReports',
+              tone: 'alert',
+              heading: 'New community report',
+              text: report.title,
+              note: `Reported by ${report.authorName}${where}`,
+              at: report.createdAt,
+              to: link,
+            });
+          }
+
+          // That report was marked resolved.
+          (report.timeline || [])
+            .filter((step) => step.status === 'resolved' && isRecent(step.at))
+            .forEach((step) => communityItems.push({
+              id: `communityresolved:${report.id}:${step.at}`,
+              type: 'newReports',
+              tone: 'resolved',
+              heading: 'Community report resolved',
+              text: report.title,
+              note: `Reported by ${report.authorName}${where}`,
+              at: step.at,
+              to: link,
+            }));
+        });
+
+      communityItems
+        .sort((a, b) => new Date(b.at) - new Date(a.at))
+        .slice(0, MAX_NEW_REPORTS)
+        .forEach((item) => items.push(item));
     }
 
     // Alerts: active alerts posted by the GCare team.

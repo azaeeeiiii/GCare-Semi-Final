@@ -7,6 +7,7 @@ export const DEFAULT_NOTIFICATION_PREFS = {
   alerts: true,
   announcements: true,
   community: true,
+  newReports: true, 
   volunteer: true,
   verification: true,
 };
@@ -27,7 +28,6 @@ export function saveNotificationPrefs(email, prefs) {
   try {
     localStorage.setItem(keyFor(email), JSON.stringify(prefs));
   } catch {
-    // Storage can be unavailable (private mode); the in-memory update below still applies.
   }
   window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { email } }));
 }
