@@ -8,7 +8,7 @@ import IdVerification from '../components/IdVerification';
 import { MyVerifiedBadge } from '../components/VerifiedBadge';
 import { deleteAccount, logOut, updateAvatar, updateEmail, updatePassword, updateProfile, useUser } from '../lib/auth';
 import { STATUS, formatDateTime, useReportsState } from '../lib/reports';
-import { useNotificationPrefs } from '../lib/NotificationPrefs';
+import { useNotificationPrefs } from '../lib/notificationPrefs';
 
 const iconProps = {
   viewBox: '0 0 24 24',

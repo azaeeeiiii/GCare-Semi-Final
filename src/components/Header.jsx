@@ -9,7 +9,7 @@ import { useAlerts, ALERT_LEVELS } from '../lib/alerts';
 import { useNews } from '../lib/news';
 import { eventOf, useSignups } from '../lib/volunteer';
 import { getMyVerification } from '../lib/verification';
-import { useNotificationPrefs } from '../lib/NotificationPrefs';
+import { useNotificationPrefs } from '../lib/notificationPrefs';
 import { ArrowLeft, btn, useDialog, useGoBack } from './ui';
 
 function Brand() {
@@ -43,9 +43,7 @@ export function Header({ onOpenAuth }) {
         <Brand />
         <nav className="site-header__nav" aria-label="Account">
           <span className="site-header__user">{user.name}</span>
-          <Link to="/feed" className={btn('navy', 'site-header__btn')}>
-            Go to Feed
-          </Link>
+          {/* REMOVED: the "Go to Feed" button was here */}
           {user.isAdmin && (
             <Link to="/admin" className={btn('outlineDark', 'site-header__btn')}>
               Admin
@@ -163,6 +161,8 @@ export function FeedHeader({ user }) {
             text: report.title,
             note: STATUS[item.status]?.note || '',
             at: item.at,
+            // Opens My Reports with this report selected.
+            to: `/report?tab=mine&report=${encodeURIComponent(report.id)}`,
           });
         }));
     }
@@ -179,6 +179,8 @@ export function FeedHeader({ user }) {
           text: alert.title,
           note: alert.area,
           at: alert.issuedAt,
+          // Opens the Alerts section with this alert expanded.
+          to: `/news?alert=${encodeURIComponent(alert.id)}#alerts`,
         }));
     }
 
@@ -194,6 +196,8 @@ export function FeedHeader({ user }) {
           text: story.title,
           note: story.summary || '',
           at: story.createdAt,
+          // Opens the News & Announcements section with this story expanded.
+          to: `/news?news=${encodeURIComponent(story.id)}#news`,
         }));
     }
 
@@ -211,6 +215,8 @@ export function FeedHeader({ user }) {
             text: event?.title || 'Volunteer activity',
             note: 'You are confirmed. See you there!',
             at: signup.createdAt,
+            // Opens the Volunteer page on the My Activities tab.
+            to: `/volunteer?tab=mine&signup=${encodeURIComponent(signup.id)}`,
           });
         });
     }
@@ -226,6 +232,8 @@ export function FeedHeader({ user }) {
         text: approved ? 'Your profile is now verified.' : 'Your ID could not be verified.',
         note: approved ? '' : `Reason: ${verification.reject_reason || 'Not specified.'} You can submit again.`,
         at: verification.reviewed_at || verification.created_at || new Date(0).toISOString(),
+        // Opens the ID Verification card on the Profile page.
+        to: '/profile#verification',
       });
     }
 
@@ -307,7 +315,7 @@ export function FeedHeader({ user }) {
         <header className="profile-notifications-modal__header">
           <div>
             <h2 id="notificationsTitle">Notifications</h2>
-            <p>Updates based on your notification preferences.</p>
+            <p>Tap a notification to see the details.</p>
           </div>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="profile-notifications-modal__close">&times;</button>
         </header>
@@ -316,7 +324,12 @@ export function FeedHeader({ user }) {
             <p className="profile-notifications-empty">You don’t have any notifications yet.</p>
           ) : (
             [...notifications].sort((a, b) => new Date(b.at) - new Date(a.at)).map((item) => (
-              <article className="profile-notification-item" key={item.id}>
+              <Link
+                to={item.to}
+                key={item.id}
+                className="profile-notification-item profile-notification-item--link"
+                onClick={() => setOpen(false)}
+              >
                 <span className={`profile-notification-item__status profile-notification-item__status--${item.tone}`} aria-hidden="true" />
                 <div>
                   <strong>{item.heading}</strong>
@@ -324,7 +337,8 @@ export function FeedHeader({ user }) {
                   {item.note && <small>{item.note}</small>}
                   <time>{formatDateTime(item.at)}</time>
                 </div>
-              </article>
+                <span className="profile-notification-item__arrow" aria-hidden="true">&rsaquo;</span>
+              </Link>
             ))
           )}
         </div>

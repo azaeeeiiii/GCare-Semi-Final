@@ -59,7 +59,7 @@ function ReportForm({ user, tab, setTab, onPublished }) {
   const [form, setForm] = useState({ title: '', category: '', location: '', summary: '' });
   const [pin, setPin] = useState(DEFAULT_PIN);
   const [photo, setPhoto] = useState('');
-  const [pinned, setPinned] = useState(false); // has the user (or GPS) actually set the pin?
+  const [pinned, setPinned] = useState(false); 
   const [errors, setErrors] = useState({});
   const [sending, setSending] = useState(false);
   const locEdited = useRef(false);
@@ -287,6 +287,13 @@ export default function Report() {
   useEffect(() => {
     document.title = 'Report – GCare';
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('tab') === 'mine') {
+      setTab('mine');
+      setFocusId(searchParams.get('report'));
+    }
+  }, [searchParams]);
 
   function deleted() {
     setToast('Your report was deleted.');

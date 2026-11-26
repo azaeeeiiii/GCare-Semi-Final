@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { btn, useDialog } from './ui';
 
 const OPTIONS = [
-  { key: 'alerts', title: 'Alerts', description: 'Alerts & Announcements from the GCare team.' },
-  { key: 'announcements', title: 'Announcements', description: 'Announcements from the admin, found in Alerts & Announcements from the GCare team.' },
-  { key: 'community', title: 'Community Reports', description: 'Updates when your report is under review or has been resolved.' },
-  { key: 'volunteer', title: 'Volunteer', description: 'Updates when your volunteer application has been approved.' },
-  { key: 'verification', title: 'Profile Verification', description: 'Updates on your profile verification, such as ID verification.' },
+  { key: 'alerts', title: 'Alerts', description: 'Important alerts and emergency updates from GCare.' },
+  { key: 'announcements', title: 'Announcements', description: 'Latest news and notices from the administration.' },
+  { key: 'community', title: 'Community Reports', description: 'Updates on your submitted reports.' },
+  { key: 'volunteer', title: 'Volunteer', description: 'Updates on your volunteer applications.' },
+  { key: 'verification', title: 'Profile Verification', description: 'Updates on your identity verification status.' },
 ];
 
 export default function NotificationModal({ open, preferences, onSave, onClose }) {
