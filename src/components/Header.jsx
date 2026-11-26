@@ -43,7 +43,6 @@ export function Header({ onOpenAuth }) {
         <Brand />
         <nav className="site-header__nav" aria-label="Account">
           <span className="site-header__user">{user.name}</span>
-          {/* REMOVED: the "Go to Feed" button was here */}
           {user.isAdmin && (
             <Link to="/admin" className={btn('outlineDark', 'site-header__btn')}>
               Admin
@@ -89,7 +88,9 @@ export function Header({ onOpenAuth }) {
 }
 
 
-export function PageHeader({ showHome = true }) {
+// CHANGED: showHome now defaults to false, so the "Back to home" button
+// no longer appears on About, Contact, Privacy, Terms, etc.
+export function PageHeader({ showHome = false }) {
   const goBack = useGoBack();
   return (
     <header className="site-header">
