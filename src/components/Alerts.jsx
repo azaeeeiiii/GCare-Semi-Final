@@ -74,7 +74,8 @@ export function AlertModal({ open, onClose, alert }) {
       </div>
 
       <div className="alert-modal__actions">
-      <Link to="/news#alerts" onClick={onClose} className={btn('navy')}>See all alerts</Link>        <button type="button" className={btn('outlineDark')} onClick={onClose}>Close</button>
+        <Link to="/news#alerts" onClick={onClose} className={btn('navy')}>See all alerts</Link>
+        {/* REMOVED: the bottom "Close" button was here */}
       </div>
     </dialog>
   );

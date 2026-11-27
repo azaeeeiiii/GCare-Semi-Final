@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import Assignments from '../components/Assignments';
@@ -67,7 +67,17 @@ function Explore({ user, signups }) {
   );
 }
 
-function MyActivities({ user, signups, setTab }) {
+function MyActivities({ user, signups, setTab, highlightId }) {
+  const mine = user ? signups.filter((s) => s.email === user.email) : [];
+
+  useEffect(() => {
+    if (!highlightId) return undefined;
+    const t = setTimeout(() => {
+      document.getElementById(`signup-${highlightId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+    return () => clearTimeout(t);
+  }, [highlightId, mine.length]);
+
   if (!user) {
     return (
       <p className="rempty">
@@ -75,8 +85,6 @@ function MyActivities({ user, signups, setTab }) {
       </p>
     );
   }
-
-  const mine = signups.filter((s) => s.email === user.email);
 
   return (
     <div className="vlist">
@@ -89,8 +97,13 @@ function MyActivities({ user, signups, setTab }) {
       {mine.map((s) => {
         const e = eventOf(s.eventId);
         if (!e) return null;
+        const highlighted = String(s.id) === String(highlightId);
         return (
-          <article key={s.id} className="vcard vcard--wide">
+          <article
+            key={s.id}
+            id={`signup-${s.id}`}
+            className={`vcard vcard--wide ${highlighted ? 'vcard--highlight' : ''}`.trim()}
+          >
             <div className="vcard__badge"><Badge status={s.status} /></div>
             <h2 className="vcard__title">{e.title}</h2>
             <p className="vcard__strong">{formatEventDate(e.date)} · {e.time}</p>
@@ -111,11 +124,17 @@ function MyActivities({ user, signups, setTab }) {
 export default function Volunteer() {
   const user = useUser();
   const signups = useSignups();
-  const [tab, setTab] = useState('explore');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get('tab') === 'mine' ? 'mine' : 'explore');
+  const highlightId = searchParams.get('signup');
 
   useEffect(() => {
     document.title = 'Volunteer – GCare';
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('tab') === 'mine') setTab('mine');
+  }, [searchParams]);
 
   return (
     <div className="feed">
@@ -123,10 +142,12 @@ export default function Volunteer() {
       <main className="feed__main rpt-main">
         <section className="rpt" aria-label="Volunteer">
           <h1 className="rpt__title">Volunteer</h1>
+
           <Tabs tab={tab} setTab={setTab} user={user} />
           {tab === 'explore' && <Explore user={user} signups={signups} />}
           {tab === 'mine' && <MyActivities user={user} signups={signups} setTab={setTab} />}
           {tab === 'reports' && user && <Assignments />}
+          
         </section>
       </main>
       <BottomNav />

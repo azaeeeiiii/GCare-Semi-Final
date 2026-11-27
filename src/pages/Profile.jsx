@@ -8,6 +8,7 @@ import IdVerification from '../components/IdVerification';
 import { MyVerifiedBadge } from '../components/VerifiedBadge';
 import { deleteAccount, logOut, updateAvatar, updateEmail, updatePassword, updateProfile, useUser } from '../lib/auth';
 import { STATUS, formatDateTime, useReportsState } from '../lib/reports';
+import { useNotificationPrefs } from '../lib/notificationPrefs';
 
 const iconProps = {
   viewBox: '0 0 24 24',
@@ -174,12 +175,7 @@ export default function Profile() {
   const [deleting, setDeleting] = useState(false);
   const [avatarMessage, setAvatarMessage] = useState('');
   const [editingProfile, setEditingProfile] = useState(false);
-  const [notificationPreferences, setNotificationPreferences] = useState({
-    weather: true,
-    emergency: true,
-    community: true,
-    volunteer: false,
-  });
+  const [notificationPreferences, saveNotificationPreferences] = useNotificationPrefs(user?.email);
 
   const avatar = user?.avatar || '';
 
@@ -289,7 +285,7 @@ export default function Profile() {
         <section className="profile-card profile-card--preferences">
           <header><h2><GearIcon /> Preferences</h2><p>Customize your GCare experience</p></header>
           <div className="profile-row"><PinIcon /><div><strong>Saved Locations</strong><span>{locations[0]?.address || 'No saved locations'}</span></div><button type="button" className="profile-button" onClick={() => setLocationsOpen(true)}>Manage</button></div>
-          <div className="profile-row"><BellIcon /><div><strong>Notification Preferences</strong><span>Weather Alerts, Emergency Updates, and more.</span></div><button type="button" className="profile-button" onClick={() => setNotificationsOpen(true)}>Manage</button></div>
+          <div className="profile-row"><BellIcon /><div><strong>Notification Preferences</strong><span>Alerts, Announcements, Community Reports, and more.</span></div><button type="button" className="profile-button" onClick={() => setNotificationsOpen(true)}>Manage</button></div>
           {notice && <p className="profile-form-message" role="status">{notice}</p>}
         </section>
 
@@ -298,7 +294,7 @@ export default function Profile() {
         </div>
       </main>
       <LocationModal open={locationsOpen} locations={locations} onChange={setLocations} onClose={() => setLocationsOpen(false)} />
-      <NotificationModal open={notificationsOpen} preferences={notificationPreferences} onSave={(next) => { setNotificationPreferences(next); setNotice('Notification preferences updated.'); }} onClose={() => setNotificationsOpen(false)} />
+      <NotificationModal open={notificationsOpen} preferences={notificationPreferences} onSave={(next) => { saveNotificationPreferences(next); setNotice('Notification preferences updated.'); }} onClose={() => setNotificationsOpen(false)} />
       <ConfirmModal open={signOutOpen} title="Sign out of GCare?" message="You will need to sign in again to access your account on this device." confirmLabel="Sign Out" onConfirm={signOut} onClose={() => setSignOutOpen(false)} />
       <ConfirmModal open={deleteOpen} title="Delete your account?" message="This action is permanent and cannot be undone." confirmLabel="Delete Account" onConfirm={removeAccount} onClose={() => setDeleteOpen(false)} error={deleteError} confirmDisabled={deleting} />
       <nav className="feed-nav" aria-label="Main">{NAV.map((item) => <Link key={item.to} to={item.to} className="feed-nav__item" aria-current={item.to === '/profile' ? 'page' : undefined}>{item.icon}{item.label}</Link>)}</nav>

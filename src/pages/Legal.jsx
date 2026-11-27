@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/Header';
 import Footer from '../components/Footer';
 import { LegalSections } from '../components/LegalModal';
-import { ContactLink, LegalRef, PageHero, btn } from '../components/ui';
+import { ContactLink, LegalRef, PageHero } from '../components/ui';
 import { LEGAL } from '../content';
 
 const LABEL = { terms: 'Terms of Use', privacy: 'Privacy Policy' };
@@ -64,7 +63,7 @@ export default function Legal({ which }) {
                 Also read our <LegalRef to={data.alsoRead}>{LABEL[data.alsoRead]}</LegalRef>, or get in touch through
                 the <ContactLink />.
               </p>
-              <Link to="/" className={btn('navy')}>Back to home</Link>
+              {/* REMOVED: the "Back to home" button was here */}
             </aside>
           </article>
         </div>

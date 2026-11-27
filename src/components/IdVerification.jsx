@@ -51,7 +51,7 @@ export default function IdVerification() {
   const canSubmit = status === 'unverified' || status === 'rejected';
 
   return (
-    <section className="profile-card">
+    <section className="profile-card" id="verification">
       <header>
         <h2>ID Verification</h2>
         <p>Verify your identity so the GCare team can trust your reports.</p>
