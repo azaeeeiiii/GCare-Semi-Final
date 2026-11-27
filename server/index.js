@@ -14,7 +14,6 @@ app.use(express.json({ limit: '25mb' }));
 
 const h = (fn) => (req, res, next) => fn(req, res).catch(next);
 const str = (v, n) => String(v ?? '').trim().slice(0, n);
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const tokenOf = (req) => (req.headers.authorization || '').replace('Bearer ', '');
 
@@ -42,6 +41,7 @@ async function requireUser(req, res, next) {
     next(err);
   }
 }
+
 async function optionalUser(req, res, next) {
   try {
     req.user = null;
@@ -78,7 +78,6 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'gcare-server', time: new Date().toISOString() });
 });
 
-
 const CATEGORY_IDS = ['flood', 'fire', 'typhoon', 'landslide', 'earthquake', 'road', 'power', 'water', 'medical', 'safety', 'other'];
 const USER_TYPES = ['', 'Student', 'Homeowner / Resident', 'Other'];
 const NEWS_CATS = ['update', 'community', 'safety', 'event', 'announcement'];
@@ -114,6 +113,35 @@ async function nameOf(user) {
   return prof?.name || user.user_metadata?.name || '';
 }
 
+const DUE_MS = 24 * 60 * 60 * 1000;
+
+async function expireOverdue() {
+  const cutoff = new Date(Date.now() - DUE_MS).toISOString();
+  await admin
+    .from('reports')
+    .update({ assigned_to: null, assigned_at: null, proof_status: 'none' })
+    .not('assigned_to', 'is', null)
+    .in('proof_status', ['none', 'rejected'])
+    .neq('status', 'resolved')
+    .lt('assigned_at', cutoff);
+}
+
+function sanitizeReport(r, viewerId, isAdmin) {
+  const out = { ...r, is_assigned: !!r.assigned_to };
+  if (isAdmin) return out;
+  const own = !!r.assigned_to && r.assigned_to === viewerId;
+  if (r.proof_status !== 'approved' && !own) {
+    delete out.proof_url;
+    delete out.proof_note;
+    delete out.proof_submitted_at;
+    delete out.proof_reject_reason;
+  }
+  if (!own) {
+    delete out.assigned_to;
+    delete out.assigned_at;
+  }
+  return out;
+}
 
 app.get('/api/alerts', h(async (req, res) => {
   const { data, error } = await admin.from('alerts').select('*').order('issued_at', { ascending: false });
@@ -145,30 +173,22 @@ app.get('/api/events', h(async (req, res) => {
   res.json({ events: ev.data, taken });
 }));
 
-
 app.post('/api/contact', optionalUser, h(async (req, res) => {
   const category = str(req.body?.category, 60);
   const message = str(req.body?.message, 2000);
   if (!category) return res.status(400).json({ error: 'Choose a category.' });
   if (message.length < 3) return res.status(400).json({ error: 'Message is too short.' });
 
-  const email = req.user?.email || str(req.body?.email, 160);
-  if (!EMAIL_RE.test(email)) {
-    return res.status(400).json({ error: 'Please enter a valid email address so we can reply to you.' });
-  }
-  const name = req.user ? (await nameOf(req.user)) || str(req.body?.name, 80) : str(req.body?.name, 80);
-
   const { error } = await admin.from('contact_messages').insert({
     category,
     message,
-    author_name: name,
-    author_email: email,
+    author_name: req.user ? await nameOf(req.user) : '',
+    author_email: req.user?.email || '',
     user_id: req.user?.id || null,
   });
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 }));
-
 
 app.get('/api/me', requireUser, h(async (req, res) => {
   const { data, error } = await admin
@@ -272,18 +292,17 @@ app.post('/api/verification', requireUser, h(async (req, res) => {
   res.json({ row: data });
 }));
 
-
 app.get('/api/verified', requireUser, h(async (req, res) => {
   const { data, error } = await admin.from('verified_users').select('user_id');
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ids: (data || []).map((r) => r.user_id) });
 }));
 
-
 app.get('/api/reports', requireUser, h(async (req, res) => {
   const { data, error } = await admin.from('reports').select('*').order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
-  res.json({ reports: data, uid: req.user.id });
+  const isAdmin = await isAdminToken(req.token);
+  res.json({ reports: data.map((r) => sanitizeReport(r, req.user.id, isAdmin)), uid: req.user.id });
 }));
 
 app.post('/api/reports', requireUser, h(async (req, res) => {
@@ -353,6 +372,82 @@ app.delete('/api/reports/:id', requireUser, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
+app.get('/api/assignments', requireUser, h(async (req, res) => {
+  const { data, error } = await admin
+    .from('reports')
+    .select('*')
+    .eq('assigned_to', req.user.id)
+    .order('assigned_at', { ascending: false });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ rows: data });
+}));
+
+app.post('/api/assignments/:id/claim', requireUser, h(async (req, res) => {
+  const { count } = await admin
+    .from('signups')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', req.user.id)
+    .eq('status', 'approved');
+  if (!count) {
+    return res.status(403).json({ error: 'Only approved volunteers can take reports. Sign up for an event and wait for the admin to approve you.' });
+  }
+
+  const { data: report, error: findError } = await admin
+    .from('reports')
+    .select('status, timeline, assigned_to, author_id')
+    .eq('id', req.params.id)
+    .single();
+  if (findError || !report) return res.status(404).json({ error: 'Report not found.' });
+  if (report.status !== 'review') return res.status(409).json({ error: 'This report is not open for volunteers yet. Wait for the admin to start the review.' });
+  if (report.assigned_to) return res.status(409).json({ error: 'Someone is already handling this report.' });
+  if (report.author_id === req.user.id) return res.status(400).json({ error: 'You cannot handle your own report.' });
+
+  const now = new Date().toISOString();
+  const update = { assigned_to: req.user.id, assigned_at: now, proof_status: 'none' };
+
+  const { error } = await admin.from('reports').update(update).eq('id', req.params.id).is('assigned_to', null);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+}));
+
+app.post('/api/assignments/:id/proof', requireUser, h(async (req, res) => {
+  const note = str(req.body?.note, 500);
+
+  const { data: report } = await admin
+    .from('reports')
+    .select('id, status, assigned_to, proof_status')
+    .eq('id', req.params.id)
+    .maybeSingle();
+  if (!report || report.assigned_to !== req.user.id) {
+    return res.status(403).json({ error: 'This report is not assigned to you.' });
+  }
+  if (report.status !== 'review') return res.status(409).json({ error: 'This report is no longer under review.' });
+  if (!['none', 'rejected'].includes(report.proof_status)) {
+    return res.status(409).json({ error: 'Proof was already submitted.' });
+  }
+
+  let proof_url = '';
+  try {
+    proof_url = await uploadPublic('report-images', req.body?.photo, 'proof/');
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+  if (!proof_url) return res.status(400).json({ error: 'A proof photo (JPG, PNG, or WEBP) is required.' });
+
+  const { error } = await admin
+    .from('reports')
+    .update({
+      proof_url,
+      proof_note: note || null,
+      proof_submitted_at: new Date().toISOString(),
+      proof_status: 'submitted',
+      proof_reject_reason: null,
+    })
+    .eq('id', report.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+}));
+
 app.get('/api/signups', requireUser, h(async (req, res) => {
   const isAdmin = await isAdminToken(req.token);
   let q = admin.from('signups').select('*').order('created_at', { ascending: true });
@@ -415,7 +510,6 @@ app.post('/api/chat', requireUser, h(async (req, res) => {
   if (!r.ok) return res.status(502).json({ error: 'Chat service failed.' });
   res.json({ reply: data.reply });
 }));
-
 
 app.get('/api/admin/contact', requireAdmin, h(async (req, res) => {
   const { data, error } = await admin
@@ -484,7 +578,10 @@ app.post('/api/admin/verifications/:userId/review', requireAdmin, h(async (req, 
 
 app.patch('/api/admin/reports/:id/status', requireAdmin, h(async (req, res) => {
   const { status } = req.body || {};
-  if (!['pending', 'review', 'resolved'].includes(status)) {
+  if (status === 'resolved') {
+    return res.status(400).json({ error: 'A report becomes resolved only when you approve a volunteer’s proof photo.' });
+  }
+  if (!['pending', 'review'].includes(status)) {
     return res.status(400).json({ error: 'Invalid status.' });
   }
   const { data: report, error: findError } = await admin
@@ -503,6 +600,88 @@ app.patch('/api/admin/reports/:id/status', requireAdmin, h(async (req, res) => {
 
 app.delete('/api/admin/reports/:id', requireAdmin, h(async (req, res) => {
   const { error } = await admin.from('reports').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+}));
+
+app.get('/api/admin/volunteers', requireAdmin, h(async (req, res) => {
+  const { data, error } = await admin
+    .from('signups')
+    .select('user_id, name, email')
+    .eq('status', 'approved');
+  if (error) return res.status(500).json({ error: error.message });
+
+  const seen = new Map();
+  (data || []).forEach((s) => {
+    if (s.user_id && !seen.has(s.user_id)) seen.set(s.user_id, { user_id: s.user_id, name: s.name || s.email, email: s.email });
+  });
+  res.json({ rows: [...seen.values()] });
+}));
+
+app.post('/api/admin/reports/:id/assign', requireAdmin, h(async (req, res) => {
+  const volunteerId = str(req.body?.volunteerId, 60);
+  if (!volunteerId) return res.status(400).json({ error: 'Choose a volunteer.' });
+
+  const { count } = await admin
+    .from('signups')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', volunteerId)
+    .eq('status', 'approved');
+  if (!count) return res.status(400).json({ error: 'This user is not an approved volunteer.' });
+
+  const { data: report, error: findError } = await admin
+    .from('reports')
+    .select('status, timeline, proof_status')
+    .eq('id', req.params.id)
+    .single();
+  if (findError || !report) return res.status(404).json({ error: 'Report not found.' });
+  if (report.status === 'resolved') return res.status(409).json({ error: 'This report is already resolved.' });
+  if (['submitted', 'approved'].includes(report.proof_status)) {
+    return res.status(409).json({ error: 'A proof was already submitted. Approve or reject it first.' });
+  }
+
+  const now = new Date().toISOString();
+  const update = {
+    assigned_to: volunteerId,
+    assigned_at: now,
+    proof_status: 'none',
+    proof_url: null,
+    proof_note: null,
+    proof_submitted_at: null,
+    proof_reject_reason: null,
+  };
+  if (report.status === 'pending') {
+    update.status = 'review';
+    update.timeline = [...(Array.isArray(report.timeline) ? report.timeline : []), { status: 'review', at: now }];
+  }
+
+  const { error } = await admin.from('reports').update(update).eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+}));
+
+app.post('/api/admin/reports/:id/proof', requireAdmin, h(async (req, res) => {
+  const decision = String(req.body?.decision || '');
+  const reason = str(req.body?.reason, 300);
+  if (!['approve', 'reject'].includes(decision)) return res.status(400).json({ error: 'Invalid decision.' });
+
+  const { data: report, error: findError } = await admin
+    .from('reports')
+    .select('status, timeline, proof_status')
+    .eq('id', req.params.id)
+    .single();
+  if (findError || !report) return res.status(404).json({ error: 'Report not found.' });
+  if (report.proof_status !== 'submitted') return res.status(409).json({ error: 'There is no proof waiting for review.' });
+
+  let update;
+  if (decision === 'approve') {
+    const timeline = [...(Array.isArray(report.timeline) ? report.timeline : []), { status: 'resolved', at: new Date().toISOString() }];
+    update = { proof_status: 'approved', status: 'resolved', timeline };
+  } else {
+    update = { proof_status: 'rejected', proof_reject_reason: reason || 'No reason given.' };
+  }
+
+  const { error } = await admin.from('reports').update(update).eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 }));
@@ -574,7 +753,6 @@ app.delete('/api/admin/alerts/:id', requireAdmin, h(async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 }));
-
 
 app.get('/api/admin/news', requireAdmin, h(async (req, res) => {
   const { data, error } = await admin.from('news').select('*').order('created_at', { ascending: false });

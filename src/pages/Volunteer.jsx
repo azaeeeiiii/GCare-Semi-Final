@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FeedHeader } from '../components/Header';
 import BottomNav from '../components/BottomNav';
+import Assignments from '../components/Assignments';
 import { useUser } from '../lib/auth';
 import { EVENTS, SIGNUP_STATUS, cancelSignup, eventOf, formatEventDate, signUp, slotsLeft, useSignups } from '../lib/volunteer';
 
@@ -9,10 +10,12 @@ import { EVENTS, SIGNUP_STATUS, cancelSignup, eventOf, formatEventDate, signUp, 
 const ic = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, width: 16, height: 16 };
 const PinIcon = () => <svg {...ic}><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>;
 
-function Tabs({ tab, setTab }) {
+function Tabs({ tab, setTab, user }) {
+  const items = [['explore', 'Explore'], ['mine', 'My Activities']];
+  if (user) items.push(['reports', 'Reports']);
   return (
     <div className="vtabs" role="tablist">
-      {[['explore', 'Explore'], ['mine', 'My Activities']].map(([id, label]) => (
+      {items.map(([id, label]) => (
         <button key={id} type="button" role="tab" aria-selected={tab === id} className={`vtabs__btn ${tab === id ? 'vtabs__btn--on' : ''}`.trim()} onClick={() => setTab(id)}>
           {label}
         </button>
@@ -120,8 +123,10 @@ export default function Volunteer() {
       <main className="feed__main rpt-main">
         <section className="rpt" aria-label="Volunteer">
           <h1 className="rpt__title">Volunteer</h1>
-          <Tabs tab={tab} setTab={setTab} />
-          {tab === 'explore' ? <Explore user={user} signups={signups} /> : <MyActivities user={user} signups={signups} setTab={setTab} />}
+          <Tabs tab={tab} setTab={setTab} user={user} />
+          {tab === 'explore' && <Explore user={user} signups={signups} />}
+          {tab === 'mine' && <MyActivities user={user} signups={signups} setTab={setTab} />}
+          {tab === 'reports' && user && <Assignments />}
         </section>
       </main>
       <BottomNav />

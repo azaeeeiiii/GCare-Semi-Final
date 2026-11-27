@@ -53,7 +53,9 @@ export default function Feed() {
         <section className="feed-panel feed-news" aria-labelledby="newsTitle">
           <header className="feed-panel__head">
             <h1 id="newsTitle" className="feed-panel__title"><ReportsIcon />Latest Reports</h1>
-            <Link to="/reports" className="feed-pill feed-pill--light">View All<ArrowRight className="arrow-right-small" /></Link>
+            {items.length > LATEST_COUNT && (
+              <Link to="/reports" className="feed-news__more">See all {items.length} reports<ArrowRight className="arrow-right-small" /></Link>
+            )}
           </header>
 
           <Link to="/news" className="feed-announce">
@@ -72,9 +74,7 @@ export default function Feed() {
             {latest.map((item) => (
               <ReportCard key={item.id} item={item} selected={item.id === selectedId} onSelect={(id) => select(id, true)} />
             ))}
-            {items.length > LATEST_COUNT && (
-              <Link to="/reports" className="feed-news__more">See all {items.length} reports<ArrowRight className="arrow-right-small" /></Link>
-            )}
+          
           </div>
         </section>
 

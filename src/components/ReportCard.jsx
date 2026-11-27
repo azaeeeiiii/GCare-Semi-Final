@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ArrowRight } from './ui';
 import { VerifiedMark } from './VerifiedBadge';
-import { STATUS } from '../lib/reports';
+import { STATUS, formatDate } from '../lib/reports';
 
 const svg = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
 
@@ -41,10 +41,20 @@ export default function ReportCard({ item, selected = false, onSelect }) {
         <p className="news-card__where">{item.location}</p>
         <p className={`news-card__text ${open ? '' : 'news-card__text--clamp'}`.trim()}>{item.excerpt}</p>
         {open && (
-          <p className="news-card__by">
-            Reported by {item.author}
-            <VerifiedMark userId={item.authorId} size={14} />
-          </p>
+          <>
+            <p className="news-card__by">
+              Reported by {item.author}
+              <VerifiedMark userId={item.authorId} size={14} />
+            </p>
+            {item.proofStatus === 'approved' && item.proofUrl && (
+              <div className="news-card__proof">
+                <p className="news-card__by"><strong>Proof of resolution</strong></p>
+                <img src={item.proofUrl} alt="Proof of resolution" className="news-card__img" loading="lazy" />
+                {item.proofNote && <p className="news-card__text">{item.proofNote}</p>}
+                {item.resolvedAt && <p className="news-card__by">Resolved on {formatDate(item.resolvedAt)}</p>}
+              </div>
+            )}
+          </>
         )}
       </div>
 

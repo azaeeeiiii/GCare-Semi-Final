@@ -260,6 +260,16 @@ function MyReports({ tab, setTab, focusId, onDeleted }) {
               <h3>Report Details</h3>
               <p>{current.summary}</p>
               <MiniMap lat={current.lat} lng={current.lng} />
+
+              {current.proofStatus === 'approved' && current.proofUrl && (
+                <>
+                  <h3>Proof of Resolution</h3>
+                  <img src={current.proofUrl} alt="Proof of resolution" style={{ width: '100%', borderRadius: 12 }} loading="lazy" />
+                  {current.proofNote && <p>{current.proofNote}</p>}
+                  {current.resolvedAt && <p className="rnote">Resolved on {formatDate(current.resolvedAt)}</p>}
+                </>
+              )}
+
               <h3>Report Timeline</h3>
               <Timeline report={current} />
               <p className="rnote">You will be notified once there are updates on your report.</p>

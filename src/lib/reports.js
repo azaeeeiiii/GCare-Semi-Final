@@ -21,15 +21,14 @@ export const CATEGORIES = [
 ];
 
 export const STATUS = {
-  pending: { label: 'Pending', note: 'Waiting for the admin to pick up your report.' },
-  review: { label: 'Under Review', note: 'Our team is checking this report.' },
-  resolved: { label: 'Resolved', note: 'The admin marked this report as resolved.' },
+  pending: { label: 'Pending', note: 'Waiting for a volunteer or the admin to pick up your report.' },
+  review: { label: 'Under Review', note: 'A volunteer is handling this report.' },
+  resolved: { label: 'Resolved', note: 'The report was resolved and verified by the admin.' },
 };
 
 export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
 export const groupOf = (id) => categoryOf(id).group;
 
-/* ---------- API helper (React -> Express) ---------- */
 async function api(path, options = {}) {
   const { data } = await supabase.auth.getSession();
   const token = data?.session?.access_token;
@@ -51,6 +50,15 @@ async function api(path, options = {}) {
   return body;
 }
 
+export function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('Could not read the image.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 /* ---------- Store ---------- */
 let state = { reports: [], loading: true, error: '' };
 const listeners = new Set();
@@ -61,22 +69,36 @@ const emit = (next) => {
   listeners.forEach((l) => l());
 };
 
-const fromRow = (r, uid) => ({
-  id: r.id,
-  title: r.title,
-  category: r.category,
-  location: r.location,
-  summary: r.summary,
-  photo: r.photo_url || '',
-  lat: r.lat,
-  lng: r.lng,
-  authorId: r.author_id,
-  authorName: r.author_name || 'Resident',
-  mine: !!uid && r.author_id === uid,
-  status: r.status,
-  createdAt: r.created_at,
-  timeline: Array.isArray(r.timeline) && r.timeline.length ? r.timeline : [{ status: r.status, at: r.created_at }],
-});
+const fromRow = (r, uid) => {
+  const timeline = Array.isArray(r.timeline) && r.timeline.length ? r.timeline : [{ status: r.status, at: r.created_at }];
+  const resolvedAt = [...timeline].reverse().find((t) => t.status === 'resolved')?.at || null;
+  return {
+    id: r.id,
+    title: r.title,
+    category: r.category,
+    location: r.location,
+    summary: r.summary,
+    photo: r.photo_url || '',
+    lat: r.lat,
+    lng: r.lng,
+    authorId: r.author_id,
+    authorName: r.author_name || 'Resident',
+    mine: !!uid && r.author_id === uid,
+    status: r.status,
+    createdAt: r.created_at,
+    timeline,
+    assignedTo: r.assigned_to || null,
+    assignedToMe: !!uid && r.assigned_to === uid,
+    assignedAt: r.assigned_at || null,
+    isAssigned: !!r.is_assigned || !!r.assigned_to,
+    proofStatus: r.proof_status || 'none',
+    proofUrl: r.proof_url || '',
+    proofNote: r.proof_note || '',
+    proofSubmittedAt: r.proof_submitted_at || null,
+    proofRejectReason: r.proof_reject_reason || '',
+    resolvedAt,
+  };
+};
 
 export async function refreshReports() {
   const { data: sess } = await supabase.auth.getSession();
@@ -98,7 +120,7 @@ function start() {
   refreshReports();
   supabase.auth.onAuthStateChange(() => setTimeout(refreshReports, 0));
   window.addEventListener('focus', refreshReports);
-  setInterval(refreshReports, 15000); 
+  setInterval(refreshReports, 15000);
 }
 
 const subscribe = (cb) => {
@@ -144,6 +166,57 @@ export async function deleteReport(id) {
   await refreshReports();
 }
 
+export async function listVolunteers() {
+  try {
+    const { rows } = await api('/api/admin/volunteers');
+    return { rows };
+  } catch (err) {
+    return { rows: [], error: err.message };
+  }
+}
+
+export async function assignReport(id, volunteerId) {
+  try {
+    await api(`/api/admin/reports/${id}/assign`, { method: 'POST', body: JSON.stringify({ volunteerId }) });
+    await refreshReports();
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function reviewProof(id, decision, reason = '') {
+  try {
+    await api(`/api/admin/reports/${id}/proof`, { method: 'POST', body: JSON.stringify({ decision, reason }) });
+    await refreshReports();
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function claimReport(id) {
+  try {
+    await api(`/api/assignments/${id}/claim`, { method: 'POST' });
+    await refreshReports();
+    return { ok: true };
+  } catch (err) {
+    await refreshReports();
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function submitProof(id, photo, note = '') {
+  try {
+    await api(`/api/assignments/${id}/proof`, { method: 'POST', body: JSON.stringify({ photo, note }) });
+    await refreshReports();
+    return { ok: true };
+  } catch (err) {
+    await refreshReports();
+    return { ok: false, error: err.message };
+  }
+}
+
 export const DELETE_REASONS = [
   { id: 'typo', label: 'Typo or mistake in the report' },
   { id: 'wrong_location', label: 'Wrong location or pin' },
@@ -166,6 +239,10 @@ export const formatDate = (iso) =>
 export const formatDateTime = (iso) =>
   `${formatDate(iso)} • ${new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
 
+export const DUE_MS = 24 * 60 * 60 * 1000;
+
+export const dueAt = (r) => new Date(new Date(r.assignedAt).getTime() + DUE_MS).toISOString();
+
 export function toFeedItem(r) {
   const cat = categoryOf(r.category);
   return {
@@ -184,5 +261,9 @@ export function toFeedItem(r) {
     lng: r.lng,
     status: r.status,
     createdAt: r.createdAt,
+    proofStatus: r.proofStatus,
+    proofUrl: r.proofUrl,
+    proofNote: r.proofNote,
+    resolvedAt: r.resolvedAt,
   };
 }
